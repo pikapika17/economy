@@ -289,11 +289,7 @@ def export_to_dict(user_id):
 	cur.execute("SELECT nome FROM categorias WHERE user_id = %s", (int(user_id),))
 	dados["categorias"] = [r["nome"] for r in cur.fetchall()]
 
-	cur.execute("""
-		SELECT nome, inicial, total, taxa, prestacao
-		FROM dividas
-		WHERE user_id = %s
-	""", (int(user_id),))
+	cur.execute("SELECT nome, inicial, total, taxa, prestacao FROM dividas WHERE user_id = %s", (int(user_id),))
 	dados["dividas"] = {
 		r["nome"]: {
 			"inicial": r["inicial"],
@@ -327,11 +323,7 @@ def export_to_dict(user_id):
 	dados["metas"] = list(cur.fetchall())
 
 	dados["meses"] = {}
-	cur.execute("""
-		SELECT mes, nome, valor, categoria, pago
-		FROM despesas
-		WHERE user_id = %s
-	""", (int(user_id),))
+	cur.execute("SELECT mes, nome, valor, categoria, pago FROM despesas WHERE user_id = %s", (int(user_id),))
 
 	for r in cur.fetchall():
 		mes = r["mes"]
@@ -554,70 +546,70 @@ def delete_divida_db(user_id, nome):
 	
 # ---------------- PENDENTES (SQL DIRETO) ----------------
 
-def add_pendente_db(nome, valor_mensal, desde, notas):
-	conn = get_connection()
-	cur = conn.cursor()
+def add_pendente_db(user_id, nome, valor_mensal, desde, notas):
+    conn = get_connection()
+    cur = conn.cursor()
 
-	cur.execute("""
-		INSERT INTO pendentes (nome, valor_mensal, desde, notas)
-		VALUES (%s, %s, %s, %s)
-	""", (nome, float(valor_mensal), desde, notas))
+    cur.execute("""
+        INSERT INTO pendentes (user_id, nome, valor_mensal, desde, notas)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (int(user_id), nome, float(valor_mensal), desde, notas))
 
-	conn.commit()
-	conn.close()
-
-
-def update_pendente_db(nome_antigo, novo_nome, valor_mensal, desde, notas):
-	conn = get_connection()
-	cur = conn.cursor()
-
-	cur.execute("""
-		UPDATE pendentes
-		SET nome = %s, valor_mensal = %s, desde = %s, notas = %s
-		WHERE nome = %s
-	""", (novo_nome, float(valor_mensal), desde, notas, nome_antigo))
-
-	conn.commit()
-	conn.close()
+    conn.commit()
+    conn.close()
 
 
-def delete_pendente_db(nome):
-	conn = get_connection()
-	cur = conn.cursor()
+def update_pendente_db(user_id, nome_antigo, novo_nome, valor_mensal, desde, notas):
+    conn = get_connection()
+    cur = conn.cursor()
 
-	cur.execute("""
-		DELETE FROM pendentes
-		WHERE nome = %s
-	""", (nome,))
+    cur.execute("""
+        UPDATE pendentes
+        SET nome = %s, valor_mensal = %s, desde = %s, notas = %s
+        WHERE user_id = %s AND nome = %s
+    """, (novo_nome, float(valor_mensal), desde, notas, int(user_id), nome_antigo))
 
-	conn.commit()
-	conn.close()
+    conn.commit()
+    conn.close()
 
 
-def convert_pendente_to_divida_db(nome, total, novo_nome_divida=None):
-	conn = get_connection()
-	cur = conn.cursor()
+def delete_pendente_db(user_id, nome):
+    conn = get_connection()
+    cur = conn.cursor()
 
-	nome_divida = novo_nome_divida or nome
+    cur.execute("""
+        DELETE FROM pendentes
+        WHERE user_id = %s AND nome = %s
+    """, (int(user_id), nome))
 
-	try:
-		cur.execute("""
-			INSERT INTO dividas (nome, inicial, total, taxa, prestacao)
-			VALUES (%s, %s, %s, %s, %s)
-		""", (nome_divida, float(total), float(total), 0.0, 0.0))
+    conn.commit()
+    conn.close()
 
-		cur.execute("""
-			DELETE FROM pendentes
-			WHERE nome = %s
-		""", (nome,))
 
-		conn.commit()
-	except Exception:
-		conn.rollback()
-		raise
-	finally:
-		conn.close()
-		
+def convert_pendente_to_divida_db(user_id, nome, total, novo_nome_divida=None):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    nome_divida = novo_nome_divida or nome
+
+    try:
+        cur.execute("""
+            INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (int(user_id), nome_divida, float(total), float(total), 0.0, 0.0))
+
+        cur.execute("""
+            DELETE FROM pendentes
+            WHERE user_id = %s AND nome = %s
+        """, (int(user_id), nome))
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
 # ---------------- METAS (SQL DIRETO) ----------------
 
 def add_meta_db(nome, tipo, alvo):

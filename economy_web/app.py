@@ -572,7 +572,7 @@ def add_pendente():
 
     try:
         valor_mensal = float(valor_txt)
-        add_pendente_db(nome, valor_mensal, desde, notas)
+        add_pendente_db(session["user_id"], nome, valor_mensal, desde, notas)
     except ValueError:
         return redirect("/pendentes")
     except Exception as e:
@@ -600,7 +600,7 @@ def update_pendente(nome):
 
     try:
         valor_mensal = float(valor_txt)
-        update_pendente_db(nome, novo_nome, valor_mensal, desde, notas)
+        update_pendente_db(session["user_id"], nome, novo_nome, valor_mensal, desde, notas)
     except ValueError:
         return redirect("/pendentes")
     except Exception as e:
@@ -616,7 +616,7 @@ def update_pendente(nome):
 @login_required
 def delete_pendente(nome):
     try:
-        delete_pendente_db(nome)
+        delete_pendente_db(session["user_id"], nome)
     except Exception as e:
         app.logger.exception("Erro ao remover pendente")
         flash(f"Erro ao remover pendente: {e}", "error")
@@ -647,7 +647,7 @@ def convert_pendente(nome):
         nome_divida = f"{nome} (pendente)"
 
     try:
-        convert_pendente_to_divida_db(nome, total, nome_divida)
+        convert_pendente_to_divida_db(session["user_id"], nome, total, nome_divida)
     except Exception as e:
         app.logger.exception("Erro ao converter pendente")
         flash(f"Erro ao converter pendente: {e}", "error")
