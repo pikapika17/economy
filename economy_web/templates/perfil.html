@@ -15,7 +15,7 @@
 			<input type="email" name="email" value="{{ user.email or '' }}" placeholder="Email" required>
 			<input type="date" name="birth_date" value="{{ user.birth_date if user.birth_date else '' }}">
 			
-			<select name="country" required>
+			<select name="country" class="searchable-select" required>
 				<option value="">País</option>
 				{% for country in countries %}
 					<option value="{{ country }}" {% if user.country == country %}selected{% endif %}>
@@ -30,7 +30,7 @@
 				<option value="de" {% if user.language == "de" %}selected{% endif %}>Deutsch</option>
 			</select>
 
-			<select name="currency" required>
+			<select name="currency" class="searchable-select" required>
 				{% for currency in currencies %}
 					<option value="{{ currency }}" {% if user.currency == currency %}selected{% endif %}>
 						{{ currency }}

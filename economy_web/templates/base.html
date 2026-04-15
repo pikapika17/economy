@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 	<title>{% block title %}Finanças{% endblock %}</title>
 	<style>
 		:root {
@@ -545,6 +546,39 @@
 			}
 		}
 
+		.ts-wrapper.single .ts-control,
+		.ts-wrapper.multi .ts-control {
+			background: #111827;
+			border: 1px solid rgba(255,255,255,0.08);
+			color: #fff;
+			border-radius: 12px;
+			padding: 10px 12px;
+			min-height: 44px;
+			box-shadow: none;
+		}
+
+		.ts-wrapper.single .ts-control input,
+		.ts-wrapper.multi .ts-control input {
+			color: #fff;
+		}
+
+		.ts-dropdown {
+			background: #111827;
+			border: 1px solid rgba(255,255,255,0.08);
+			border-radius: 12px;
+			color: #fff;
+			overflow: hidden;
+		}
+
+		.ts-dropdown .option,
+		.ts-dropdown .active {
+			padding: 10px 12px;
+		}
+
+		.ts-dropdown .active {
+			background: rgba(255,255,255,0.06);
+		}
+
 	</style>
 </head>
 <body>
@@ -616,6 +650,27 @@
 				closeSidebar();
 			}
 		});
+	</script>
+
+	<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+	<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const searchableSelects = document.querySelectorAll(".searchable-select");
+
+		searchableSelects.forEach(function(select) {
+			new TomSelect(select, {
+				create: false,
+				sortField: {
+					field: "text",
+					direction: "asc"
+				},
+				maxOptions: 300,
+				closeAfterSelect: true,
+				allowEmptyOption: true
+			});
+		});
+	});
 	</script>
 </body>
 </html>
