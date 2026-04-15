@@ -1004,14 +1004,18 @@ def admin_delete_user(username):
     return redirect(url_for("admin_users"))
 
 
-app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     erro = None
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
-        user = authenticate_user(username, password)
+        try:
+            user = authenticate_user(username, password)
+        except Exception:
+            erro = "Erro interno a validar credenciais. Tenta novamente."
+            return render_template("login.html", erro=erro), 500
 
         if user:
             session["logged_in"] = True

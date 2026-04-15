@@ -104,7 +104,7 @@ def init_db():
 	)
 	""")
 
-	cur.execute("""
+cur.execute("""
 	CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		username TEXT NOT NULL UNIQUE,
@@ -135,6 +135,7 @@ def ensure_default_admin(username, password):
 
 
 def get_user_by_username(username):
+	init_db()
 	conn = get_connection()
 	cur = conn.cursor()
 	cur.execute("SELECT id, username, password_hash, is_admin FROM users WHERE username = ?", (username,))
@@ -159,6 +160,7 @@ def authenticate_user(username, password):
 
 
 def list_users():
+	init_db()
 	conn = get_connection()
 	cur = conn.cursor()
 	cur.execute("SELECT id, username, is_admin FROM users ORDER BY username")
@@ -168,6 +170,7 @@ def list_users():
 
 
 def add_user(username, password, is_admin=False):
+	init_db()
 	conn = get_connection()
 	cur = conn.cursor()
 	cur.execute(
@@ -179,12 +182,13 @@ def add_user(username, password, is_admin=False):
 
 
 def delete_user(username):
+	init_db()
 	conn = get_connection()
 	cur = conn.cursor()
 	cur.execute("DELETE FROM users WHERE username = ?", (username,))
 	conn.commit()
 	conn.close()
-
+	
 
 def set_config(key, value):
 	conn = get_connection()
