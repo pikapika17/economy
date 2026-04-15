@@ -30,14 +30,14 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS config (
-		key TEXT PRIMARY KEY,
+		`key` VARCHAR(255) PRIMARY KEY,
 		value TEXT
 	)
 	""")
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS salarios (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL UNIQUE,
 		valor REAL NOT NULL
 	)
@@ -45,7 +45,7 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS contribuicoes (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL UNIQUE,
 		valor REAL NOT NULL
 	)
@@ -53,14 +53,14 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS categorias (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL UNIQUE
 	)
 	""")
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS despesas (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		mes TEXT NOT NULL,
 		nome TEXT NOT NULL,
 		valor REAL NOT NULL,
@@ -71,7 +71,7 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS dividas (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL UNIQUE,
 		inicial REAL NOT NULL,
 		total REAL NOT NULL,
@@ -82,7 +82,7 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS pendentes (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL UNIQUE,
 		valor_mensal REAL NOT NULL,
 		desde TEXT NOT NULL,
@@ -92,7 +92,7 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS despesas_fixas (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL UNIQUE,
 		valor REAL NOT NULL,
 		categoria TEXT NOT NULL
@@ -101,7 +101,7 @@ def init_db():
 
 	cur.execute("""
 	CREATE TABLE IF NOT EXISTS metas (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		id INT AUTO_INCREMENT PRIMARY KEY,
 		nome TEXT NOT NULL,
 		tipo TEXT NOT NULL,
 		alvo REAL NOT NULL
@@ -110,7 +110,7 @@ def init_db():
 
 	cur.execute("""
 		CREATE TABLE IF NOT EXISTS users (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INT AUTO_INCREMENT PRIMARY KEY,
 			username TEXT NOT NULL UNIQUE,
 			password_hash TEXT NOT NULL,
 			is_admin INTEGER NOT NULL DEFAULT 0
