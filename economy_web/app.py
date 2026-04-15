@@ -325,30 +325,34 @@ def get_common_currencies():
 @app.route("/")
 @login_required
 def dashboard():
-	dados = export_to_dict(session["user_id"])
-	mes = dados["mes_atual"]
+    dados = export_to_dict(session["user_id"])
+    mes = dados["mes_atual"]
 
-	entradas = sum(dados["salarios"].values()) + sum(dados["contribuicoes"].values())
+    entradas = sum(dados["salarios"].values()) + sum(dados["contribuicoes"].values())
 
-	despesas = sum(
-		d["valor"] if isinstance(d, dict) else d
-		for d in dados["meses"].get(mes, {}).get("despesas", {}).values()
-	)
+    despesas = sum(
+        d["valor"] if isinstance(d, dict) else d
+        for d in dados["meses"].get(mes, {}).get("despesas", {}).values()
+    )
 
-	dividas = sum(d["prestacao"] for d in dados["dividas"].values())
-	pendentes = sum(p["valor_mensal"] for p in dados["pendentes"].values())
+    dividas = sum(d["prestacao"] for d in dados["dividas"].values())
+    pendentes = sum(p["valor_mensal"] for p in dados["pendentes"].values())
 
-	saldo_inicial = float(dados.get("saldo_inicial", 0))
-	sobra = entradas - despesas - dividas
-	saldo_real = saldo_inicial + sobra
+    saldo_inicial = float(dados.get("saldo_inicial", 0))
+    sobra = entradas - despesas - dividas
+    saldo_real = saldo_inicial + sobra
 
-	return render_template("dashboard.html",
-		entradas=entradas,
-		despesas=despesas,
-		dividas=dividas,
-		pendentes=pendentes,
-		saldo=saldo_real
-	)
+    total_geral = despesas + dividas + pendentes
+
+    return render_template(
+        "dashboard.html",
+        entradas=entradas,
+        despesas=despesas,
+        dividas=dividas,
+        pendentes=pendentes,
+        saldo=saldo_real,
+        total_geral=total_geral,
+    )
 
 
 # =========================
