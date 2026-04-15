@@ -13,9 +13,9 @@ from database import (
     delete_user,
     export_to_dict,
     save_all_from_dict,
-    add_despesa,
-    delete_despesa,
-    update_despesa_pago,
+    add_despesa as db_add_despesa,
+    delete_despesa as db_delete_despesa,
+    update_despesa_pago as db_update_despesa_pago,
 )
 
 app = Flask(__name__)
