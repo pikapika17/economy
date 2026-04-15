@@ -26,6 +26,7 @@ def get_connection():
 # ---------------- USERS ----------------
 
 def ensure_default_admin(username, password):
+    init_db()
     conn = get_connection()
     cur = conn.cursor()
 
@@ -42,6 +43,7 @@ def ensure_default_admin(username, password):
 
 
 def get_user_by_username(username):
+    init_db()
     conn = get_connection()
     cur = conn.cursor()
 
@@ -215,6 +217,7 @@ def export_to_dict():
     return dados
 
 def save_all_from_dict(dados):
+    init_db()
     conn = get_connection()
     cur = conn.cursor()
 
@@ -337,3 +340,104 @@ def save_all_from_dict(dados):
 
     finally:
         conn.close()
+        
+		
+def init_db():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(255) NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            is_admin TINYINT(1) NOT NULL DEFAULT 0
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS config (
+            `key` VARCHAR(255) PRIMARY KEY,
+            value TEXT
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS salarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL UNIQUE,
+            valor DOUBLE NOT NULL
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS contribuicoes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL UNIQUE,
+            valor DOUBLE NOT NULL
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS categorias (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL UNIQUE
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS despesas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            mes VARCHAR(50) NOT NULL,
+            nome VARCHAR(255) NOT NULL,
+            valor DOUBLE NOT NULL,
+            categoria VARCHAR(255) NOT NULL,
+            pago TINYINT(1) NOT NULL DEFAULT 0
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS dividas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL UNIQUE,
+            inicial DOUBLE NOT NULL,
+            total DOUBLE NOT NULL,
+            taxa DOUBLE NOT NULL,
+            prestacao DOUBLE NOT NULL
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS pendentes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL UNIQUE,
+            valor_mensal DOUBLE NOT NULL,
+            desde VARCHAR(255) NOT NULL,
+            notas TEXT DEFAULT NULL
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS despesas_fixas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL UNIQUE,
+            valor DOUBLE NOT NULL,
+            categoria VARCHAR(255) NOT NULL
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS metas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nome VARCHAR(255) NOT NULL,
+            tipo VARCHAR(255) NOT NULL,
+            alvo DOUBLE NOT NULL
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+    
+def migrate_from_json(json_file=JSON_FILE):
+    pass
+
