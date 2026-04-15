@@ -215,25 +215,28 @@ def delete_user(username):
 
 # ---------------- CONFIG ----------------
 
-def set_config(key, value):
+def set_config(user_id, key, value):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO config (`key`, value)
-        VALUES (%s, %s)
+        INSERT INTO config (user_id, `key`, value)
+        VALUES (%s, %s, %s)
         ON DUPLICATE KEY UPDATE value = VALUES(value)
-    """, (key, json.dumps(value)))
+    """, (int(user_id), key, json.dumps(value)))
 
     conn.commit()
     conn.close()
 
 
-def get_config(key, default=None):
+def get_config(user_id, key, default=None):
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("SELECT value FROM config WHERE `key` = %s", (key,))
+    cur.execute("""
+        SELECT value FROM config
+        WHERE user_id = %s AND `key` = %s
+    """, (int(user_id), key))
     row = cur.fetchone()
 
     conn.close()
@@ -247,27 +250,47 @@ def get_config(key, default=None):
         return default
 
 
+def update_config_db(user_id, mes_atual, saldo_inicial):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO config (user_id, `key`, value)
+        VALUES (%s, 'mes_atual', %s)
+        ON DUPLICATE KEY UPDATE value = VALUES(value)
+    """, (int(user_id), json.dumps(mes_atual)))
+
+    cur.execute("""
+        INSERT INTO config (user_id, `key`, value)
+        VALUES (%s, 'saldo_inicial', %s)
+        ON DUPLICATE KEY UPDATE value = VALUES(value)
+    """, (int(user_id), json.dumps(float(saldo_inicial))))
+
+    conn.commit()
+    conn.close()
+
+
 # ---------------- EXPORT ----------------
 
-def export_to_dict():
+def export_to_dict(user_id):
     conn = get_connection()
     cur = conn.cursor()
 
     dados = {}
 
-    dados["mes_atual"] = get_config("mes_atual", "")
-    dados["saldo_inicial"] = get_config("saldo_inicial", 0.0)
+    dados["mes_atual"] = get_config(user_id, "mes_atual", "")
+    dados["saldo_inicial"] = get_config(user_id, "saldo_inicial", 0.0)
 
-    cur.execute("SELECT nome, valor FROM salarios")
+    cur.execute("SELECT nome, valor FROM salarios WHERE user_id = %s", (int(user_id),))
     dados["salarios"] = {r["nome"]: r["valor"] for r in cur.fetchall()}
 
-    cur.execute("SELECT nome, valor FROM contribuicoes")
+    cur.execute("SELECT nome, valor FROM contribuicoes WHERE user_id = %s", (int(user_id),))
     dados["contribuicoes"] = {r["nome"]: r["valor"] for r in cur.fetchall()}
 
-    cur.execute("SELECT nome FROM categorias")
+    cur.execute("SELECT nome FROM categorias WHERE user_id = %s", (int(user_id),))
     dados["categorias"] = [r["nome"] for r in cur.fetchall()]
 
-    cur.execute("SELECT nome, inicial, total, taxa, prestacao FROM dividas")
+    cur.execute("SELECT nome, inicial, total, taxa, prestacao FROM dividas WHERE user_id = %s", (int(user_id),))
     dados["dividas"] = {
         r["nome"]: {
             "inicial": r["inicial"],
@@ -278,7 +301,7 @@ def export_to_dict():
         for r in cur.fetchall()
     }
 
-    cur.execute("SELECT nome, valor_mensal, desde, notas FROM pendentes")
+    cur.execute("SELECT nome, valor_mensal, desde, notas FROM pendentes WHERE user_id = %s", (int(user_id),))
     dados["pendentes"] = {
         r["nome"]: {
             "valor_mensal": r["valor_mensal"],
@@ -288,7 +311,7 @@ def export_to_dict():
         for r in cur.fetchall()
     }
 
-    cur.execute("SELECT nome, valor, categoria FROM despesas_fixas")
+    cur.execute("SELECT nome, valor, categoria FROM despesas_fixas WHERE user_id = %s", (int(user_id),))
     dados["despesas_fixas"] = {
         r["nome"]: {
             "valor": r["valor"],
@@ -297,11 +320,15 @@ def export_to_dict():
         for r in cur.fetchall()
     }
 
-    cur.execute("SELECT nome, tipo, alvo FROM metas")
+    cur.execute("SELECT id, nome, tipo, alvo FROM metas WHERE user_id = %s", (int(user_id),))
     dados["metas"] = list(cur.fetchall())
 
     dados["meses"] = {}
-    cur.execute("SELECT mes, nome, valor, categoria, pago FROM despesas")
+    cur.execute("""
+        SELECT mes, nome, valor, categoria, pago
+        FROM despesas
+        WHERE user_id = %s
+    """, (int(user_id),))
 
     for r in cur.fetchall():
         mes = r["mes"]
@@ -318,45 +345,45 @@ def export_to_dict():
 
 # ---------------- DESPESAS (SQL DIRETO) ----------------
 
-def add_despesa(mes, nome, valor, categoria, pago=0):
+def add_despesa(user_id, mes, nome, valor, categoria, pago=0):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO despesas (mes, nome, valor, categoria, pago)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (mes, nome, float(valor), categoria, int(pago)))
+        INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (int(user_id), mes, nome, float(valor), categoria, int(pago)))
 
     conn.commit()
     conn.close()
 
 
-def delete_despesa(mes, nome):
+def delete_despesa(user_id, mes, nome):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         DELETE FROM despesas
-        WHERE mes = %s AND nome = %s
-    """, (mes, nome))
+        WHERE user_id = %s AND mes = %s AND nome = %s
+    """, (int(user_id), mes, nome))
 
     conn.commit()
     conn.close()
 
 
-def update_despesa_pago(mes, nome, pago):
+def update_despesa_pago(user_id, mes, nome, pago):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE despesas
         SET pago = %s
-        WHERE mes = %s AND nome = %s
-    """, (int(pago), mes, nome))
+        WHERE user_id = %s AND mes = %s AND nome = %s
+    """, (int(pago), int(user_id), mes, nome))
 
     conn.commit()
     conn.close()
-    
+        
 # ---------------- SALARIOS (SQL DIRETO) ----------------
 
 def add_salario(nome, valor):

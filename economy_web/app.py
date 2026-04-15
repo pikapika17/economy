@@ -283,7 +283,7 @@ def resposta_ok(texto, tipo="success"):
 @app.route("/")
 @login_required
 def dashboard():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados["mes_atual"]
 
     entradas = sum(dados["salarios"].values()) + sum(dados["contribuicoes"].values())
@@ -315,7 +315,7 @@ def dashboard():
 @app.route("/despesas")
 @login_required
 def despesas():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados.get("mes_atual", "")
 
     if "meses" not in dados:
@@ -363,7 +363,7 @@ def despesas():
 @app.route("/add_despesa", methods=["POST"])
 @login_required
 def add_despesa():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados.get("mes_atual", "")
 
     nome = request.form.get("nome", "").strip()
@@ -376,7 +376,7 @@ def add_despesa():
 
     try:
         valor = float(valor_txt)
-        db_add_despesa(mes, nome, valor, categoria, 0)
+        db_add_despesa(session["user_id"], mes, nome, valor, categoria, 0)
         flash("Despesa adicionada com sucesso.", "success")
     except Exception as e:
         app.logger.exception("Erro ao adicionar despesa")
@@ -388,7 +388,7 @@ def add_despesa():
 @app.route("/delete_despesa/<nome>")
 @login_required
 def delete_despesa(nome):
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados.get("mes_atual", "")
 
     if not mes:
@@ -396,7 +396,7 @@ def delete_despesa(nome):
         return redirect("/despesas")
 
     try:
-        db_delete_despesa(mes, nome)
+        db_delete_despesa(session["user_id"], mes, nome)
         flash("Despesa removida.", "warning")
     except Exception as e:
         app.logger.exception("Erro ao apagar despesa")
@@ -408,7 +408,7 @@ def delete_despesa(nome):
 @app.route("/toggle_pago/<nome>")
 @login_required
 def toggle_pago(nome):
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados.get("mes_atual", "")
 
     if not mes:
@@ -423,7 +423,7 @@ def toggle_pago(nome):
     pago_atual = despesas_mes[nome].get("pago", False)
 
     try:
-        db_update_despesa_pago(mes, nome, not pago_atual)
+        db_update_despesa_pago(session["user_id"], mes, nome, not pago_atual)
         flash("Estado da despesa atualizado.", "success")
     except Exception as e:
         app.logger.exception("Erro ao atualizar estado da despesa")
@@ -434,7 +434,7 @@ def toggle_pago(nome):
 @app.route("/dividas")
 @login_required
 def dividas():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     dividas_dict = dados.get("dividas", {})
 
     dividas_lista = []
@@ -521,7 +521,7 @@ def update_divida(nome):
 @app.route("/pendentes")
 @login_required
 def pendentes():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes_atual = dados.get("mes_atual", "")
 
     pendentes_dict = dados.get("pendentes", {})
@@ -629,7 +629,7 @@ def delete_pendente(nome):
 @app.route("/convert_pendente/<nome>")
 @login_required
 def convert_pendente(nome):
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes_atual = dados.get("mes_atual", "")
 
     if nome not in dados.get("pendentes", {}):
@@ -660,7 +660,7 @@ def convert_pendente(nome):
 @app.route("/sistema")
 @login_required
 def sistema():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
 
     return render_template(
         "sistema.html",
@@ -850,7 +850,7 @@ def delete_categoria(nome):
 @app.route("/planeamento")
 @login_required
 def planeamento():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados.get("mes_atual", "")
 
     entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
@@ -892,7 +892,7 @@ def planeamento():
 @app.route("/simulacao")
 @login_required
 def simulacao():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
 
     extra_txt = request.args.get("extra", "0").strip()
     try:
@@ -922,7 +922,7 @@ def simulacao():
 @app.route("/timeline")
 @login_required
 def timeline():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
 
     extra_txt = request.args.get("extra", "0").strip()
     modo = request.args.get("modo", "resumo").strip().lower()
@@ -1026,6 +1026,7 @@ def login():
         if user:
             session["logged_in"] = True
             session["user"] = user["username"]
+            session["user_id"] = user["id"]
             session["is_admin"] = user["is_admin"]
             return redirect(url_for("dashboard"))
 
@@ -1041,7 +1042,7 @@ def logout():
 @app.route("/update_despesa/<nome_antigo>", methods=["POST"])
 @login_required
 def update_despesa(nome_antigo):
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     mes = dados.get("mes_atual", "")
 
     if "meses" not in dados:
@@ -1086,7 +1087,7 @@ def update_despesa(nome_antigo):
 @app.route("/metas")
 @login_required
 def metas():
-    dados = export_to_dict()
+    dados = export_to_dict(session["user_id"])
     return render_template("metas.html", metas=dados.get("metas", []))
 
 
