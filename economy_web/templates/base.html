@@ -562,13 +562,15 @@
 		.ts-wrapper.single .ts-control,
 		.ts-wrapper.multi .ts-control {
 			width: 100%;
-			background: #111827;
-			border: 1px solid rgba(255,255,255,0.08);
-			color: #fff;
+			background: #111827 !important;
+			border: 1px solid rgba(255,255,255,0.08) !important;
+			color: #fff !important;
 			border-radius: 12px;
-			min-height: 44px;
+			min-height: 46px;
 			padding: 10px 12px;
-			box-shadow: none;
+			box-shadow: none !important;
+			display: flex;
+			align-items: center;
 		}
 
 		.ts-wrapper.single .ts-control input,
@@ -615,6 +617,24 @@
 
 		.ts-dropdown {
 			box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+		}
+
+		.ts-wrapper.single .ts-control input,
+		.ts-wrapper.multi .ts-control input,
+		.ts-control > input {
+			background: transparent !important;
+			border: 0 !important;
+			box-shadow: none !important;
+			color: #fff !important;
+			min-width: 0 !important;
+			width: auto !important;
+			padding: 0 !important;
+			margin: 0 !important;
+		}
+
+		.ts-wrapper.single .ts-control.has-items input,
+		.ts-wrapper.multi .ts-control.has-items input {
+			display: none !important;
 		}
 
 	</style>
