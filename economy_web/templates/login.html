@@ -164,16 +164,8 @@
         {% endif %}
 
         <form method="POST">
-            <div class="field">
-                <label for="username">Utilizador</label>
-                <input id="username" type="text" name="username" placeholder="Utilizador" required>
-            </div>
-
-            <div class="field">
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password" placeholder="Password" required>
-            </div>
-
+            <input id="username" type="text" name="username" placeholder="Utilizador" required autofocus>
+            <input id="password" type="password" name="password" placeholder="Password" required>
             <button class="submit-btn" type="submit">Entrar</button>
         </form>
 
