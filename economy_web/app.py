@@ -27,6 +27,10 @@ from database import (
     add_divida_db,
     update_divida_db,
     delete_divida_db,
+    add_pendente_db,
+    update_pendente_db,
+    delete_pendente_db,
+    convert_pendente_to_divida_db,
 )
 
 app = Flask(__name__)
@@ -552,8 +556,6 @@ def pendentes():
 @app.route("/add_pendente", methods=["POST"])
 @login_required
 def add_pendente():
-    dados = export_to_dict()
-
     nome = request.form.get("nome", "").strip()
     valor_txt = request.form.get("valor_mensal", "").strip()
     desde = request.form.get("desde", "").strip()
@@ -567,28 +569,21 @@ def add_pendente():
 
     try:
         valor_mensal = float(valor_txt)
+        add_pendente_db(nome, valor_mensal, desde, notas)
     except ValueError:
         return redirect("/pendentes")
+    except Exception as e:
+        app.logger.exception("Erro ao adicionar pendente")
+        flash(f"Erro ao adicionar pendente: {e}", "error")
+        return redirect("/pendentes")
 
-    dados.setdefault("pendentes", {})
-    dados["pendentes"][nome] = {
-        "valor_mensal": valor_mensal,
-        "desde": desde,
-        "notas": notas
-    }
-
-    save_all_from_dict(dados)
     flash("Pendente adicionado com sucesso.", "success")
     return redirect("/pendentes")
+
 
 @app.route("/update_pendente/<nome>", methods=["POST"])
 @login_required
 def update_pendente(nome):
-    dados = export_to_dict()
-
-    if nome not in dados.get("pendentes", {}):
-        return redirect("/pendentes")
-
     novo_nome = request.form.get("novo_nome", "").strip()
     valor_txt = request.form.get("valor_mensal", "").strip()
     desde = request.form.get("desde", "").strip()
@@ -602,33 +597,31 @@ def update_pendente(nome):
 
     try:
         valor_mensal = float(valor_txt)
+        update_pendente_db(nome, novo_nome, valor_mensal, desde, notas)
     except ValueError:
         return redirect("/pendentes")
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar pendente")
+        flash(f"Erro ao atualizar pendente: {e}", "error")
+        return redirect("/pendentes")
 
-    if novo_nome != nome:
-        del dados["pendentes"][nome]
-
-    dados["pendentes"][novo_nome] = {
-        "valor_mensal": valor_mensal,
-        "desde": desde,
-        "notas": notas
-    }
-
-    save_all_from_dict(dados)
     flash("Pendente atualizado com sucesso.", "success")
     return redirect("/pendentes")
+
 
 @app.route("/delete_pendente/<nome>")
 @login_required
 def delete_pendente(nome):
-    dados = export_to_dict()
+    try:
+        delete_pendente_db(nome)
+    except Exception as e:
+        app.logger.exception("Erro ao remover pendente")
+        flash(f"Erro ao remover pendente: {e}", "error")
+        return redirect("/pendentes")
 
-    if nome in dados.get("pendentes", {}):
-        del dados["pendentes"][nome]
-        save_all_from_dict(dados)
-        flash("Pendente removido.", "warning")
-
+    flash("Pendente removido.", "warning")
     return redirect("/pendentes")
+
 
 @app.route("/convert_pendente/<nome>")
 @login_required
@@ -646,24 +639,20 @@ def convert_pendente(nome):
     meses = calcular_meses_pendentes_web(desde, mes_atual)
     total = valor_mensal * meses
 
-    dados.setdefault("dividas", {})
-
     nome_divida = nome
-    if nome_divida in dados["dividas"]:
+    if nome_divida in dados.get("dividas", {}):
         nome_divida = f"{nome} (pendente)"
 
-    dados["dividas"][nome_divida] = {
-        "inicial": total,
-        "total": total,
-        "taxa": 0.0,
-        "prestacao": 0.0
-    }
+    try:
+        convert_pendente_to_divida_db(nome, total, nome_divida)
+    except Exception as e:
+        app.logger.exception("Erro ao converter pendente")
+        flash(f"Erro ao converter pendente: {e}", "error")
+        return redirect("/pendentes")
 
-    del dados["pendentes"][nome]
-
-    save_all_from_dict(dados)
     flash("Pendente convertido em dívida.", "success")
     return redirect("/pendentes")
+
 
 @app.route("/sistema")
 @login_required

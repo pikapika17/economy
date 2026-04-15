@@ -633,3 +633,71 @@ def delete_divida_db(nome):
 
     conn.commit()
     conn.close()
+    
+# ---------------- PENDENTES (SQL DIRETO) ----------------
+
+def add_pendente_db(nome, valor_mensal, desde, notas):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO pendentes (nome, valor_mensal, desde, notas)
+        VALUES (%s, %s, %s, %s)
+    """, (nome, float(valor_mensal), desde, notas))
+
+    conn.commit()
+    conn.close()
+
+
+def update_pendente_db(nome_antigo, novo_nome, valor_mensal, desde, notas):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE pendentes
+        SET nome = %s, valor_mensal = %s, desde = %s, notas = %s
+        WHERE nome = %s
+    """, (novo_nome, float(valor_mensal), desde, notas, nome_antigo))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_pendente_db(nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM pendentes
+        WHERE nome = %s
+    """, (nome,))
+
+    conn.commit()
+    conn.close()
+
+
+def convert_pendente_to_divida_db(nome, total, novo_nome_divida=None):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    nome_divida = novo_nome_divida or nome
+
+    try:
+        cur.execute("""
+            INSERT INTO dividas (nome, inicial, total, taxa, prestacao)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (nome_divida, float(total), float(total), 0.0, 0.0))
+
+        cur.execute("""
+            DELETE FROM pendentes
+            WHERE nome = %s
+        """, (nome,))
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+        
+		
