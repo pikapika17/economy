@@ -1,529 +1,549 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Finanças{% endblock %}</title>
-    <style>
-        :root {
-            --bg: #171717;
-            --bg-2: #1d1d1d;
-            --panel: #232323;
-            --panel-2: #2b2b2b;
-            --sidebar: #141414;
-            --input: #111111;
-            --border: #353535;
-            --primary: #2b74b4;
-            --primary-hover: #3485cc;
-            --danger: #8b0000;
-            --danger-hover: #a00000;
-            --success: #1f7a4d;
-            --success-hover: #299b63;
-            --text: #ffffff;
-            --muted: #a3a3a3;
-            --green: #00d084;
-            --red: #ff5c5c;
-            --orange: #ffb347;
-            --radius: 18px;
-            --shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top, #232323 0%, #171717 45%, #111111 100%);
-            min-height: 100vh;
-        }
-
-        .mobile-topbar {
-            display: none;
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-            background: rgba(20, 20, 20, 0.96);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding: 12px 14px;
-            align-items: center;
-            justify-content: space-between;
-            backdrop-filter: blur(10px);
-        }
-
-        .mobile-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .menu-btn {
-            border: none;
-            background: linear-gradient(180deg, #2f7fc4, var(--primary));
-            color: white;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .layout {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 235px;
-            background: rgba(20, 20, 20, 0.95);
-            border-right: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 22px 12px;
-            flex-shrink: 0;
-            transition: transform 0.2s ease;
-        }
-
-        .sidebar h2 {
-            margin: 0 0 22px 8px;
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .sidebar-user {
-            margin: 0 8px 12px;
-            font-size: 13px;
-            color: var(--muted);
-        }
-
-        .sidebar a {
-            display: block;
-            text-decoration: none;
-            color: var(--text);
-            background: linear-gradient(180deg, #2f7fc4, var(--primary));
-            padding: 12px 14px;
-            border-radius: 12px;
-            margin: 8px 0;
-            transition: 0.15s ease;
-            box-shadow: 0 6px 14px rgba(43, 116, 180, 0.18);
-        }
-
-        .sidebar a:hover {
-            transform: translateY(-1px);
-            background: linear-gradient(180deg, #3b90db, var(--primary-hover));
-        }
-
-        .sidebar .logout {
-            margin-top: 18px;
-            background: linear-gradient(180deg, #a11212, var(--danger));
-            box-shadow: 0 6px 14px rgba(139, 0, 0, 0.22);
-        }
-
-        .sidebar .logout:hover {
-            background: linear-gradient(180deg, #b51717, var(--danger-hover));
-        }
-
-        .content {
-            flex: 1;
-            padding: 26px;
-            min-width: 0;
-        }
-
-        h1 {
-            margin: 0 0 18px;
-            font-size: 34px;
-        }
-
-        h2 {
-            margin-top: 0;
-        }
-
-        .box,
-        .card,
-        table {
-            background: linear-gradient(180deg, var(--panel-2), var(--panel));
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            box-shadow: var(--shadow);
-        }
-
-        .box {
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            border-radius: var(--radius);
-            padding: 18px;
-        }
-
-        .card h3 {
-            margin: 0 0 12px;
-            font-size: 14px;
-            color: var(--muted);
-            font-weight: 600;
-        }
-
-        .card p {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 700;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-
-        form {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .inline-form {
-            display: contents;
-        }
-
-        input,
-        select,
-        textarea,
-        button {
-            min-height: 46px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-
-        input,
-        select,
-        textarea {
-            border: 1px solid transparent;
-            background: var(--input);
-            color: var(--text);
-            min-width: 130px;
-            transition: 0.15s ease;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        input::placeholder,
-        textarea::placeholder {
-            color: #6f6f6f;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(43, 116, 180, 0.18);
-        }
-
-        button {
-            border: none;
-            background: linear-gradient(180deg, var(--primary-hover), var(--primary));
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.15s ease;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.04);
-        }
-
-        .btn-danger {
-            background: linear-gradient(180deg, #a11212, var(--danger));
-        }
-
-        .btn-danger:hover {
-            background: linear-gradient(180deg, #b51717, var(--danger-hover));
-        }
-
-        .btn-success {
-            background: linear-gradient(180deg, #289460, var(--success));
-        }
-
-        .btn-success:hover {
-            background: linear-gradient(180deg, #2faa70, var(--success-hover));
-        }
-
-        .btn-link {
-            display: inline-block;
-            text-decoration: none;
-            color: white;
-            background: #444;
-            padding: 10px 12px;
-            border-radius: 10px;
-            transition: 0.15s ease;
-        }
-
-        .btn-link:hover {
-            background: #5a5a5a;
-        }
-
-        .btn-link.btn-danger {
-            background: linear-gradient(180deg, #a11212, var(--danger));
-        }
-
-        .btn-link.btn-danger:hover {
-            background: linear-gradient(180deg, #b51717, var(--danger-hover));
-        }
-
-        .btn-link.btn-success {
-            background: linear-gradient(180deg, #289460, var(--success));
-        }
-
-        .btn-link.btn-success:hover {
-            background: linear-gradient(180deg, #2faa70, var(--success-hover));
-        }
-
-        .table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border-radius: var(--radius);
-        }
-
-        table {
-            width: 100%;
-            min-width: 760px;
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        th,
-        td {
-            padding: 14px 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        th {
-            background: rgba(0, 0, 0, 0.18);
-            color: var(--muted);
-            font-size: 13px;
-            letter-spacing: 0.3px;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        table input {
-            width: 100%;
-            min-width: 0;
-            min-height: 40px;
-        }
-
-        .acoes {
-            white-space: nowrap;
-        }
-
-        .acoes > * {
-            margin-right: 6px;
-            margin-bottom: 4px;
-        }
-
-        .green { color: var(--green); }
-        .red { color: var(--red); }
-        .orange { color: var(--orange); }
-        .muted { color: var(--muted); }
-
-        .flash {
-            padding: 12px 14px;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            font-weight: bold;
-        }
-
-        .flash-success {
-            background: rgba(0, 208, 132, 0.14);
-            color: var(--green);
-        }
-
-        .flash-error {
-            background: rgba(255, 92, 92, 0.14);
-            color: var(--red);
-        }
-
-        .flash-warning {
-            background: rgba(255, 179, 71, 0.14);
-            color: var(--orange);
-        }
-
-        .sidebar-backdrop {
-            display: none;
-        }
-
-        @media (max-width: 980px) {
-            .mobile-topbar {
-                display: flex;
-            }
-
-            .content {
-                padding: 18px 14px;
-            }
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100vh;
-                z-index: 1002;
-                transform: translateX(-100%);
-                width: 260px;
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .sidebar-backdrop {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0,0,0,0.45);
-                z-index: 1001;
-            }
-
-            .sidebar-backdrop.show {
-                display: block;
-            }
-
-            h1 {
-                font-size: 28px;
-            }
-
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-
-            form {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            form input,
-            form select,
-            form textarea,
-            form button,
-            form a.btn-link {
-                width: 100%;
-                min-width: 0;
-            }
-
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                min-width: 700px;
-            }
-        }
-
-        @media (max-width: 560px) {
-            .content {
-                padding: 14px 10px;
-            }
-
-            .box,
-            .card {
-                padding: 16px;
-                border-radius: 14px;
-            }
-
-            .card p {
-                font-size: 22px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}Finanças{% endblock %}</title>
+	<style>
+		:root {
+			--bg: #171717;
+			--bg-2: #1d1d1d;
+			--panel: #232323;
+			--panel-2: #2b2b2b;
+			--sidebar: #141414;
+			--input: #111111;
+			--border: #353535;
+			--primary: #2b74b4;
+			--primary-hover: #3485cc;
+			--danger: #8b0000;
+			--danger-hover: #a00000;
+			--success: #1f7a4d;
+			--success-hover: #299b63;
+			--text: #ffffff;
+			--muted: #a3a3a3;
+			--green: #00d084;
+			--red: #ff5c5c;
+			--orange: #ffb347;
+			--radius: 18px;
+			--shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			font-family: Arial, sans-serif;
+			color: var(--text);
+			background:
+				radial-gradient(circle at top, #232323 0%, #171717 45%, #111111 100%);
+			min-height: 100vh;
+		}
+
+		.mobile-topbar {
+			display: none;
+			position: sticky;
+			top: 0;
+			z-index: 1001;
+			background: rgba(20, 20, 20, 0.96);
+			border-bottom: 1px solid rgba(255,255,255,0.05);
+			padding: 12px 14px;
+			align-items: center;
+			justify-content: space-between;
+			backdrop-filter: blur(10px);
+		}
+
+		.mobile-title {
+			font-size: 20px;
+			font-weight: 700;
+		}
+
+		.menu-btn {
+			border: none;
+			background: linear-gradient(180deg, #2f7fc4, var(--primary));
+			color: white;
+			border-radius: 10px;
+			padding: 10px 14px;
+			font-weight: 700;
+			cursor: pointer;
+		}
+
+		.layout {
+			display: flex;
+			min-height: 100vh;
+		}
+
+		.sidebar {
+			width: 235px;
+			background: rgba(20, 20, 20, 0.95);
+			border-right: 1px solid rgba(255, 255, 255, 0.04);
+			padding: 22px 12px;
+			flex-shrink: 0;
+			transition: transform 0.2s ease;
+		}
+
+		.sidebar h2 {
+			margin: 0 0 22px 8px;
+			font-size: 24px;
+			font-weight: 700;
+		}
+
+		.sidebar-user {
+			margin: 0 8px 12px;
+			font-size: 13px;
+			color: var(--muted);
+		}
+
+		.sidebar a {
+			display: block;
+			text-decoration: none;
+			color: var(--text);
+			background: linear-gradient(180deg, #2f7fc4, var(--primary));
+			padding: 12px 14px;
+			border-radius: 12px;
+			margin: 8px 0;
+			transition: 0.15s ease;
+			box-shadow: 0 6px 14px rgba(43, 116, 180, 0.18);
+		}
+
+		.sidebar a:hover {
+			transform: translateY(-1px);
+			background: linear-gradient(180deg, #3b90db, var(--primary-hover));
+		}
+
+		.sidebar .logout {
+			margin-top: 18px;
+			background: linear-gradient(180deg, #a11212, var(--danger));
+			box-shadow: 0 6px 14px rgba(139, 0, 0, 0.22);
+		}
+
+		.sidebar .logout:hover {
+			background: linear-gradient(180deg, #b51717, var(--danger-hover));
+		}
+
+		.content {
+			flex: 1;
+			padding: 26px;
+			min-width: 0;
+		}
+
+		h1 {
+			margin: 0 0 18px;
+			font-size: 34px;
+		}
+
+		h2 {
+			margin-top: 0;
+		}
+
+		.box,
+		.card,
+		table {
+			background: linear-gradient(180deg, var(--panel-2), var(--panel));
+			border: 1px solid rgba(255, 255, 255, 0.04);
+			box-shadow: var(--shadow);
+		}
+
+		.box {
+			border-radius: var(--radius);
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+
+		.cards {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+
+		.card {
+			border-radius: var(--radius);
+			padding: 18px;
+		}
+
+		.card h3 {
+			margin: 0 0 12px;
+			font-size: 14px;
+			color: var(--muted);
+			font-weight: 600;
+		}
+
+		.card p {
+			margin: 0;
+			font-size: 26px;
+			font-weight: 700;
+		}
+
+		.grid-2 {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 18px;
+		}
+
+		form {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+
+		.inline-form {
+			display: contents;
+		}
+
+		input,
+		select,
+		textarea,
+		button {
+			min-height: 46px;
+			padding: 10px 14px;
+			border-radius: 12px;
+			font-size: 14px;
+		}
+
+		input,
+		select,
+		textarea {
+			border: 1px solid transparent;
+			background: var(--input);
+			color: var(--text);
+			min-width: 130px;
+			transition: 0.15s ease;
+		}
+
+		textarea {
+			min-height: 100px;
+			resize: vertical;
+		}
+
+		input::placeholder,
+		textarea::placeholder {
+			color: #6f6f6f;
+		}
+
+		input:focus,
+		select:focus,
+		textarea:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px rgba(43, 116, 180, 0.18);
+		}
+
+		button {
+			border: none;
+			background: linear-gradient(180deg, var(--primary-hover), var(--primary));
+			color: white;
+			font-weight: 700;
+			cursor: pointer;
+			transition: 0.15s ease;
+		}
+
+		button:hover {
+			transform: translateY(-1px);
+			filter: brightness(1.04);
+		}
+
+		.btn-danger {
+			background: linear-gradient(180deg, #a11212, var(--danger));
+		}
+
+		.btn-danger:hover {
+			background: linear-gradient(180deg, #b51717, var(--danger-hover));
+		}
+
+		.btn-success {
+			background: linear-gradient(180deg, #289460, var(--success));
+		}
+
+		.btn-success:hover {
+			background: linear-gradient(180deg, #2faa70, var(--success-hover));
+		}
+
+		.btn-link {
+			display: inline-block;
+			text-decoration: none;
+			color: white;
+			background: #444;
+			padding: 10px 12px;
+			border-radius: 10px;
+			transition: 0.15s ease;
+		}
+
+		.btn-link:hover {
+			background: #5a5a5a;
+		}
+
+		.btn-link.btn-danger {
+			background: linear-gradient(180deg, #a11212, var(--danger));
+		}
+
+		.btn-link.btn-danger:hover {
+			background: linear-gradient(180deg, #b51717, var(--danger-hover));
+		}
+
+		.btn-link.btn-success {
+			background: linear-gradient(180deg, #289460, var(--success));
+		}
+
+		.btn-link.btn-success:hover {
+			background: linear-gradient(180deg, #2faa70, var(--success-hover));
+		}
+
+		.table-wrap {
+			width: 100%;
+			overflow-x: auto;
+			border-radius: var(--radius);
+		}
+
+		table {
+			width: 100%;
+			min-width: 760px;
+			border-collapse: separate;
+			border-spacing: 0;
+			border-radius: var(--radius);
+			overflow: hidden;
+		}
+
+		th,
+		td {
+			padding: 14px 12px;
+			text-align: left;
+			border-bottom: 1px solid var(--border);
+			vertical-align: middle;
+		}
+
+		th {
+			background: rgba(0, 0, 0, 0.18);
+			color: var(--muted);
+			font-size: 13px;
+			letter-spacing: 0.3px;
+		}
+
+		tr:hover td {
+			background: rgba(255, 255, 255, 0.02);
+		}
+
+		table input {
+			width: 100%;
+			min-width: 0;
+			min-height: 40px;
+		}
+
+		.acoes {
+			white-space: nowrap;
+		}
+
+		.acoes > * {
+			margin-right: 6px;
+			margin-bottom: 4px;
+		}
+
+		.green { color: var(--green); }
+		.red { color: var(--red); }
+		.orange { color: var(--orange); }
+		.muted { color: var(--muted); }
+
+		.flash {
+			padding: 12px 14px;
+			border-radius: 12px;
+			margin-bottom: 16px;
+			font-weight: bold;
+		}
+
+		.flash-success {
+			background: rgba(0, 208, 132, 0.14);
+			color: var(--green);
+		}
+
+		.flash-error {
+			background: rgba(255, 92, 92, 0.14);
+			color: var(--red);
+		}
+
+		.flash-warning {
+			background: rgba(255, 179, 71, 0.14);
+			color: var(--orange);
+		}
+
+		.sidebar-backdrop {
+			display: none;
+		}
+
+		@media (max-width: 980px) {
+			.mobile-topbar {
+				display: flex;
+			}
+
+			.content {
+				padding: 18px 14px;
+			}
+
+			.sidebar {
+				position: fixed;
+				top: 0;
+				left: 0;
+				height: 100vh;
+				z-index: 1002;
+				transform: translateX(-100%);
+				width: 260px;
+			}
+
+			.sidebar.open {
+				transform: translateX(0);
+			}
+
+			.sidebar-backdrop {
+				display: none;
+				position: fixed;
+				inset: 0;
+				background: rgba(0,0,0,0.45);
+				z-index: 1001;
+			}
+
+			.sidebar-backdrop.show {
+				display: block;
+			}
+
+			h1 {
+				font-size: 28px;
+			}
+
+			.grid-2 {
+				grid-template-columns: 1fr;
+			}
+
+			form {
+				flex-direction: column;
+				align-items: stretch;
+			}
+
+			form input,
+			form select,
+			form textarea,
+			form button,
+			form a.btn-link {
+				width: 100%;
+				min-width: 0;
+			}
+
+			.cards {
+				grid-template-columns: 1fr;
+			}
+
+			table {
+				min-width: 700px;
+			}
+		}
+
+		@media (max-width: 560px) {
+			.content {
+				padding: 14px 10px;
+			}
+
+			.box,
+			.card {
+				padding: 16px;
+				border-radius: 14px;
+			}
+
+			.card p {
+				font-size: 22px;
+			}
+
+			h1 {
+				font-size: 24px;
+			}
+		}
+
+		.badge {
+			display: inline-block;
+			padding: 4px 10px;
+			border-radius: 999px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+
+		.badge-success {
+			background: rgba(34, 197, 94, 0.15);
+			color: #22c55e;
+		}
+
+		.badge-muted {
+			background: rgba(148, 163, 184, 0.15);
+			color: #94a3b8;
+		}
+
+	</style>
 </head>
 <body>
-    <div class="mobile-topbar">
-        <div class="mobile-title">Finanças</div>
-        <button class="menu-btn" type="button" onclick="toggleSidebar()">☰ Menu</button>
-    </div>
+	<div class="mobile-topbar">
+		<div class="mobile-title">Finanças</div>
+		<button class="menu-btn" type="button" onclick="toggleSidebar()">☰ Menu</button>
+	</div>
 
-    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+	<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
-    <div class="layout">
-        <div id="sidebar" class="sidebar">
-            <h2>Finanças</h2>
-            {% if session_user %}
-                <div class="sidebar-user">
-                    Sessão: <strong>{{ session_user }}</strong>{% if session_is_admin %} (admin){% endif %}
-                </div>
-            {% endif %}
-            <a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
-            <a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
-            <a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
-            <a href="/pendentes" onclick="closeSidebar()">📌 Pendentes</a>
-            <a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
-            <a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
-            <a href="/metas" onclick="closeSidebar()">🎯 Metas</a>
-            <a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
-            {% if session_is_admin %}
-                <a href="/admin/users" onclick="closeSidebar()">👑 Administração</a>
-            {% endif %}
-            <a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
-            <a href="/logout" class="logout" onclick="closeSidebar()">🚪 Logout</a>
-        </div>
+	<div class="layout">
+		<div id="sidebar" class="sidebar">
+			<h2>Finanças</h2>
+			{% if session_user %}
+				<div class="sidebar-user">
+					Sessão: <strong>{{ session_user }}</strong>{% if session_is_admin %} (admin){% endif %}
+				</div>
+			{% endif %}
+			<a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
+			<a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
+			<a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
+			<a href="/pendentes" onclick="closeSidebar()">📌 Pendentes</a>
+			<a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
+			<a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
+			<a href="/metas" onclick="closeSidebar()">🎯 Metas</a>
+			<a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
+			{% if session_is_admin %}
+				<a href="/admin/users" onclick="closeSidebar()">👑 Administração</a>
+				<a href="/admin/invites" onclick="closeSidebar()">🎟️ Convites</a>
+			{% endif %}
+			<a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
+			<a href="/logout" class="logout" onclick="closeSidebar()">🚪 Logout</a>
+		</div>
 
-        <div class="content">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash flash-{{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+		<div class="content">
+			{% with messages = get_flashed_messages(with_categories=true) %}
+				{% if messages %}
+					{% for category, message in messages %}
+						<div class="flash flash-{{ category }}">
+							{{ message }}
+						</div>
+					{% endfor %}
+				{% endif %}
+			{% endwith %}
 
-            {% block content %}{% endblock %}
-        </div>
-    </div>
+			{% block content %}{% endblock %}
+		</div>
+	</div>
 
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById("sidebar");
-            const backdrop = document.getElementById("sidebarBackdrop");
-            sidebar.classList.toggle("open");
-            backdrop.classList.toggle("show");
-        }
+	<script>
+		function toggleSidebar() {
+			const sidebar = document.getElementById("sidebar");
+			const backdrop = document.getElementById("sidebarBackdrop");
+			sidebar.classList.toggle("open");
+			backdrop.classList.toggle("show");
+		}
 
-        function closeSidebar() {
-            const sidebar = document.getElementById("sidebar");
-            const backdrop = document.getElementById("sidebarBackdrop");
-            sidebar.classList.remove("open");
-            backdrop.classList.remove("show");
-        }
+		function closeSidebar() {
+			const sidebar = document.getElementById("sidebar");
+			const backdrop = document.getElementById("sidebarBackdrop");
+			sidebar.classList.remove("open");
+			backdrop.classList.remove("show");
+		}
 
-        window.addEventListener("resize", function () {
-            if (window.innerWidth > 980) {
-                closeSidebar();
-            }
-        });
-    </script>
+		window.addEventListener("resize", function () {
+			if (window.innerWidth > 980) {
+				closeSidebar();
+			}
+		});
+	</script>
 </body>
 </html>

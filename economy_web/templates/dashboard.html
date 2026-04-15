@@ -6,149 +6,149 @@
 <h1>Dashboard</h1>
 
 <div class="cards">
-    <div class="card">
-        <h3>Entradas</h3>
-        <p>{{ "%.2f"|format(entradas) }} CHF</p>
-        <div class="muted" style="margin-top:8px;">Total mensal atual</div>
-    </div>
+	<div class="card">
+		<h3>Entradas</h3>
+		<p>{{ "%.2f"|format(entradas) }} CHF</p>
+		<div class="muted" style="margin-top:8px;">Total mensal atual</div>
+	</div>
 
-    <div class="card">
-        <h3>Despesas</h3>
-        <p>{{ "%.2f"|format(despesas) }} CHF</p>
-        <div class="muted" style="margin-top:8px;">Despesas do mês</div>
-    </div>
+	<div class="card">
+		<h3>Despesas</h3>
+		<p>{{ "%.2f"|format(despesas) }} CHF</p>
+		<div class="muted" style="margin-top:8px;">Despesas do mês</div>
+	</div>
 
-    <div class="card">
-        <h3>Dívidas</h3>
-        <p>{{ "%.2f"|format(dividas) }} CHF</p>
-        <div class="muted" style="margin-top:8px;">Prestações mensais</div>
-    </div>
+	<div class="card">
+		<h3>Dívidas</h3>
+		<p>{{ "%.2f"|format(dividas) }} CHF</p>
+		<div class="muted" style="margin-top:8px;">Prestações mensais</div>
+	</div>
 
-    <div class="card">
-        <h3>Pendentes</h3>
-        <p class="orange">{{ "%.2f"|format(pendentes) }} CHF</p>
-        <div class="muted" style="margin-top:8px;">Valor acumulado</div>
-    </div>
+	<div class="card">
+		<h3>Pendentes</h3>
+		<p class="orange">{{ "%.2f"|format(pendentes) }} CHF</p>
+		<div class="muted" style="margin-top:8px;">Valor acumulado</div>
+	</div>
 
-    <div class="card">
-        <h3>Saldo real</h3>
-        <p class="{{ 'green' if saldo >= 0 else 'red' }}">
-            {{ "%.2f"|format(saldo) }} CHF
-        </p>
-        <div class="muted" style="margin-top:8px;">
-            {{ "Situação positiva" if saldo >= 0 else "Situação negativa" }}
-        </div>
-    </div>
+	<div class="card">
+		<h3>Saldo real</h3>
+		<p class="{{ 'green' if saldo >= 0 else 'red' }}">
+			{{ "%.2f"|format(saldo) }} CHF
+		</p>
+		<div class="muted" style="margin-top:8px;">
+			{{ "Situação positiva" if saldo >= 0 else "Situação negativa" }}
+		</div>
+	</div>
 </div>
 
 <div class="grid-2">
-    <div class="box">
-        <h2>Resumo rápido</h2>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                <span class="muted">Sobra mensal</span>
-                <strong class="{{ 'green' if (entradas - despesas - dividas) >= 0 else 'red' }}">
-                    {{ "%.2f"|format(entradas - despesas - dividas) }} CHF
-                </strong>
-            </div>
+	<div class="box">
+		<h2>Resumo rápido</h2>
+		<div style="display:flex; flex-direction:column; gap:12px;">
+			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+				<span class="muted">Sobra mensal</span>
+				<strong class="{{ 'green' if (entradas - despesas - dividas) >= 0 else 'red' }}">
+					{{ "%.2f"|format(entradas - despesas - dividas) }} CHF
+				</strong>
+			</div>
 
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                <span class="muted">Estado atual</span>
-                <strong>{{ "Estável" if saldo >= 0 else "A recuperar" }}</strong>
-            </div>
+			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+				<span class="muted">Estado atual</span>
+				<strong>{{ "Estável" if saldo >= 0 else "A recuperar" }}</strong>
+			</div>
 
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                <span class="muted">Pressão mensal</span>
-                <strong>{{ "%.2f"|format(despesas + dividas) }} CHF</strong>
-            </div>
+			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
+				<span class="muted">Pressão mensal</span>
+				<strong>{{ "%.2f"|format(despesas + dividas) }} CHF</strong>
+			</div>
 
-            <div style="display:flex; justify-content:space-between;">
-                <span class="muted">Rácio despesas / entradas</span>
-                <strong>
-                    {% if entradas > 0 %}
-                        {{ "%.1f"|format((despesas / entradas) * 100) }}%
-                    {% else %}
-                        0%
-                    {% endif %}
-                </strong>
-            </div>
-        </div>
-    </div>
+			<div style="display:flex; justify-content:space-between;">
+				<span class="muted">Rácio despesas / entradas</span>
+				<strong>
+					{% if entradas > 0 %}
+						{{ "%.1f"|format((despesas / entradas) * 100) }}%
+					{% else %}
+						0%
+					{% endif %}
+				</strong>
+			</div>
+		</div>
+	</div>
 
-    <div class="box">
-        <h2>Alertas</h2>
+	<div class="box">
+		<h2>Alertas</h2>
 
-        <div style="display:flex; flex-direction:column; gap:12px;">
-            {% set sobra = entradas - despesas - dividas %}
+		<div style="display:flex; flex-direction:column; gap:12px;">
+			{% set sobra = entradas - despesas - dividas %}
 
-            {% if saldo < 0 %}
-                <div style="padding:12px; border-radius:12px; background:rgba(255,92,92,0.10); color:var(--red);">
-                    Estás com saldo real negativo.
-                </div>
-            {% endif %}
+			{% if saldo < 0 %}
+				<div style="padding:12px; border-radius:12px; background:rgba(255,92,92,0.10); color:var(--red);">
+					Estás com saldo real negativo.
+				</div>
+			{% endif %}
 
-            {% if pendentes > 0 %}
-                <div style="padding:12px; border-radius:12px; background:rgba(255,179,71,0.10); color:var(--orange);">
-                    Tens pendentes acumulados por regularizar.
-                </div>
-            {% endif %}
+			{% if pendentes > 0 %}
+				<div style="padding:12px; border-radius:12px; background:rgba(255,179,71,0.10); color:var(--orange);">
+					Tens pendentes acumulados por regularizar.
+				</div>
+			{% endif %}
 
-            {% if sobra <= 0 %}
-                <div style="padding:12px; border-radius:12px; background:rgba(255,92,92,0.10); color:var(--red);">
-                    A sobra mensal está negativa ou a zero.
-                </div>
-            {% endif %}
+			{% if sobra <= 0 %}
+				<div style="padding:12px; border-radius:12px; background:rgba(255,92,92,0.10); color:var(--red);">
+					A sobra mensal está negativa ou a zero.
+				</div>
+			{% endif %}
 
-            {% if saldo >= 0 and pendentes == 0 and sobra > 0 %}
-                <div style="padding:12px; border-radius:12px; background:rgba(0,208,132,0.10); color:var(--green);">
-                    Situação equilibrada neste momento.
-                </div>
-            {% endif %}
-        </div>
-    </div>
+			{% if saldo >= 0 and pendentes == 0 and sobra > 0 %}
+				<div style="padding:12px; border-radius:12px; background:rgba(0,208,132,0.10); color:var(--green);">
+					Situação equilibrada neste momento.
+				</div>
+			{% endif %}
+		</div>
+	</div>
 </div>
 
 <div class="box">
-    <h2>Acesso rápido</h2>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="btn-link" href="/despesas">Gerir despesas</a>
-        <a class="btn-link" href="/dividas">Gerir dívidas</a>
-        <a class="btn-link" href="/pendentes">Ver pendentes</a>
-        <a class="btn-link" href="/sistema">Sistema</a>
-        <a class="btn-link" href="/planeamento">Planeamento</a>
-        <a class="btn-link" href="/simulacao">Simulação</a>
-        <a class="btn-link" href="/timeline">Timeline</a>
-    </div>
+	<h2>Acesso rápido</h2>
+	<div style="display:flex; gap:10px; flex-wrap:wrap;">
+		<a class="btn-link" href="/despesas">Gerir despesas</a>
+		<a class="btn-link" href="/dividas">Gerir dívidas</a>
+		<a class="btn-link" href="/pendentes">Ver pendentes</a>
+		<a class="btn-link" href="/sistema">Sistema</a>
+		<a class="btn-link" href="/planeamento">Planeamento</a>
+		<a class="btn-link" href="/simulacao">Simulação</a>
+		<a class="btn-link" href="/timeline">Timeline</a>
+	</div>
 </div>
 
 <div class="grid-2">
-    <div class="box">
-        <h2>Leitura rápida</h2>
-        <p class="muted" style="margin-bottom:10px;">Visão curta da tua situação:</p>
-        <ul style="margin:0; padding-left:18px; line-height:1.8;">
-            <li>Entradas atuais: <strong>{{ "%.2f"|format(entradas) }} CHF</strong></li>
-            <li>Saída mensal total: <strong>{{ "%.2f"|format(despesas + dividas) }} CHF</strong></li>
-            <li>Pendentes acumulados: <strong class="orange">{{ "%.2f"|format(pendentes) }} CHF</strong></li>
-            <li>Saldo real: <strong class="{{ 'green' if saldo >= 0 else 'red' }}">{{ "%.2f"|format(saldo) }} CHF</strong></li>
-        </ul>
-    </div>
+	<div class="box">
+		<h2>Leitura rápida</h2>
+		<p class="muted" style="margin-bottom:10px;">Visão curta da tua situação:</p>
+		<ul style="margin:0; padding-left:18px; line-height:1.8;">
+			<li>Entradas atuais: <strong>{{ "%.2f"|format(entradas) }} CHF</strong></li>
+			<li>Saída mensal total: <strong>{{ "%.2f"|format(despesas + dividas) }} CHF</strong></li>
+			<li>Pendentes acumulados: <strong class="orange">{{ "%.2f"|format(pendentes) }} CHF</strong></li>
+			<li>Saldo real: <strong class="{{ 'green' if saldo >= 0 else 'red' }}">{{ "%.2f"|format(saldo) }} CHF</strong></li>
+		</ul>
+	</div>
 
-    <div class="box">
-        <h2>Próximos passos</h2>
-        <ul style="margin:0; padding-left:18px; line-height:1.8;">
-            {% if saldo < 0 %}
-                <li>Reduzir pressão mensal ou aumentar entradas.</li>
-            {% endif %}
-            {% if pendentes > 0 %}
-                <li>Tratar pendentes ou converter os relevantes em dívida.</li>
-            {% endif %}
-            {% if (entradas - despesas - dividas) > 0 %}
-                <li>Usar a sobra mensal para recuperar saldo ou amortizar dívida.</li>
-            {% else %}
-                <li>Rever despesas antes de acelerar pagamentos.</li>
-            {% endif %}
-            <li>Usar Planeamento e Simulação para testar cenários.</li>
-        </ul>
-    </div>
+	<div class="box">
+		<h2>Próximos passos</h2>
+		<ul style="margin:0; padding-left:18px; line-height:1.8;">
+			{% if saldo < 0 %}
+				<li>Reduzir pressão mensal ou aumentar entradas.</li>
+			{% endif %}
+			{% if pendentes > 0 %}
+				<li>Tratar pendentes ou converter os relevantes em dívida.</li>
+			{% endif %}
+			{% if (entradas - despesas - dividas) > 0 %}
+				<li>Usar a sobra mensal para recuperar saldo ou amortizar dívida.</li>
+			{% else %}
+				<li>Rever despesas antes de acelerar pagamentos.</li>
+			{% endif %}
+			<li>Usar Planeamento e Simulação para testar cenários.</li>
+		</ul>
+	</div>
 </div>
 {% endblock %}

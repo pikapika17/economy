@@ -6,71 +6,71 @@
 <h1>Metas</h1>
 
 <div class="box">
-    <h2>Adicionar meta</h2>
-    <form method="POST" action="/add_meta">
-        <input name="nome" placeholder="Nome" required>
+	<h2>Adicionar meta</h2>
+	<form method="POST" action="/add_meta">
+		<input name="nome" placeholder="Nome" required>
 
-        <select name="tipo" required>
-            <option value="">Tipo</option>
-            <option value="poupanca">Poupança</option>
-            <option value="divida">Redução de dívida</option>
-            <option value="outro">Outro</option>
-        </select>
+		<select name="tipo" required>
+			<option value="">Tipo</option>
+			<option value="poupanca">Poupança</option>
+			<option value="divida">Redução de dívida</option>
+			<option value="outro">Outro</option>
+		</select>
 
-        <input name="alvo" type="number" step="0.01" placeholder="Valor alvo" required>
+		<input name="alvo" type="number" step="0.01" placeholder="Valor alvo" required>
 
-        <button type="submit">Guardar</button>
-    </form>
+		<button type="submit">Guardar</button>
+	</form>
 </div>
 
 <div class="box">
-    <h2>Lista de metas</h2>
+	<h2>Lista de metas</h2>
 
-    {% if metas %}
-    <div class="table-wrap">
-        <table>
-            <tr>
-                <th>Nome</th>
-                <th>Tipo</th>
-                <th style="text-align:right;">Alvo</th>
-                <th>Ações</th>
-            </tr>
+	{% if metas %}
+	<div class="table-wrap">
+		<table>
+			<tr>
+				<th>Nome</th>
+				<th>Tipo</th>
+				<th style="text-align:right;">Alvo</th>
+				<th>Ações</th>
+			</tr>
 
-            {% for m in metas %}
-            <tr>
-                <form method="POST" action="/update_meta/{{ m.id }}">
-                    <td>
-                        <input name="nome" value="{{ m.nome }}" required>
-                    </td>
+			{% for m in metas %}
+			<tr>
+				<form method="POST" action="/update_meta/{{ m.id }}">
+					<td>
+						<input name="nome" value="{{ m.nome }}" required>
+					</td>
 
-                    <td>
-                        <select name="tipo" required>
-                            <option value="poupanca" {% if m.tipo == "poupanca" %}selected{% endif %}>Poupança</option>
-                            <option value="divida" {% if m.tipo == "divida" %}selected{% endif %}>Redução de dívida</option>
-                            <option value="outro" {% if m.tipo == "outro" %}selected{% endif %}>Outro</option>
-                        </select>
-                    </td>
+					<td>
+						<select name="tipo" required>
+							<option value="poupanca" {% if m.tipo == "poupanca" %}selected{% endif %}>Poupança</option>
+							<option value="divida" {% if m.tipo == "divida" %}selected{% endif %}>Redução de dívida</option>
+							<option value="outro" {% if m.tipo == "outro" %}selected{% endif %}>Outro</option>
+						</select>
+					</td>
 
-                    <td style="text-align:right;">
-                        <input name="alvo" type="number" step="0.01" value="{{ m.alvo }}" required>
-                    </td>
+					<td style="text-align:right;">
+						<input name="alvo" type="number" step="0.01" value="{{ m.alvo }}" required>
+					</td>
 
-                    <td class="acoes">
-                        <button type="submit">Guardar</button>
-                        <a class="btn-link btn-danger"
-                           href="/delete_meta/{{ m.id }}"
-                           onclick="return confirm('Remover esta meta?')">
-                           Remover
-                        </a>
-                    </td>
-                </form>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% else %}
-    <div class="muted">Ainda não tens metas definidas.</div>
-    {% endif %}
+					<td class="acoes">
+						<button type="submit">Guardar</button>
+						<a class="btn-link btn-danger"
+						   href="/delete_meta/{{ m.id }}"
+						   onclick="return confirm('Remover esta meta?')">
+						   Remover
+						</a>
+					</td>
+				</form>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+	{% else %}
+	<div class="muted">Ainda não tens metas definidas.</div>
+	{% endif %}
 </div>
 
 {% endblock %}

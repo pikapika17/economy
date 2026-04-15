@@ -6,46 +6,46 @@
 <h1>Dívidas</h1>
 
 <div class="box">
-    <h2>Adicionar dívida</h2>
-    <form method="POST" action="/add_divida">
-        <input name="nome" placeholder="Nome" required>
-        <input name="inicial" type="number" step="0.01" placeholder="Valor inicial" required>
-        <input name="taxa" type="number" step="0.01" placeholder="Taxa %" required>
-        <input name="prestacao" type="number" step="0.01" placeholder="Prestação" required>
-        <button type="submit">Guardar</button>
-    </form>
+	<h2>Adicionar dívida</h2>
+	<form method="POST" action="/add_divida">
+		<input name="nome" placeholder="Nome" required>
+		<input name="inicial" type="number" step="0.01" placeholder="Valor inicial" required>
+		<input name="taxa" type="number" step="0.01" placeholder="Taxa %" required>
+		<input name="prestacao" type="number" step="0.01" placeholder="Prestação" required>
+		<button type="submit">Guardar</button>
+	</form>
 </div>
 
 <div class="table-wrap">
-    <table>
-        <tr>
-            <th>Nome</th>
-            <th>Inicial</th>
-            <th>Total</th>
-            <th>Taxa</th>
-            <th>Prestação</th>
-            <th>Info</th>
-            <th>Ações</th>
-        </tr>
+	<table>
+		<tr>
+			<th>Nome</th>
+			<th>Inicial</th>
+			<th>Total</th>
+			<th>Taxa</th>
+			<th>Prestação</th>
+			<th>Info</th>
+			<th>Ações</th>
+		</tr>
 
-        {% for d in dividas %}
-        <tr>
-            <td>{{ d.nome }}</td>
-            <td>
-                <form class="inline-form" method="POST" action="/update_divida/{{ d.nome }}">
-                    <input name="inicial" type="number" step="0.01" value="{{ d.inicial }}">
-            </td>
-            <td><input name="total" type="number" step="0.01" value="{{ d.total }}"></td>
-            <td><input name="taxa" type="number" step="0.01" value="{{ d.taxa }}"></td>
-            <td><input name="prestacao" type="number" step="0.01" value="{{ d.prestacao }}"></td>
-            <td class="orange">{{ d.info }}</td>
-            <td class="acoes">
-                    <button type="submit">Guardar</button>
-                    <a class="btn-link btn-danger" href="/delete_divida/{{ d.nome }}">Remover</a>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+		{% for d in dividas %}
+		<tr>
+			<td>{{ d.nome }}</td>
+			<td>
+				<form class="inline-form" method="POST" action="/update_divida/{{ d.nome }}">
+					<input name="inicial" type="number" step="0.01" value="{{ d.inicial }}">
+			</td>
+			<td><input name="total" type="number" step="0.01" value="{{ d.total }}"></td>
+			<td><input name="taxa" type="number" step="0.01" value="{{ d.taxa }}"></td>
+			<td><input name="prestacao" type="number" step="0.01" value="{{ d.prestacao }}"></td>
+			<td class="orange">{{ d.info }}</td>
+			<td class="acoes">
+					<button type="submit">Guardar</button>
+					<a class="btn-link btn-danger" href="/delete_divida/{{ d.nome }}">Remover</a>
+				</form>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
 </div>
 {% endblock %}

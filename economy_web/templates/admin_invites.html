@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Convites{% endblock %}
+
+{% block content %}
+<h1>🎟️ Convites</h1>
+
+<div class="box">
+    <h2>Criar convites</h2>
+
+    <form method="POST" action="/admin/invites/add" style="margin-bottom: 12px;">
+        <input name="code" placeholder="Código manual" required>
+        <button type="submit">Criar manualmente</button>
+    </form>
+
+    <form method="POST" action="/admin/invites/generate" style="margin-bottom: 12px;">
+        <button type="submit">🎲 Gerar 1 código aleatório</button>
+    </form>
+
+    <form method="POST" action="/admin/invites/generate-multiple" class="inline-form">
+        <input name="quantity" type="number" min="1" max="50" value="5" placeholder="Quantidade">
+        <button type="submit">🔢 Gerar vários códigos</button>
+    </form>
+</div>
+
+<div class="box">
+    <h2>Lista de códigos</h2>
+
+    {% if invites %}
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Código</th>
+                <th>Estado</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+            </tr>
+
+            {% for invite in invites %}
+            <tr>
+                <td>
+                    <code id="invite-code-{{ invite.id }}">{{ invite.code }}</code>
+                </td>
+
+                <td>
+                    {% if invite.is_active %}
+                        <span class="badge badge-success">Ativo</span>
+                    {% else %}
+                        <span class="badge badge-muted">Usado</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ invite.created_at }}</td>
+
+                <td class="acoes">
+                    <button type="button" onclick="copyInviteCode('invite-code-{{ invite.id }}')">📋 Copiar</button>
+
+                    <form method="POST" action="/admin/invites/delete/{{ invite.code }}" style="display:inline;">
+                        <button type="submit" onclick="return confirm('Remover este código?')">Remover</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+    <div class="muted">Ainda não tens códigos de convite.</div>
+    {% endif %}
+</div>
+
+<script>
+function copyInviteCode(elementId) {
+    const text = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Código copiado: " + text);
+    }).catch(() => {
+        alert("Não foi possível copiar o código.");
+    });
+}
+</script>
+{% endblock %}

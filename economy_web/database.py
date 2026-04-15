@@ -1,5 +1,7 @@
 import json
 import os
+import secrets
+import string
 from datetime import datetime
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -36,6 +38,15 @@ def init_db():
 			is_admin TINYINT(1) NOT NULL DEFAULT 0
 		)
 	""")
+
+	cur.execute("""
+		CREATE TABLE IF NOT EXISTS invite_codes (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			code VARCHAR(255) NOT NULL UNIQUE,
+			is_active TINYINT(1) NOT NULL DEFAULT 1,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)
+	""")	
 
 	cur.execute("""
 		CREATE TABLE IF NOT EXISTS config (
@@ -345,83 +356,83 @@ def export_to_dict(user_id):
 # ---------------- DESPESAS (SQL DIRETO) ----------------
 
 def add_despesa(user_id, mes, nome, valor, categoria, pago=0):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (int(user_id), mes, nome, float(valor), categoria, int(pago)))
+	cur.execute("""
+		INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
+		VALUES (%s, %s, %s, %s, %s, %s)
+	""", (int(user_id), mes, nome, float(valor), categoria, int(pago)))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def delete_despesa(user_id, mes, nome):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        DELETE FROM despesas
-        WHERE user_id = %s AND mes = %s AND nome = %s
-    """, (int(user_id), mes, nome))
+	cur.execute("""
+		DELETE FROM despesas
+		WHERE user_id = %s AND mes = %s AND nome = %s
+	""", (int(user_id), mes, nome))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def update_despesa_pago(user_id, mes, nome, pago):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        UPDATE despesas
-        SET pago = %s
-        WHERE user_id = %s AND mes = %s AND nome = %s
-    """, (int(pago), int(user_id), mes, nome))
+	cur.execute("""
+		UPDATE despesas
+		SET pago = %s
+		WHERE user_id = %s AND mes = %s AND nome = %s
+	""", (int(pago), int(user_id), mes, nome))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def add_meta_db(user_id, nome, tipo, alvo):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO metas (user_id, nome, tipo, alvo)
-        VALUES (%s, %s, %s, %s)
-    """, (int(user_id), nome, tipo, float(alvo)))
+	cur.execute("""
+		INSERT INTO metas (user_id, nome, tipo, alvo)
+		VALUES (%s, %s, %s, %s)
+	""", (int(user_id), nome, tipo, float(alvo)))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def update_meta_db(user_id, meta_id, nome, tipo, alvo):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        UPDATE metas
-        SET nome = %s, tipo = %s, alvo = %s
-        WHERE user_id = %s AND id = %s
-    """, (nome, tipo, float(alvo), int(user_id), int(meta_id)))
+	cur.execute("""
+		UPDATE metas
+		SET nome = %s, tipo = %s, alvo = %s
+		WHERE user_id = %s AND id = %s
+	""", (nome, tipo, float(alvo), int(user_id), int(meta_id)))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def delete_meta_db(user_id, meta_id):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        DELETE FROM metas
-        WHERE user_id = %s AND id = %s
-    """, (int(user_id), int(meta_id)))
+	cur.execute("""
+		DELETE FROM metas
+		WHERE user_id = %s AND id = %s
+	""", (int(user_id), int(meta_id)))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 # ---------------- SALARIOS (SQL DIRETO) ----------------
 
@@ -536,123 +547,123 @@ def delete_categoria_db(user_id, nome):
 # ---------------- DIVIDAS (SQL DIRETO) ----------------
 
 def add_divida_db(user_id, nome, inicial, taxa, prestacao):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """, (
-        int(user_id),
-        nome,
-        float(inicial),
-        float(inicial),
-        float(taxa),
-        float(prestacao),
-    ))
+	cur.execute("""
+		INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
+		VALUES (%s, %s, %s, %s, %s, %s)
+	""", (
+		int(user_id),
+		nome,
+		float(inicial),
+		float(inicial),
+		float(taxa),
+		float(prestacao),
+	))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def update_divida_db(user_id, nome_antigo, inicial, total, taxa, prestacao):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        UPDATE dividas
-        SET inicial = %s, total = %s, taxa = %s, prestacao = %s
-        WHERE user_id = %s AND nome = %s
-    """, (
-        float(inicial),
-        float(total),
-        float(taxa),
-        float(prestacao),
-        int(user_id),
-        nome_antigo,
-    ))
+	cur.execute("""
+		UPDATE dividas
+		SET inicial = %s, total = %s, taxa = %s, prestacao = %s
+		WHERE user_id = %s AND nome = %s
+	""", (
+		float(inicial),
+		float(total),
+		float(taxa),
+		float(prestacao),
+		int(user_id),
+		nome_antigo,
+	))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def delete_divida_db(user_id, nome):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        DELETE FROM dividas
-        WHERE user_id = %s AND nome = %s
-    """, (int(user_id), nome))
+	cur.execute("""
+		DELETE FROM dividas
+		WHERE user_id = %s AND nome = %s
+	""", (int(user_id), nome))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 	
 # ---------------- PENDENTES (SQL DIRETO) ----------------
 
 def add_pendente_db(user_id, nome, valor_mensal, desde, notas):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO pendentes (user_id, nome, valor_mensal, desde, notas)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (int(user_id), nome, float(valor_mensal), desde, notas))
+	cur.execute("""
+		INSERT INTO pendentes (user_id, nome, valor_mensal, desde, notas)
+		VALUES (%s, %s, %s, %s, %s)
+	""", (int(user_id), nome, float(valor_mensal), desde, notas))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def update_pendente_db(user_id, nome_antigo, novo_nome, valor_mensal, desde, notas):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        UPDATE pendentes
-        SET nome = %s, valor_mensal = %s, desde = %s, notas = %s
-        WHERE user_id = %s AND nome = %s
-    """, (novo_nome, float(valor_mensal), desde, notas, int(user_id), nome_antigo))
+	cur.execute("""
+		UPDATE pendentes
+		SET nome = %s, valor_mensal = %s, desde = %s, notas = %s
+		WHERE user_id = %s AND nome = %s
+	""", (novo_nome, float(valor_mensal), desde, notas, int(user_id), nome_antigo))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def delete_pendente_db(user_id, nome):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    cur.execute("""
-        DELETE FROM pendentes
-        WHERE user_id = %s AND nome = %s
-    """, (int(user_id), nome))
+	cur.execute("""
+		DELETE FROM pendentes
+		WHERE user_id = %s AND nome = %s
+	""", (int(user_id), nome))
 
-    conn.commit()
-    conn.close()
+	conn.commit()
+	conn.close()
 
 
 def convert_pendente_to_divida_db(user_id, nome, total, novo_nome_divida=None):
-    conn = get_connection()
-    cur = conn.cursor()
+	conn = get_connection()
+	cur = conn.cursor()
 
-    nome_divida = novo_nome_divida or nome
+	nome_divida = novo_nome_divida or nome
 
-    try:
-        cur.execute("""
-            INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (int(user_id), nome_divida, float(total), float(total), 0.0, 0.0))
+	try:
+		cur.execute("""
+			INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
+			VALUES (%s, %s, %s, %s, %s, %s)
+		""", (int(user_id), nome_divida, float(total), float(total), 0.0, 0.0))
 
-        cur.execute("""
-            DELETE FROM pendentes
-            WHERE user_id = %s AND nome = %s
-        """, (int(user_id), nome))
+		cur.execute("""
+			DELETE FROM pendentes
+			WHERE user_id = %s AND nome = %s
+		""", (int(user_id), nome))
 
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        conn.close()
+		conn.commit()
+	except Exception:
+		conn.rollback()
+		raise
+	finally:
+		conn.close()
 
 # ---------------- METAS (SQL DIRETO) ----------------
 
@@ -717,20 +728,143 @@ def update_config_db(mes_atual, saldo_inicial):
 	conn.close()
 	
 def ensure_user_defaults(user_id):
+	conn = get_connection()
+	cur = conn.cursor()
+
+	mes_atual_default = datetime.now().strftime("%Y-%m")
+
+	cur.execute("""
+		INSERT IGNORE INTO config (user_id, `key`, value)
+		VALUES (%s, 'mes_atual', %s)
+	""", (int(user_id), json.dumps(mes_atual_default)))
+
+	cur.execute("""
+		INSERT IGNORE INTO config (user_id, `key`, value)
+		VALUES (%s, 'saldo_inicial', %s)
+	""", (int(user_id), json.dumps(0.0)))
+
+	conn.commit()
+	conn.close()
+
+
+# ---------------- INVITE CODES ----------------
+
+def create_invite_code(code):
+	conn = get_connection()
+	cur = conn.cursor()
+
+	cur.execute("""
+		INSERT INTO invite_codes (code, is_active)
+		VALUES (%s, 1)
+	""", (code,))
+
+	conn.commit()
+	conn.close()
+
+
+def invite_code_exists(code):
+	conn = get_connection()
+	cur = conn.cursor()
+
+	cur.execute("""
+		SELECT id, code, is_active
+		FROM invite_codes
+		WHERE code = %s AND is_active = 1
+	""", (code,))
+
+	row = cur.fetchone()
+	conn.close()
+	return row
+
+
+def use_invite_code(code):
+	conn = get_connection()
+	cur = conn.cursor()
+
+	cur.execute("""
+		UPDATE invite_codes
+		SET is_active = 0
+		WHERE code = %s
+	""", (code,))
+
+	conn.commit()
+	conn.close()
+
+
+def list_invite_codes():
+	conn = get_connection()
+	cur = conn.cursor()
+
+	cur.execute("""
+		SELECT id, code, is_active, created_at
+		FROM invite_codes
+		ORDER BY id DESC
+	""")
+
+	rows = cur.fetchall()
+	conn.close()
+	return rows
+
+
+def delete_invite_code(code):
+	conn = get_connection()
+	cur = conn.cursor()
+
+	cur.execute("""
+		DELETE FROM invite_codes
+		WHERE code = %s
+	""", (code,))
+
+	conn.commit()
+	conn.close()
+
+
+def generate_invite_code(length=10):
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
+def create_random_invite_code(length=10):
+    while True:
+        code = generate_invite_code(length)
+        if not invite_code_exists_any(code):
+            create_invite_code(code)
+            return code
+		
+
+def invite_code_exists_any(code):
     conn = get_connection()
     cur = conn.cursor()
 
-    mes_atual_default = datetime.now().strftime("%Y-%m")
-
     cur.execute("""
-        INSERT IGNORE INTO config (user_id, `key`, value)
-        VALUES (%s, 'mes_atual', %s)
-    """, (int(user_id), json.dumps(mes_atual_default)))
+        SELECT id
+        FROM invite_codes
+        WHERE code = %s
+    """, (code,))
 
-    cur.execute("""
-        INSERT IGNORE INTO config (user_id, `key`, value)
-        VALUES (%s, 'saldo_inicial', %s)
-    """, (int(user_id), json.dumps(0.0)))
-
-    conn.commit()
+    row = cur.fetchone()
     conn.close()
+    return row
+
+
+def generate_invite_code(length=10):
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+
+def create_random_invite_code(length=10):
+    while True:
+        code = generate_invite_code(length)
+        if not invite_code_exists_any(code):
+            create_invite_code(code)
+            return code
+
+
+def create_multiple_invite_codes(quantity=5, length=10):
+    codes = []
+
+    for _ in range(int(quantity)):
+        code = create_random_invite_code(length)
+        codes.append(code)
+
+    return codes

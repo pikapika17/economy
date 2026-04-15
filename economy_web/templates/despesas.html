@@ -6,123 +6,123 @@
 <h1>Despesas</h1>
 
 <div class="cards">
-    <div class="card">
-        <h3>Total de despesas</h3>
-        <p>
-            {{ "%.2f"|format(
-                despesas.values() | map(attribute='valor') | sum
-            ) if despesas else "0.00" }} CHF
-        </p>
-    </div>
+	<div class="card">
+		<h3>Total de despesas</h3>
+		<p>
+			{{ "%.2f"|format(
+				despesas.values() | map(attribute='valor') | sum
+			) if despesas else "0.00" }} CHF
+		</p>
+	</div>
 
-    <div class="card">
-        <h3>Pagas</h3>
-        <p class="green">
-            {{ despesas.values() | selectattr("pago") | list | length }}
-        </p>
-    </div>
+	<div class="card">
+		<h3>Pagas</h3>
+		<p class="green">
+			{{ despesas.values() | selectattr("pago") | list | length }}
+		</p>
+	</div>
 
-    <div class="card">
-        <h3>Por pagar</h3>
-        <p class="orange">
-            {{ despesas.values() | rejectattr("pago") | list | length }}
-        </p>
-    </div>
+	<div class="card">
+		<h3>Por pagar</h3>
+		<p class="orange">
+			{{ despesas.values() | rejectattr("pago") | list | length }}
+		</p>
+	</div>
 
-    <div class="card">
-        <h3>Total itens</h3>
-        <p>{{ despesas|length }}</p>
-    </div>
+	<div class="card">
+		<h3>Total itens</h3>
+		<p>{{ despesas|length }}</p>
+	</div>
 </div>
 
 <div class="box">
-    <h2>Adicionar despesa</h2>
-    <form method="POST" action="/add_despesa">
-        <input name="nome" placeholder="Nome" required>
-        <input name="valor" type="number" step="0.01" placeholder="Valor" required>
-        <input name="categoria" placeholder="Categoria" required>
-        <button type="submit">Guardar</button>
-    </form>
+	<h2>Adicionar despesa</h2>
+	<form method="POST" action="/add_despesa">
+		<input name="nome" placeholder="Nome" required>
+		<input name="valor" type="number" step="0.01" placeholder="Valor" required>
+		<input name="categoria" placeholder="Categoria" required>
+		<button type="submit">Guardar</button>
+	</form>
 </div>
 
 <div class="box">
-    <h2>Filtros</h2>
-    <form method="GET" action="/despesas">
-        <input name="pesquisa" placeholder="Pesquisar nome" value="{{ filtros.pesquisa }}">
+	<h2>Filtros</h2>
+	<form method="GET" action="/despesas">
+		<input name="pesquisa" placeholder="Pesquisar nome" value="{{ filtros.pesquisa }}">
 
-        <select name="categoria">
-            <option {% if filtros.categoria == "Todas" %}selected{% endif %}>Todas</option>
-            {% for cat in categorias %}
-                <option value="{{ cat }}" {% if filtros.categoria == cat %}selected{% endif %}>{{ cat }}</option>
-            {% endfor %}
-        </select>
+		<select name="categoria">
+			<option {% if filtros.categoria == "Todas" %}selected{% endif %}>Todas</option>
+			{% for cat in categorias %}
+				<option value="{{ cat }}" {% if filtros.categoria == cat %}selected{% endif %}>{{ cat }}</option>
+			{% endfor %}
+		</select>
 
-        <select name="estado">
-            <option {% if filtros.estado == "Todas" %}selected{% endif %}>Todas</option>
-            <option {% if filtros.estado == "Pagas" %}selected{% endif %}>Pagas</option>
-            <option {% if filtros.estado == "Por pagar" %}selected{% endif %}>Por pagar</option>
-        </select>
+		<select name="estado">
+			<option {% if filtros.estado == "Todas" %}selected{% endif %}>Todas</option>
+			<option {% if filtros.estado == "Pagas" %}selected{% endif %}>Pagas</option>
+			<option {% if filtros.estado == "Por pagar" %}selected{% endif %}>Por pagar</option>
+		</select>
 
-        <button type="submit">Aplicar</button>
-        <a class="btn-link" href="/despesas">Limpar</a>
-    </form>
+		<button type="submit">Aplicar</button>
+		<a class="btn-link" href="/despesas">Limpar</a>
+	</form>
 </div>
 
 <div class="box">
-    <h2>Lista de despesas</h2>
+	<h2>Lista de despesas</h2>
 
-    {% if despesas %}
-    <div class="table-wrap">
-        <table>
-            <tr>
-                <th>Nome</th>
-                <th style="text-align:right;">Valor</th>
-                <th>Categoria</th>
-                <th>Estado</th>
-                <th>Ações</th>
-            </tr>
+	{% if despesas %}
+	<div class="table-wrap">
+		<table>
+			<tr>
+				<th>Nome</th>
+				<th style="text-align:right;">Valor</th>
+				<th>Categoria</th>
+				<th>Estado</th>
+				<th>Ações</th>
+			</tr>
 
-            {% for nome, d in despesas.items() %}
-            <tr>
-                <form method="POST" action="/update_despesa/{{ nome }}">
-                    <td>
-                        <input name="novo_nome" value="{{ nome }}" required>
-                    </td>
+			{% for nome, d in despesas.items() %}
+			<tr>
+				<form method="POST" action="/update_despesa/{{ nome }}">
+					<td>
+						<input name="novo_nome" value="{{ nome }}" required>
+					</td>
 
-                    <td style="text-align:right;">
-                        <input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
-                    </td>
+					<td style="text-align:right;">
+						<input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
+					</td>
 
-                    <td>
-                        <input name="categoria" value="{{ d.categoria }}" required>
-                    </td>
+					<td>
+						<input name="categoria" value="{{ d.categoria }}" required>
+					</td>
 
-                    <td>
-                        {% if d.pago %}
-                            <span class="green"><strong>Pago</strong></span>
-                        {% else %}
-                            <span class="orange"><strong>Por pagar</strong></span>
-                        {% endif %}
-                    </td>
+					<td>
+						{% if d.pago %}
+							<span class="green"><strong>Pago</strong></span>
+						{% else %}
+							<span class="orange"><strong>Por pagar</strong></span>
+						{% endif %}
+					</td>
 
-                    <td class="acoes">
-                        <button type="submit">Guardar</button>
+					<td class="acoes">
+						<button type="submit">Guardar</button>
 
-                        {% if d.pago %}
-                            <a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
-                        {% else %}
-                            <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
-                        {% endif %}
+						{% if d.pago %}
+							<a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
+						{% else %}
+							<a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
+						{% endif %}
 
-                        <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('Remover esta despesa?')">Remover</a>
-                    </td>
-                </form>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    {% else %}
-    <div class="muted">Nenhuma despesa encontrada com os filtros atuais.</div>
-    {% endif %}
+						<a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('Remover esta despesa?')">Remover</a>
+					</td>
+				</form>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+	{% else %}
+	<div class="muted">Nenhuma despesa encontrada com os filtros atuais.</div>
+	{% endif %}
 </div>
 {% endblock %}
