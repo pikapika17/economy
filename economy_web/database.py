@@ -344,6 +344,46 @@ def export_to_dict(user_id):
 
 # ---------------- DESPESAS (SQL DIRETO) ----------------
 
+def add_despesa(user_id, mes, nome, valor, categoria, pago=0):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (int(user_id), mes, nome, float(valor), categoria, int(pago)))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_despesa(user_id, mes, nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM despesas
+        WHERE user_id = %s AND mes = %s AND nome = %s
+    """, (int(user_id), mes, nome))
+
+    conn.commit()
+    conn.close()
+
+
+def update_despesa_pago(user_id, mes, nome, pago):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE despesas
+        SET pago = %s
+        WHERE user_id = %s AND mes = %s AND nome = %s
+    """, (int(pago), int(user_id), mes, nome))
+
+    conn.commit()
+    conn.close()
+
+
 def add_meta_db(user_id, nome, tipo, alvo):
     conn = get_connection()
     cur = conn.cursor()
