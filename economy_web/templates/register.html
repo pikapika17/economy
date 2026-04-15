@@ -28,9 +28,9 @@
 				<option value="de">Deutsch</option>
 			</select>
 
-			<select name="currency" class="searchable-select" required>
+			<select name="currency" required>
 				{% for currency in currencies %}
-					<option value="{{ currency }}" {% if currency == "CHF" %}selected{% endif %}>
+					<option value="{{ currency }}" {% if user.currency == currency %}selected{% endif %}>
 						{{ currency }}
 					</option>
 				{% endfor %}

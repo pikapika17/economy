@@ -576,15 +576,28 @@
 			color: #fff;
 		}
 
+		.ts-wrapper {
+			width: 100%;
+			position: relative;
+		}
+
 		.ts-dropdown {
 			background: #111827;
 			border: 1px solid rgba(255,255,255,0.08);
 			border-radius: 12px;
 			color: #fff;
 			z-index: 9999;
-			width: auto;
-			min-width: 250px;
-			max-width: 90vw;
+			width: 100%;
+			min-width: 100%;
+			max-width: 100%;
+			overflow: hidden;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+		}
+
+		.ts-dropdown .ts-dropdown-content {
+			max-height: 220px;
+			overflow-y: auto;
+			overflow-x: hidden;
 		}
 
 		.ts-dropdown .option {
@@ -593,12 +606,6 @@
 
 		.ts-dropdown .active {
 			background: rgba(255,255,255,0.06);
-		}
-
-		.ts-dropdown .ts-dropdown-content {
-			max-height: 220px;
-			overflow-y: auto;
-			overflow-x: hidden;
 		}
 
 		.ts-control,
@@ -698,8 +705,7 @@
 				},
 				maxOptions: 300,
 				closeAfterSelect: true,
-				allowEmptyOption: true,
-				dropdownParent: "body"
+				allowEmptyOption: true
 			});
 		});
 	});
