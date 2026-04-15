@@ -353,19 +353,16 @@ def add_despesa():
     categoria = request.form.get("categoria", "").strip()
 
     if not nome or not valor_txt or not categoria or not mes:
+        flash("Faltam dados para guardar a despesa.", "error")
         return redirect("/despesas")
 
     try:
         valor = float(valor_txt)
-    except ValueError:
-        return redirect("/despesas")
-
-    try:
         db_add_despesa(mes, nome, valor, categoria, 0)
         flash("Despesa adicionada com sucesso.", "success")
-    except Exception:
+    except Exception as e:
         app.logger.exception("Erro ao adicionar despesa")
-        flash("Erro ao adicionar despesa.", "error")
+        flash(f"Erro ao adicionar despesa: {e}", "error")
 
     return redirect("/despesas")
 
@@ -377,14 +374,15 @@ def delete_despesa(nome):
     mes = dados.get("mes_atual", "")
 
     if not mes:
+        flash("Mês atual inválido.", "error")
         return redirect("/despesas")
 
     try:
         db_delete_despesa(mes, nome)
         flash("Despesa removida.", "warning")
-    except Exception:
+    except Exception as e:
         app.logger.exception("Erro ao apagar despesa")
-        flash("Erro ao remover despesa.", "error")
+        flash(f"Erro ao remover despesa: {e}", "error")
 
     return redirect("/despesas")
 
@@ -396,10 +394,12 @@ def toggle_pago(nome):
     mes = dados.get("mes_atual", "")
 
     if not mes:
+        flash("Mês atual inválido.", "error")
         return redirect("/despesas")
 
     despesas_mes = dados.get("meses", {}).get(mes, {}).get("despesas", {})
     if nome not in despesas_mes:
+        flash("Despesa não encontrada.", "error")
         return redirect("/despesas")
 
     pago_atual = despesas_mes[nome].get("pago", False)
@@ -407,9 +407,9 @@ def toggle_pago(nome):
     try:
         db_update_despesa_pago(mes, nome, not pago_atual)
         flash("Estado da despesa atualizado.", "success")
-    except Exception:
+    except Exception as e:
         app.logger.exception("Erro ao atualizar estado da despesa")
-        flash("Erro ao atualizar estado da despesa.", "error")
+        flash(f"Erro ao atualizar estado da despesa: {e}", "error")
 
     return redirect("/despesas")
 
