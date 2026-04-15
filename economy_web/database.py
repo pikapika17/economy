@@ -428,41 +428,41 @@ def delete_salario_db(user_id, nome):
 
 # ---------------- CONTRIBUICOES (SQL DIRETO) ----------------
 
-def add_contribuicao_db(nome, valor):
+def add_contribuicao_db(user_id, nome, valor):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO contribuicoes (nome, valor)
-        VALUES (%s, %s)
-    """, (nome, float(valor)))
+        INSERT INTO contribuicoes (user_id, nome, valor)
+        VALUES (%s, %s, %s)
+    """, (int(user_id), nome, float(valor)))
 
     conn.commit()
     conn.close()
 
 
-def update_contribuicao_db(nome_antigo, novo_nome, valor):
+def update_contribuicao_db(user_id, nome_antigo, novo_nome, valor):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE contribuicoes
         SET nome = %s, valor = %s
-        WHERE nome = %s
-    """, (novo_nome, float(valor), nome_antigo))
+        WHERE user_id = %s AND nome = %s
+    """, (novo_nome, float(valor), int(user_id), nome_antigo))
 
     conn.commit()
     conn.close()
 
 
-def delete_contribuicao_db(nome):
+def delete_contribuicao_db(user_id, nome):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         DELETE FROM contribuicoes
-        WHERE nome = %s
-    """, (nome,))
+        WHERE user_id = %s AND nome = %s
+    """, (int(user_id), nome))
 
     conn.commit()
     conn.close()

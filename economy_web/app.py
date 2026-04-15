@@ -765,7 +765,7 @@ def add_contribuicao():
 
     try:
         valor = float(valor_txt)
-        add_contribuicao_db(nome, valor)
+        add_contribuicao_db(session["user_id"], nome, valor)
     except ValueError:
         return redirect("/sistema")
     except Exception as e:
@@ -788,7 +788,7 @@ def update_contribuicao(nome):
 
     try:
         valor = float(valor_txt)
-        update_contribuicao_db(nome, novo_nome, valor)
+        update_contribuicao_db(session["user_id"], nome, novo_nome, valor)
     except ValueError:
         return redirect("/sistema")
     except Exception as e:
@@ -804,7 +804,7 @@ def update_contribuicao(nome):
 @login_required
 def delete_contribuicao(nome):
     try:
-        delete_contribuicao_db(nome)
+        delete_contribuicao_db(session["user_id"], nome)
     except Exception as e:
         app.logger.exception("Erro ao remover contribuição")
         flash(f"Erro ao remover contribuição: {e}", "error")
