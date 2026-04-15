@@ -294,6 +294,15 @@ def export_to_dict(user_id):
 		FROM dividas
 		WHERE user_id = %s
 	""", (int(user_id),))
+	dados["dividas"] = {
+		r["nome"]: {
+			"inicial": r["inicial"],
+			"total": r["total"],
+			"taxa": r["taxa"],
+			"prestacao": r["prestacao"],
+		}
+		for r in cur.fetchall()
+	}
 
 	cur.execute("SELECT nome, valor_mensal, desde, notas FROM pendentes WHERE user_id = %s", (int(user_id),))
 	dados["pendentes"] = {
