@@ -592,3 +592,44 @@ def delete_categoria_db(nome):
 
     conn.commit()
     conn.close()
+    
+# ---------------- DIVIDAS (SQL DIRETO) ----------------
+
+def add_divida_db(nome, inicial, taxa, prestacao):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO dividas (nome, inicial, total, taxa, prestacao)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (nome, float(inicial), float(inicial), float(taxa), float(prestacao)))
+
+    conn.commit()
+    conn.close()
+
+
+def update_divida_db(nome_antigo, inicial, total, taxa, prestacao):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE dividas
+        SET inicial = %s, total = %s, taxa = %s, prestacao = %s
+        WHERE nome = %s
+    """, (float(inicial), float(total), float(taxa), float(prestacao), nome_antigo))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_divida_db(nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM dividas
+        WHERE nome = %s
+    """, (nome,))
+
+    conn.commit()
+    conn.close()

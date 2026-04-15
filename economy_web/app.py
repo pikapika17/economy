@@ -24,6 +24,9 @@ from database import (
     delete_contribuicao_db,
     add_categoria_db,
     delete_categoria_db,
+    add_divida_db,
+    update_divida_db,
+    delete_divida_db,
 )
 
 app = Flask(__name__)
@@ -441,11 +444,10 @@ def dividas():
 
     return render_template("dividas.html", dividas=dividas_lista)
 
+
 @app.route("/add_divida", methods=["POST"])
 @login_required
 def add_divida():
-    dados = export_to_dict()
-
     nome = request.form.get("nome", "").strip()
     inicial_txt = request.form.get("inicial", "").strip()
     taxa_txt = request.form.get("taxa", "").strip()
@@ -458,39 +460,35 @@ def add_divida():
         inicial = float(inicial_txt)
         taxa = float(taxa_txt)
         prestacao = float(prestacao_txt)
+        add_divida_db(nome, inicial, taxa, prestacao)
     except ValueError:
         return redirect("/dividas")
+    except Exception as e:
+        app.logger.exception("Erro ao adicionar dívida")
+        flash(f"Erro ao adicionar dívida: {e}", "error")
+        return redirect("/dividas")
 
-    dados.setdefault("dividas", {})
-    dados["dividas"][nome] = {
-        "inicial": inicial,
-        "total": inicial,
-        "taxa": taxa,
-        "prestacao": prestacao
-    }
-
-    save_all_from_dict(dados)
+    flash("Dívida adicionada com sucesso.", "success")
     return redirect("/dividas")
+
 
 @app.route("/delete_divida/<nome>")
 @login_required
 def delete_divida(nome):
-    dados = export_to_dict()
+    try:
+        delete_divida_db(nome)
+    except Exception as e:
+        app.logger.exception("Erro ao remover dívida")
+        flash(f"Erro ao remover dívida: {e}", "error")
+        return redirect("/dividas")
 
-    if nome in dados.get("dividas", {}):
-        del dados["dividas"][nome]
-        save_all_from_dict(dados)
-
+    flash("Dívida removida.", "warning")
     return redirect("/dividas")
+
 
 @app.route("/update_divida/<nome>", methods=["POST"])
 @login_required
 def update_divida(nome):
-    dados = export_to_dict()
-
-    if nome not in dados.get("dividas", {}):
-        return redirect("/dividas")
-
     inicial_txt = request.form.get("inicial", "").strip()
     total_txt = request.form.get("total", "").strip()
     taxa_txt = request.form.get("taxa", "").strip()
@@ -501,17 +499,15 @@ def update_divida(nome):
         total = float(total_txt)
         taxa = float(taxa_txt)
         prestacao = float(prestacao_txt)
+        update_divida_db(nome, inicial, total, taxa, prestacao)
     except ValueError:
         return redirect("/dividas")
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar dívida")
+        flash(f"Erro ao atualizar dívida: {e}", "error")
+        return redirect("/dividas")
 
-    dados["dividas"][nome] = {
-        "inicial": inicial,
-        "total": total,
-        "taxa": taxa,
-        "prestacao": prestacao
-    }
-
-    save_all_from_dict(dados)
+    flash("Dívida atualizada com sucesso.", "success")
     return redirect("/dividas")
 
 
