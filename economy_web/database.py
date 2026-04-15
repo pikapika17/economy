@@ -213,3 +213,6 @@ def export_to_dict():
 
     conn.close()
     return dados
+
+def init_db():
+    pass
