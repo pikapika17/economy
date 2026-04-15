@@ -8,8 +8,6 @@ DB_USER = os.environ.get("DB_USER", "economy_user")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "C.entrino051497")
 DB_NAME = os.environ.get("DB_NAME", "economy_db")
 
-JSON_FILE = "dados.json"
-
 
 def get_connection():
     return pymysql.connect(
@@ -18,330 +16,13 @@ def get_connection():
         password=DB_PASSWORD,
         database=DB_NAME,
         charset="utf8mb4",
-        autocommit=True,
+        autocommit=False,  # 🔥 FIX: transações controladas
         cursorclass=pymysql.cursors.DictCursor,
     )
 
 
-# ---------------- USERS ----------------
+# ---------------- INIT DB ----------------
 
-def ensure_default_admin(username, password):
-    init_db()
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT id FROM users LIMIT 1")
-    existe = cur.fetchone()
-
-    if not existe:
-        cur.execute(
-            "INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, 1)",
-            (username, generate_password_hash(password))
-        )
-
-    conn.close()
-
-
-def get_user_by_username(username):
-    init_db()
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "SELECT id, username, password_hash, is_admin FROM users WHERE username = %s",
-        (username,)
-    )
-
-    row = cur.fetchone()
-    conn.close()
-    return row
-
-
-def authenticate_user(username, password):
-    user = get_user_by_username(username)
-
-    if not user:
-        return None
-
-    if check_password_hash(user["password_hash"], password):
-        return {
-            "id": user["id"],
-            "username": user["username"],
-            "is_admin": bool(user["is_admin"])
-        }
-
-    return None
-
-
-def list_users():
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT id, username, is_admin FROM users ORDER BY username")
-    rows = cur.fetchall()
-
-    conn.close()
-    return rows
-
-
-def add_user(username, password, is_admin=False):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, %s)",
-        (username, generate_password_hash(password), 1 if is_admin else 0)
-    )
-
-    conn.close()
-
-
-def delete_user(username):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("DELETE FROM users WHERE username = %s", (username,))
-
-    conn.close()
-
-
-# ---------------- CONFIG ----------------
-
-def set_config(key, value):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("""
-        INSERT INTO config (`key`, value)
-        VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE value = VALUES(value)
-    """, (key, json.dumps(value)))
-
-    conn.close()
-
-
-def get_config(key, default=None):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute("SELECT value FROM config WHERE `key` = %s", (key,))
-    row = cur.fetchone()
-
-    conn.close()
-
-    if not row:
-        return default
-
-    try:
-        return json.loads(row["value"])
-    except Exception:
-        return default
-
-
-# ---------------- EXPORT ----------------
-
-def export_to_dict():
-    conn = get_connection()
-    cur = conn.cursor()
-
-    dados = {}
-
-    dados["mes_atual"] = get_config("mes_atual", "")
-    dados["saldo_inicial"] = get_config("saldo_inicial", 0.0)
-
-    cur.execute("SELECT nome, valor FROM salarios ORDER BY id")
-    dados["salarios"] = {row["nome"]: row["valor"] for row in cur.fetchall()}
-
-    cur.execute("SELECT nome, valor FROM contribuicoes ORDER BY id")
-    dados["contribuicoes"] = {row["nome"]: row["valor"] for row in cur.fetchall()}
-
-    cur.execute("SELECT nome FROM categorias ORDER BY nome")
-    dados["categorias"] = [row["nome"] for row in cur.fetchall()]
-
-    cur.execute("SELECT nome, inicial, total, taxa, prestacao FROM dividas ORDER BY id")
-    dados["dividas"] = {
-        row["nome"]: {
-            "inicial": row["inicial"],
-            "total": row["total"],
-            "taxa": row["taxa"],
-            "prestacao": row["prestacao"],
-        }
-        for row in cur.fetchall()
-    }
-
-    cur.execute("SELECT nome, valor_mensal, desde, notas FROM pendentes ORDER BY id")
-    dados["pendentes"] = {
-        row["nome"]: {
-            "valor_mensal": row["valor_mensal"],
-            "desde": row["desde"],
-            "notas": row["notas"],
-        }
-        for row in cur.fetchall()
-    }
-
-    cur.execute("SELECT nome, valor, categoria FROM despesas_fixas ORDER BY id")
-    dados["despesas_fixas"] = {
-        row["nome"]: {
-            "valor": row["valor"],
-            "categoria": row["categoria"],
-        }
-        for row in cur.fetchall()
-    }
-
-    cur.execute("SELECT nome, tipo, alvo FROM metas ORDER BY id")
-    dados["metas"] = [
-        {
-            "nome": row["nome"],
-            "tipo": row["tipo"],
-            "alvo": row["alvo"],
-        }
-        for row in cur.fetchall()
-    ]
-
-    dados["meses"] = {}
-    cur.execute("SELECT mes, nome, valor, categoria, pago FROM despesas ORDER BY mes, id")
-
-    for row in cur.fetchall():
-        mes = row["mes"]
-
-        if mes not in dados["meses"]:
-            dados["meses"][mes] = {"despesas": {}}
-
-        dados["meses"][mes]["despesas"][row["nome"]] = {
-            "valor": row["valor"],
-            "categoria": row["categoria"],
-            "pago": bool(row["pago"]),
-        }
-
-    conn.close()
-    return dados
-
-def save_all_from_dict(dados):
-    init_db()
-    conn = get_connection()
-    cur = conn.cursor()
-
-    try:
-        # limpar tabelas
-        for table in [
-            "config",
-            "salarios",
-            "contribuicoes",
-            "categorias",
-            "despesas",
-            "dividas",
-            "pendentes",
-            "despesas_fixas",
-            "metas",
-        ]:
-            cur.execute(f"DELETE FROM {table}")
-
-        # config
-        cur.execute(
-            "INSERT INTO config (`key`, value) VALUES (%s, %s)",
-            ("mes_atual", json.dumps(dados.get("mes_atual", "")))
-        )
-        cur.execute(
-            "INSERT INTO config (`key`, value) VALUES (%s, %s)",
-            ("saldo_inicial", json.dumps(dados.get("saldo_inicial", 0.0)))
-        )
-
-        # salarios
-        for nome, valor in dados.get("salarios", {}).items():
-            cur.execute(
-                "INSERT INTO salarios (nome, valor) VALUES (%s, %s)",
-                (nome, float(valor))
-            )
-
-        # contribuicoes
-        for nome, valor in dados.get("contribuicoes", {}).items():
-            cur.execute(
-                "INSERT INTO contribuicoes (nome, valor) VALUES (%s, %s)",
-                (nome, float(valor))
-            )
-
-        # categorias
-        for nome in dados.get("categorias", []):
-            cur.execute(
-                "INSERT INTO categorias (nome) VALUES (%s)",
-                (nome,)
-            )
-
-        # despesas
-        for mes, info_mes in dados.get("meses", {}).items():
-            for nome, info in info_mes.get("despesas", {}).items():
-
-                if isinstance(info, dict):
-                    valor = float(info.get("valor", 0))
-                    categoria = info.get("categoria", "Sem categoria")
-                    pago = 1 if info.get("pago", False) else 0
-                else:
-                    valor = float(info)
-                    categoria = "Sem categoria"
-                    pago = 0
-
-                cur.execute("""
-                    INSERT INTO despesas (mes, nome, valor, categoria, pago)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (mes, nome, valor, categoria, pago))
-
-        # dividas
-        for nome, info in dados.get("dividas", {}).items():
-            cur.execute("""
-                INSERT INTO dividas (nome, inicial, total, taxa, prestacao)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                nome,
-                float(info.get("inicial", info.get("total", 0))),
-                float(info.get("total", 0)),
-                float(info.get("taxa", 0)),
-                float(info.get("prestacao", 0)),
-            ))
-
-        # pendentes
-        for nome, info in dados.get("pendentes", {}).items():
-            cur.execute("""
-                INSERT INTO pendentes (nome, valor_mensal, desde, notas)
-                VALUES (%s, %s, %s, %s)
-            """, (
-                nome,
-                float(info.get("valor_mensal", 0)),
-                info.get("desde", ""),
-                info.get("notas", ""),
-            ))
-
-        # despesas fixas
-        for nome, info in dados.get("despesas_fixas", {}).items():
-            cur.execute("""
-                INSERT INTO despesas_fixas (nome, valor, categoria)
-                VALUES (%s, %s, %s)
-            """, (
-                nome,
-                float(info.get("valor", 0)),
-                info.get("categoria", "Sem categoria"),
-            ))
-
-        # metas
-        for meta in dados.get("metas", []):
-            cur.execute("""
-                INSERT INTO metas (nome, tipo, alvo)
-                VALUES (%s, %s, %s)
-            """, (
-                meta.get("nome", ""),
-                meta.get("tipo", ""),
-                float(meta.get("alvo", 0)),
-            ))
-
-        conn.commit()
-
-    except Exception as e:
-        conn.rollback()
-        raise e
-
-    finally:
-        conn.close()
-        
-		
 def init_db():
     conn = get_connection()
     cur = conn.cursor()
@@ -413,7 +94,7 @@ def init_db():
             nome VARCHAR(255) NOT NULL UNIQUE,
             valor_mensal DOUBLE NOT NULL,
             desde VARCHAR(255) NOT NULL,
-            notas TEXT DEFAULT NULL
+            notas TEXT
         )
     """)
 
@@ -437,7 +118,253 @@ def init_db():
 
     conn.commit()
     conn.close()
-    
-def migrate_from_json(json_file=JSON_FILE):
-    pass
 
+
+# ---------------- USERS ----------------
+
+def ensure_default_admin(username, password):
+    init_db()
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id FROM users LIMIT 1")
+    if not cur.fetchone():
+        cur.execute(
+            "INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, 1)",
+            (username, generate_password_hash(password))
+        )
+        conn.commit()
+
+    conn.close()
+
+
+def get_user_by_username(username):
+    init_db()
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+    row = cur.fetchone()
+
+    conn.close()
+    return row
+
+
+def authenticate_user(username, password):
+    user = get_user_by_username(username)
+
+    if not user:
+        return None
+
+    if check_password_hash(user["password_hash"], password):
+        return {
+            "id": user["id"],
+            "username": user["username"],
+            "is_admin": bool(user["is_admin"])
+        }
+
+    return None
+
+
+def list_users():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, username, is_admin FROM users ORDER BY username")
+    rows = cur.fetchall()
+
+    conn.close()
+    return rows
+
+
+def add_user(username, password, is_admin=False):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, %s)",
+        (username, generate_password_hash(password), 1 if is_admin else 0)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def delete_user(username):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM users WHERE username = %s", (username,))
+
+    conn.commit()
+    conn.close()
+
+
+# ---------------- CONFIG ----------------
+
+def set_config(key, value):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO config (`key`, value)
+        VALUES (%s, %s)
+        ON DUPLICATE KEY UPDATE value = VALUES(value)
+    """, (key, json.dumps(value)))
+
+    conn.commit()
+    conn.close()
+
+
+def get_config(key, default=None):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT value FROM config WHERE `key` = %s", (key,))
+    row = cur.fetchone()
+
+    conn.close()
+
+    if not row:
+        return default
+
+    try:
+        return json.loads(row["value"])
+    except Exception:
+        return default
+
+
+# ---------------- EXPORT ----------------
+
+def export_to_dict():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    dados = {}
+
+    dados["mes_atual"] = get_config("mes_atual", "")
+    dados["saldo_inicial"] = get_config("saldo_inicial", 0.0)
+
+    cur.execute("SELECT nome, valor FROM salarios")
+    dados["salarios"] = {r["nome"]: r["valor"] for r in cur.fetchall()}
+
+    cur.execute("SELECT nome, valor FROM contribuicoes")
+    dados["contribuicoes"] = {r["nome"]: r["valor"] for r in cur.fetchall()}
+
+    cur.execute("SELECT nome FROM categorias")
+    dados["categorias"] = [r["nome"] for r in cur.fetchall()]
+
+    cur.execute("SELECT nome, inicial, total, taxa, prestacao FROM dividas")
+    dados["dividas"] = {
+        r["nome"]: {
+            "inicial": r["inicial"],
+            "total": r["total"],
+            "taxa": r["taxa"],
+            "prestacao": r["prestacao"],
+        }
+        for r in cur.fetchall()
+    }
+
+    cur.execute("SELECT nome, valor_mensal, desde, notas FROM pendentes")
+    dados["pendentes"] = {
+        r["nome"]: {
+            "valor_mensal": r["valor_mensal"],
+            "desde": r["desde"],
+            "notas": r["notas"],
+        }
+        for r in cur.fetchall()
+    }
+
+    cur.execute("SELECT nome, valor, categoria FROM despesas_fixas")
+    dados["despesas_fixas"] = {
+        r["nome"]: {
+            "valor": r["valor"],
+            "categoria": r["categoria"],
+        }
+        for r in cur.fetchall()
+    }
+
+    cur.execute("SELECT nome, tipo, alvo FROM metas")
+    dados["metas"] = list(cur.fetchall())
+
+    dados["meses"] = {}
+    cur.execute("SELECT mes, nome, valor, categoria, pago FROM despesas")
+
+    for r in cur.fetchall():
+        mes = r["mes"]
+        dados.setdefault("meses", {}).setdefault(mes, {"despesas": {}})
+        dados["meses"][mes]["despesas"][r["nome"]] = {
+            "valor": r["valor"],
+            "categoria": r["categoria"],
+            "pago": bool(r["pago"]),
+        }
+
+    conn.close()
+    return dados
+
+
+# ---------------- SAVE ----------------
+
+def save_all_from_dict(dados):
+    init_db()
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        for table in [
+            "config","salarios","contribuicoes","categorias",
+            "despesas","dividas","pendentes","despesas_fixas","metas"
+        ]:
+            cur.execute(f"DELETE FROM {table}")
+
+        set_config("mes_atual", dados.get("mes_atual", ""))
+        set_config("saldo_inicial", dados.get("saldo_inicial", 0.0))
+
+        for nome, v in dados.get("salarios", {}).items():
+            cur.execute("INSERT INTO salarios (nome, valor) VALUES (%s, %s)", (nome, v))
+
+        for nome, v in dados.get("contribuicoes", {}).items():
+            cur.execute("INSERT INTO contribuicoes (nome, valor) VALUES (%s, %s)", (nome, v))
+
+        for nome in dados.get("categorias", []):
+            cur.execute("INSERT INTO categorias (nome) VALUES (%s)", (nome,))
+
+        for mes, info in dados.get("meses", {}).items():
+            for nome, d in info.get("despesas", {}).items():
+                cur.execute(
+                    "INSERT INTO despesas (mes,nome,valor,categoria,pago) VALUES (%s,%s,%s,%s,%s)",
+                    (mes, nome, d["valor"], d["categoria"], int(d.get("pago", False)))
+                )
+
+        for nome, d in dados.get("dividas", {}).items():
+            cur.execute(
+                "INSERT INTO dividas (nome,inicial,total,taxa,prestacao) VALUES (%s,%s,%s,%s,%s)",
+                (nome, d["inicial"], d["total"], d["taxa"], d["prestacao"])
+            )
+
+        for nome, d in dados.get("pendentes", {}).items():
+            cur.execute(
+                "INSERT INTO pendentes (nome,valor_mensal,desde,notas) VALUES (%s,%s,%s,%s)",
+                (nome, d["valor_mensal"], d["desde"], d["notas"])
+            )
+
+        for nome, d in dados.get("despesas_fixas", {}).items():
+            cur.execute(
+                "INSERT INTO despesas_fixas (nome,valor,categoria) VALUES (%s,%s,%s)",
+                (nome, d["valor"], d["categoria"])
+            )
+
+        for m in dados.get("metas", []):
+            cur.execute(
+                "INSERT INTO metas (nome,tipo,alvo) VALUES (%s,%s,%s)",
+                (m["nome"], m["tipo"], m["alvo"])
+            )
+
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback()
+        raise e
+
+    finally:
+        conn.close()
