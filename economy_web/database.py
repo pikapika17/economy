@@ -16,7 +16,7 @@ def get_connection():
         password=DB_PASSWORD,
         database=DB_NAME,
         charset="utf8mb4",
-        autocommit=False,  # 🔥 FIX: transações controladas
+        autocommit=False,
         cursorclass=pymysql.cursors.DictCursor,
     )
 
@@ -312,59 +312,118 @@ def save_all_from_dict(dados):
 
     try:
         for table in [
-            "config","salarios","contribuicoes","categorias",
-            "despesas","dividas","pendentes","despesas_fixas","metas"
+            "config",
+            "salarios",
+            "contribuicoes",
+            "categorias",
+            "despesas",
+            "dividas",
+            "pendentes",
+            "despesas_fixas",
+            "metas",
         ]:
             cur.execute(f"DELETE FROM {table}")
 
-        set_config("mes_atual", dados.get("mes_atual", ""))
-        set_config("saldo_inicial", dados.get("saldo_inicial", 0.0))
+        # config — usar a MESMA ligação
+        cur.execute(
+            "INSERT INTO config (`key`, value) VALUES (%s, %s)",
+            ("mes_atual", json.dumps(dados.get("mes_atual", "")))
+        )
+        cur.execute(
+            "INSERT INTO config (`key`, value) VALUES (%s, %s)",
+            ("saldo_inicial", json.dumps(dados.get("saldo_inicial", 0.0)))
+        )
 
-        for nome, v in dados.get("salarios", {}).items():
-            cur.execute("INSERT INTO salarios (nome, valor) VALUES (%s, %s)", (nome, v))
+        # salarios
+        for nome, valor in dados.get("salarios", {}).items():
+            cur.execute(
+                "INSERT INTO salarios (nome, valor) VALUES (%s, %s)",
+                (nome, float(valor))
+            )
 
-        for nome, v in dados.get("contribuicoes", {}).items():
-            cur.execute("INSERT INTO contribuicoes (nome, valor) VALUES (%s, %s)", (nome, v))
+        # contribuicoes
+        for nome, valor in dados.get("contribuicoes", {}).items():
+            cur.execute(
+                "INSERT INTO contribuicoes (nome, valor) VALUES (%s, %s)",
+                (nome, float(valor))
+            )
 
+        # categorias
         for nome in dados.get("categorias", []):
-            cur.execute("INSERT INTO categorias (nome) VALUES (%s)", (nome,))
-
-        for mes, info in dados.get("meses", {}).items():
-            for nome, d in info.get("despesas", {}).items():
-                cur.execute(
-                    "INSERT INTO despesas (mes,nome,valor,categoria,pago) VALUES (%s,%s,%s,%s,%s)",
-                    (mes, nome, d["valor"], d["categoria"], int(d.get("pago", False)))
-                )
-
-        for nome, d in dados.get("dividas", {}).items():
             cur.execute(
-                "INSERT INTO dividas (nome,inicial,total,taxa,prestacao) VALUES (%s,%s,%s,%s,%s)",
-                (nome, d["inicial"], d["total"], d["taxa"], d["prestacao"])
+                "INSERT INTO categorias (nome) VALUES (%s)",
+                (nome,)
             )
 
-        for nome, d in dados.get("pendentes", {}).items():
-            cur.execute(
-                "INSERT INTO pendentes (nome,valor_mensal,desde,notas) VALUES (%s,%s,%s,%s)",
-                (nome, d["valor_mensal"], d["desde"], d["notas"])
-            )
+        # despesas
+        for mes, info_mes in dados.get("meses", {}).items():
+            for nome, info in info_mes.get("despesas", {}).items():
+                if isinstance(info, dict):
+                    valor = float(info.get("valor", 0))
+                    categoria = info.get("categoria", "Sem categoria")
+                    pago = 1 if info.get("pago", False) else 0
+                else:
+                    valor = float(info)
+                    categoria = "Sem categoria"
+                    pago = 0
 
-        for nome, d in dados.get("despesas_fixas", {}).items():
-            cur.execute(
-                "INSERT INTO despesas_fixas (nome,valor,categoria) VALUES (%s,%s,%s)",
-                (nome, d["valor"], d["categoria"])
-            )
+                cur.execute("""
+                    INSERT INTO despesas (mes, nome, valor, categoria, pago)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (mes, nome, valor, categoria, pago))
 
-        for m in dados.get("metas", []):
-            cur.execute(
-                "INSERT INTO metas (nome,tipo,alvo) VALUES (%s,%s,%s)",
-                (m["nome"], m["tipo"], m["alvo"])
-            )
+        # dividas
+        for nome, info in dados.get("dividas", {}).items():
+            cur.execute("""
+                INSERT INTO dividas (nome, inicial, total, taxa, prestacao)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (
+                nome,
+                float(info.get("inicial", info.get("total", 0))),
+                float(info.get("total", 0)),
+                float(info.get("taxa", 0)),
+                float(info.get("prestacao", 0)),
+            ))
+
+        # pendentes
+        for nome, info in dados.get("pendentes", {}).items():
+            cur.execute("""
+                INSERT INTO pendentes (nome, valor_mensal, desde, notas)
+                VALUES (%s, %s, %s, %s)
+            """, (
+                nome,
+                float(info.get("valor_mensal", 0)),
+                info.get("desde", ""),
+                info.get("notas", ""),
+            ))
+
+        # despesas fixas
+        for nome, info in dados.get("despesas_fixas", {}).items():
+            cur.execute("""
+                INSERT INTO despesas_fixas (nome, valor, categoria)
+                VALUES (%s, %s, %s)
+            """, (
+                nome,
+                float(info.get("valor", 0)),
+                info.get("categoria", "Sem categoria"),
+            ))
+
+        # metas
+        for meta in dados.get("metas", []):
+            cur.execute("""
+                INSERT INTO metas (nome, tipo, alvo)
+                VALUES (%s, %s, %s)
+            """, (
+                meta.get("nome", ""),
+                meta.get("tipo", ""),
+                float(meta.get("alvo", 0)),
+            ))
 
         conn.commit()
 
-    except Exception as e:
+    except Exception:
         conn.rollback()
-        raise e
+        raise
 
     finally:
         conn.close()
