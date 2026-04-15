@@ -130,7 +130,7 @@ def ensure_default_admin(username, password):
 
 	if not existe:
 		cur.execute(
-			"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)",
+			"INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, 1)",
 			(username, generate_password_hash(password))
 		)
 		conn.commit()
@@ -178,7 +178,7 @@ def add_user(username, password, is_admin=False):
 	conn = get_connection()
 	cur = conn.cursor()
 	cur.execute(
-		"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
+		"INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, %s)",
 		(username, generate_password_hash(password), 1 if is_admin else 0)
 	)
 	conn.commit()
@@ -209,7 +209,7 @@ def set_config(key, value):
 def get_config(key, default=None):
 	conn = get_connection()
 	cur = conn.cursor()
-	cur.execute("SELECT value FROM config WHERE key = ?", (key,))
+	cur.execute("SELECT value FROM config WHERE key = %s", (key,))
 	row = cur.fetchone()
 	conn.close()
 
