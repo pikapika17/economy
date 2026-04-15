@@ -16,6 +16,12 @@ from database import (
     add_despesa as db_add_despesa,
     delete_despesa as db_delete_despesa,
     update_despesa_pago as db_update_despesa_pago,
+    add_salario as db_add_salario,
+    update_salario as db_update_salario,
+    delete_salario_db,
+    add_contribuicao_db,
+    update_contribuicao_db,
+    delete_contribuicao_db,
 )
 
 app = Flask(__name__)
@@ -704,8 +710,6 @@ def update_config():
 @app.route("/add_salario", methods=["POST"])
 @login_required
 def add_salario():
-    dados = export_to_dict()
-
     nome = request.form.get("nome", "").strip()
     valor_txt = request.form.get("valor", "").strip()
 
@@ -714,24 +718,21 @@ def add_salario():
 
     try:
         valor = float(valor_txt)
+        db_add_salario(nome, valor)
     except ValueError:
         return redirect("/sistema")
+    except Exception as e:
+        app.logger.exception("Erro ao adicionar salário")
+        flash(f"Erro ao adicionar salário: {e}", "error")
+        return redirect("/sistema")
 
-    dados.setdefault("salarios", {})
-    dados["salarios"][nome] = valor
-
-    save_all_from_dict(dados)
+    flash("Salário adicionado com sucesso.", "success")
     return redirect("/sistema")
 
 
 @app.route("/update_salario/<nome>", methods=["POST"])
 @login_required
 def update_salario(nome):
-    dados = export_to_dict()
-
-    if nome not in dados.get("salarios", {}):
-        return redirect("/sistema")
-
     novo_nome = request.form.get("novo_nome", "").strip()
     valor_txt = request.form.get("valor", "").strip()
 
@@ -740,34 +741,35 @@ def update_salario(nome):
 
     try:
         valor = float(valor_txt)
+        db_update_salario(nome, novo_nome, valor)
     except ValueError:
         return redirect("/sistema")
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar salário")
+        flash(f"Erro ao atualizar salário: {e}", "error")
+        return redirect("/sistema")
 
-    if novo_nome != nome:
-        del dados["salarios"][nome]
-
-    dados["salarios"][novo_nome] = valor
-
-    save_all_from_dict(dados)
+    flash("Salário atualizado com sucesso.", "success")
     return redirect("/sistema")
 
 
 @app.route("/delete_salario/<nome>")
 @login_required
 def delete_salario(nome):
-    dados = export_to_dict()
+    try:
+        delete_salario_db(nome)
+    except Exception as e:
+        app.logger.exception("Erro ao remover salário")
+        flash(f"Erro ao remover salário: {e}", "error")
+        return redirect("/sistema")
 
-    if nome in dados.get("salarios", {}):
-        del dados["salarios"][nome]
-        save_all_from_dict(dados)
-
+    flash("Salário removido.", "warning")
     return redirect("/sistema")
+
 
 @app.route("/add_contribuicao", methods=["POST"])
 @login_required
 def add_contribuicao():
-    dados = export_to_dict()
-
     nome = request.form.get("nome", "").strip()
     valor_txt = request.form.get("valor", "").strip()
 
@@ -776,24 +778,21 @@ def add_contribuicao():
 
     try:
         valor = float(valor_txt)
+        add_contribuicao_db(nome, valor)
     except ValueError:
         return redirect("/sistema")
+    except Exception as e:
+        app.logger.exception("Erro ao adicionar contribuição")
+        flash(f"Erro ao adicionar contribuição: {e}", "error")
+        return redirect("/sistema")
 
-    dados.setdefault("contribuicoes", {})
-    dados["contribuicoes"][nome] = valor
-
-    save_all_from_dict(dados)
+    flash("Contribuição adicionada com sucesso.", "success")
     return redirect("/sistema")
 
 
 @app.route("/update_contribuicao/<nome>", methods=["POST"])
 @login_required
 def update_contribuicao(nome):
-    dados = export_to_dict()
-
-    if nome not in dados.get("contribuicoes", {}):
-        return redirect("/sistema")
-
     novo_nome = request.form.get("novo_nome", "").strip()
     valor_txt = request.form.get("valor", "").strip()
 
@@ -802,28 +801,31 @@ def update_contribuicao(nome):
 
     try:
         valor = float(valor_txt)
+        update_contribuicao_db(nome, novo_nome, valor)
     except ValueError:
         return redirect("/sistema")
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar contribuição")
+        flash(f"Erro ao atualizar contribuição: {e}", "error")
+        return redirect("/sistema")
 
-    if novo_nome != nome:
-        del dados["contribuicoes"][nome]
-
-    dados["contribuicoes"][novo_nome] = valor
-
-    save_all_from_dict(dados)
+    flash("Contribuição atualizada com sucesso.", "success")
     return redirect("/sistema")
 
 
 @app.route("/delete_contribuicao/<nome>")
 @login_required
 def delete_contribuicao(nome):
-    dados = export_to_dict()
+    try:
+        delete_contribuicao_db(nome)
+    except Exception as e:
+        app.logger.exception("Erro ao remover contribuição")
+        flash(f"Erro ao remover contribuição: {e}", "error")
+        return redirect("/sistema")
 
-    if nome in dados.get("contribuicoes", {}):
-        del dados["contribuicoes"][nome]
-        save_all_from_dict(dados)
-
+    flash("Contribuição removida.", "warning")
     return redirect("/sistema")
+
 
 @app.route("/add_categoria", methods=["POST"])
 @login_required

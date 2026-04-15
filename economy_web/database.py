@@ -482,3 +482,86 @@ def update_despesa_pago(mes, nome, pago):
 
     conn.commit()
     conn.close()
+    
+# ---------------- SALARIOS (SQL DIRETO) ----------------
+
+def add_salario(nome, valor):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO salarios (nome, valor)
+        VALUES (%s, %s)
+    """, (nome, float(valor)))
+
+    conn.commit()
+    conn.close()
+
+
+def update_salario(nome_antigo, novo_nome, valor):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE salarios
+        SET nome = %s, valor = %s
+        WHERE nome = %s
+    """, (novo_nome, float(valor), nome_antigo))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_salario_db(nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM salarios
+        WHERE nome = %s
+    """, (nome,))
+
+    conn.commit()
+    conn.close()
+
+
+# ---------------- CONTRIBUICOES (SQL DIRETO) ----------------
+
+def add_contribuicao_db(nome, valor):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO contribuicoes (nome, valor)
+        VALUES (%s, %s)
+    """, (nome, float(valor)))
+
+    conn.commit()
+    conn.close()
+
+
+def update_contribuicao_db(nome_antigo, novo_nome, valor):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE contribuicoes
+        SET nome = %s, valor = %s
+        WHERE nome = %s
+    """, (novo_nome, float(valor), nome_antigo))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_contribuicao_db(nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM contribuicoes
+        WHERE nome = %s
+    """, (nome,))
+
+    conn.commit()
+    conn.close()
