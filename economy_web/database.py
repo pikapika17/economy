@@ -216,3 +216,6 @@ def export_to_dict():
 
 def init_db():
     pass
+
+def save_all_from_dict(dados):
+    pass
