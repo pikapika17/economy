@@ -943,32 +943,39 @@ def planeamento():
 @app.route("/simulacao")
 @login_required
 def simulacao():
-	dados = export_to_dict(session["user_id"])
+    dados = export_to_dict(session["user_id"])
 
-	extra_txt = request.args.get("extra", "0").strip()
-	try:
-		extra = float(extra_txt)
-	except ValueError:
-		extra = 0.0
+    extra_txt = request.args.get("extra", "0").strip()
+    try:
+        extra = float(extra_txt)
+    except ValueError:
+        extra = 0.0
 
-	resultado = simular_dividas_web(dados, extra)
+    resultado = simular_dividas_web(dados, extra)
 
-	cenarios = []
-	for valor in [0, 100, 250, 500]:
-		r = simular_dividas_web(dados, valor)
-		cenarios.append({
-			"extra": valor,
-			"meses": r["meses"],
-			"juros": r["juros"],
-			"problema": r["problema"]
-		})
+    cenarios = []
+    for valor in [0, 100, 250, 500]:
+        r = simular_dividas_web(dados, valor)
+        cenarios.append({
+            "extra": valor,
+            "meses": r["meses"],
+            "juros": r["juros"],
+            "problema": r["problema"]
+        })
 
-	return render_template(
-		"simulacao.html",
-		extra=extra,
-		resultado=resultado,
-		cenarios=cenarios
-	)
+    total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
+    total_pendentes = total_pendentes_web(dados)
+    total_geral = total_divida + total_pendentes
+
+    return render_template(
+        "simulacao.html",
+        extra=extra,
+        resultado=resultado,
+        cenarios=cenarios,
+        total_divida=total_divida,
+        total_pendentes=total_pendentes,
+        total_geral=total_geral
+    )
 
 @app.route("/timeline")
 @login_required
