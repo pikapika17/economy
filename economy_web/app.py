@@ -42,6 +42,8 @@ from database import (
 	delete_invite_code,
 	create_random_invite_code,
 	create_multiple_invite_codes,
+	set_user_admin,
+    update_user_password,
 )
 
 app = Flask(__name__)
@@ -1018,6 +1020,75 @@ def admin_delete_user(username):
 	delete_user(username)
 	flash("Utilizador removido.", "success")
 	return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/users/toggle-admin/<username>", methods=["POST"])
+@admin_required
+def admin_toggle_user_admin(username):
+    if username == session.get("user"):
+        flash("Não podes alterar o teu próprio papel aqui.", "warning")
+        return redirect(url_for("admin_users"))
+
+    user = get_user_by_username(username)
+    if not user:
+        flash("Utilizador não encontrado.", "warning")
+        return redirect(url_for("admin_users"))
+
+    novo_estado = not bool(user["is_admin"])
+
+    if not novo_estado:
+        admins = [u for u in list_users() if u["is_admin"]]
+        if len(admins) <= 1:
+            flash("Não podes remover o último administrador.", "warning")
+            return redirect(url_for("admin_users"))
+
+    try:
+        set_user_admin(username, novo_estado)
+    except Exception as e:
+        app.logger.exception("Erro ao alterar permissões do utilizador")
+        flash(f"Erro ao atualizar permissões: {e}", "error")
+        return redirect(url_for("admin_users"))
+
+    if novo_estado:
+        flash("Utilizador promovido a administrador.", "success")
+    else:
+        flash("Permissões de administrador removidas.", "warning")
+
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/users/reset-password/<username>", methods=["POST"])
+@admin_required
+def admin_reset_user_password(username):
+    user = get_user_by_username(username)
+    if not user:
+        flash("Utilizador não encontrado.", "warning")
+        return redirect(url_for("admin_users"))
+
+    new_password = request.form.get("new_password", "").strip()
+    confirm_password = request.form.get("confirm_password", "").strip()
+
+    if not new_password or not confirm_password:
+        flash("Preenche os dois campos da nova password.", "error")
+        return redirect(url_for("admin_users"))
+
+    if new_password != confirm_password:
+        flash("As passwords não coincidem.", "error")
+        return redirect(url_for("admin_users"))
+
+    if len(new_password) < 6:
+        flash("A password deve ter pelo menos 6 caracteres.", "error")
+        return redirect(url_for("admin_users"))
+
+    try:
+        update_user_password(username, new_password)
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar password")
+        flash(f"Erro ao atualizar password: {e}", "error")
+        return redirect(url_for("admin_users"))
+
+    flash(f"Password do utilizador {username} atualizada com sucesso.", "success")
+    return redirect(url_for("admin_users"))
 
 
 @app.route("/register", methods=["GET", "POST"])

@@ -868,3 +868,33 @@ def create_multiple_invite_codes(quantity=5, length=10):
         codes.append(code)
 
     return codes
+
+
+# ---------------- ADMIN USERS ----------------
+
+def set_user_admin(username, is_admin):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET is_admin = %s
+        WHERE username = %s
+    """, (1 if is_admin else 0, username))
+
+    conn.commit()
+    conn.close()
+
+
+def update_user_password(username, new_password):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET password_hash = %s
+        WHERE username = %s
+    """, (generate_password_hash(new_password), username))
+
+    conn.commit()
+    conn.close()
