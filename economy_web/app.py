@@ -1,7 +1,23 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session, url_for
+from functools import wraps
+import os
+
 from database import export_to_dict, save_all_from_dict
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "10bc07e31911f989b27123a4624e766b4afebc702fe79b5847209dd80cc42a70")
+
+APP_USER = os.environ.get("APP_USER", "admin")
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "C.entrino051497")
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 def calcular_info_divida_web(divida):
@@ -211,6 +227,7 @@ def resposta_ok(texto, tipo="success"):
     
 
 @app.route("/")
+@login_required
 def dashboard():
     dados = export_to_dict()
     mes = dados["mes_atual"]
@@ -242,6 +259,7 @@ def dashboard():
 # DESPESAS
 # =========================
 @app.route("/despesas")
+@login_required
 def despesas():
     dados = export_to_dict()
     mes = dados.get("mes_atual", "")
@@ -258,6 +276,7 @@ def despesas():
 
 
 @app.route("/add_despesa", methods=["POST"])
+@login_required
 def add_despesa():
     dados = export_to_dict()
     mes = dados.get("mes_atual", "")
@@ -291,6 +310,7 @@ def add_despesa():
 
 
 @app.route("/delete_despesa/<nome>")
+@login_required
 def delete_despesa(nome):
     dados = export_to_dict()
     mes = dados["mes_atual"]
@@ -303,6 +323,7 @@ def delete_despesa(nome):
 
 
 @app.route("/toggle_pago/<nome>")
+@login_required
 def toggle_pago(nome):
     dados = export_to_dict()
     mes = dados["mes_atual"]
@@ -314,6 +335,7 @@ def toggle_pago(nome):
     return redirect("/despesas")
 
 @app.route("/dividas")
+@login_required
 def dividas():
     dados = export_to_dict()
     dividas_dict = dados.get("dividas", {})
@@ -333,6 +355,7 @@ def dividas():
     return render_template("dividas.html", dividas=dividas_lista)
 
 @app.route("/add_divida", methods=["POST"])
+@login_required
 def add_divida():
     dados = export_to_dict()
 
@@ -363,6 +386,7 @@ def add_divida():
     return redirect("/dividas")
 
 @app.route("/delete_divida/<nome>")
+@login_required
 def delete_divida(nome):
     dados = export_to_dict()
 
@@ -373,6 +397,7 @@ def delete_divida(nome):
     return redirect("/dividas")
 
 @app.route("/update_divida/<nome>", methods=["POST"])
+@login_required
 def update_divida(nome):
     dados = export_to_dict()
 
@@ -404,6 +429,7 @@ def update_divida(nome):
 
 
 @app.route("/pendentes")
+@login_required
 def pendentes():
     dados = export_to_dict()
     mes_atual = dados.get("mes_atual", "")
@@ -441,6 +467,7 @@ def pendentes():
     )
 
 @app.route("/add_pendente", methods=["POST"])
+@login_required
 def add_pendente():
     dados = export_to_dict()
 
@@ -471,6 +498,7 @@ def add_pendente():
     return redirect("/pendentes")
 
 @app.route("/update_pendente/<nome>", methods=["POST"])
+@login_required
 def update_pendente(nome):
     dados = export_to_dict()
 
@@ -506,6 +534,7 @@ def update_pendente(nome):
     return redirect("/pendentes")
 
 @app.route("/delete_pendente/<nome>")
+@login_required
 def delete_pendente(nome):
     dados = export_to_dict()
 
@@ -516,6 +545,7 @@ def delete_pendente(nome):
     return redirect("/pendentes")
 
 @app.route("/convert_pendente/<nome>")
+@login_required
 def convert_pendente(nome):
     dados = export_to_dict()
     mes_atual = dados.get("mes_atual", "")
@@ -549,6 +579,7 @@ def convert_pendente(nome):
     return redirect("/pendentes")
 
 @app.route("/sistema")
+@login_required
 def sistema():
     dados = export_to_dict()
 
@@ -562,6 +593,7 @@ def sistema():
     )
 
 @app.route("/update_config", methods=["POST"])
+@login_required
 def update_config():
     dados = export_to_dict()
 
@@ -587,6 +619,7 @@ def update_config():
     return redirect("/sistema")    
 
 @app.route("/add_salario", methods=["POST"])
+@login_required
 def add_salario():
     dados = export_to_dict()
 
@@ -609,6 +642,7 @@ def add_salario():
 
 
 @app.route("/update_salario/<nome>", methods=["POST"])
+@login_required
 def update_salario(nome):
     dados = export_to_dict()
 
@@ -636,6 +670,7 @@ def update_salario(nome):
 
 
 @app.route("/delete_salario/<nome>")
+@login_required
 def delete_salario(nome):
     dados = export_to_dict()
 
@@ -646,6 +681,7 @@ def delete_salario(nome):
     return redirect("/sistema")
 
 @app.route("/add_contribuicao", methods=["POST"])
+@login_required
 def add_contribuicao():
     dados = export_to_dict()
 
@@ -668,6 +704,7 @@ def add_contribuicao():
 
 
 @app.route("/update_contribuicao/<nome>", methods=["POST"])
+@login_required
 def update_contribuicao(nome):
     dados = export_to_dict()
 
@@ -695,6 +732,7 @@ def update_contribuicao(nome):
 
 
 @app.route("/delete_contribuicao/<nome>")
+@login_required
 def delete_contribuicao(nome):
     dados = export_to_dict()
 
@@ -705,6 +743,7 @@ def delete_contribuicao(nome):
     return redirect("/sistema")
 
 @app.route("/add_categoria", methods=["POST"])
+@login_required
 def add_categoria():
     dados = export_to_dict()
 
@@ -722,6 +761,7 @@ def add_categoria():
 
 
 @app.route("/delete_categoria/<nome>")
+@login_required
 def delete_categoria(nome):
     dados = export_to_dict()
 
@@ -732,6 +772,7 @@ def delete_categoria(nome):
     return redirect("/sistema")
 
 @app.route("/planeamento")
+@login_required
 def planeamento():
     dados = export_to_dict()
     mes = dados.get("mes_atual", "")
@@ -773,6 +814,7 @@ def planeamento():
     )
 
 @app.route("/simulacao")
+@login_required
 def simulacao():
     dados = export_to_dict()
 
@@ -802,6 +844,7 @@ def simulacao():
     )
 
 @app.route("/timeline")
+@login_required
 def timeline():
     dados = export_to_dict()
 
@@ -835,5 +878,29 @@ def timeline():
         historico=historico
     )
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    erro = None
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if username == APP_USER and password == APP_PASSWORD:
+            session["logged_in"] = True
+            session["user"] = username
+            return redirect(url_for("dashboard"))
+        else:
+            erro = "Credenciais inválidas."
+
+    return render_template("login.html", erro=erro)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
