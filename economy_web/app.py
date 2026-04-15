@@ -1105,7 +1105,7 @@ def add_meta():
 
     try:
         alvo = float(alvo_txt)
-        add_meta_db(nome, tipo, alvo)
+        add_meta_db(session["user_id"], nome, tipo, alvo)
     except ValueError:
         return redirect("/metas")
     except Exception as e:
@@ -1129,7 +1129,7 @@ def update_meta(meta_id):
 
     try:
         alvo = float(alvo_txt)
-        update_meta_db(meta_id, nome, tipo, alvo)
+        update_meta_db(session["user_id"], meta_id, nome, tipo, alvo)
     except ValueError:
         return redirect("/metas")
     except Exception as e:
@@ -1145,7 +1145,7 @@ def update_meta(meta_id):
 @login_required
 def delete_meta(meta_id):
     try:
-        delete_meta_db(meta_id)
+        delete_meta_db(session["user_id"], meta_id)
     except Exception as e:
         app.logger.exception("Erro ao remover meta")
         flash(f"Erro ao remover meta: {e}", "error")
