@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from functools import wraps
+
 import os
 
 from database import (
@@ -12,6 +13,9 @@ from database import (
     delete_user,
     export_to_dict,
     save_all_from_dict,
+    add_despesa,
+    delete_despesa,
+    update_despesa_pago,
 )
 
 app = Flask(__name__)
@@ -344,17 +348,11 @@ def add_despesa():
     dados = export_to_dict()
     mes = dados.get("mes_atual", "")
 
-    if "meses" not in dados:
-        dados["meses"] = {}
-
-    if mes not in dados["meses"]:
-        dados["meses"][mes] = {"despesas": {}}
-
     nome = request.form.get("nome", "").strip()
     valor_txt = request.form.get("valor", "").strip()
     categoria = request.form.get("categoria", "").strip()
 
-    if not nome or not valor_txt or not categoria:
+    if not nome or not valor_txt or not categoria or not mes:
         return redirect("/despesas")
 
     try:
@@ -362,14 +360,13 @@ def add_despesa():
     except ValueError:
         return redirect("/despesas")
 
-    dados["meses"][mes]["despesas"][nome] = {
-        "valor": valor,
-        "categoria": categoria,
-        "pago": False
-    }
+    try:
+        db_add_despesa(mes, nome, valor, categoria, 0)
+        flash("Despesa adicionada com sucesso.", "success")
+    except Exception:
+        app.logger.exception("Erro ao adicionar despesa")
+        flash("Erro ao adicionar despesa.", "error")
 
-    save_all_from_dict(dados)
-    flash("Despesa adicionada com sucesso.", "success")
     return redirect("/despesas")
 
 
@@ -377,13 +374,18 @@ def add_despesa():
 @login_required
 def delete_despesa(nome):
     dados = export_to_dict()
-    mes = dados["mes_atual"]
+    mes = dados.get("mes_atual", "")
 
-    if nome in dados["meses"][mes]["despesas"]:
-        del dados["meses"][mes]["despesas"][nome]
+    if not mes:
+        return redirect("/despesas")
 
-    save_all_from_dict(dados)
-    flash("Despesa removida.", "warning")
+    try:
+        db_delete_despesa(mes, nome)
+        flash("Despesa removida.", "warning")
+    except Exception:
+        app.logger.exception("Erro ao apagar despesa")
+        flash("Erro ao remover despesa.", "error")
+
     return redirect("/despesas")
 
 
@@ -391,13 +393,24 @@ def delete_despesa(nome):
 @login_required
 def toggle_pago(nome):
     dados = export_to_dict()
-    mes = dados["mes_atual"]
+    mes = dados.get("mes_atual", "")
 
-    d = dados["meses"][mes]["despesas"][nome]
-    d["pago"] = not d.get("pago", False)
+    if not mes:
+        return redirect("/despesas")
 
-    save_all_from_dict(dados)
-    flash("Estado da despesa atualizado.", "success")
+    despesas_mes = dados.get("meses", {}).get(mes, {}).get("despesas", {})
+    if nome not in despesas_mes:
+        return redirect("/despesas")
+
+    pago_atual = despesas_mes[nome].get("pago", False)
+
+    try:
+        db_update_despesa_pago(mes, nome, not pago_atual)
+        flash("Estado da despesa atualizado.", "success")
+    except Exception:
+        app.logger.exception("Erro ao atualizar estado da despesa")
+        flash("Erro ao atualizar estado da despesa.", "error")
+
     return redirect("/despesas")
 
 @app.route("/dividas")

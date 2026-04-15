@@ -427,3 +427,45 @@ def save_all_from_dict(dados):
 
     finally:
         conn.close()
+        
+
+# ---------------- DESPESAS (SQL DIRETO) ----------------
+
+def add_despesa(mes, nome, valor, categoria, pago=0):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO despesas (mes, nome, valor, categoria, pago)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (mes, nome, float(valor), categoria, int(pago)))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_despesa(mes, nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM despesas
+        WHERE mes = %s AND nome = %s
+    """, (mes, nome))
+
+    conn.commit()
+    conn.close()
+
+
+def update_despesa_pago(mes, nome, pago):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE despesas
+        SET pago = %s
+        WHERE mes = %s AND nome = %s
+    """, (int(pago), mes, nome))
+
+    conn.commit()
+    conn.close()
