@@ -674,17 +674,19 @@ def sistema():
 @app.route("/update_config", methods=["POST"])
 @login_required
 def update_config():
-    mes_atual = request.form.get("mes_atual", "").strip()
     saldo_txt = request.form.get("saldo_inicial", "").strip()
+    mes_atual = request.form.get("mes_atual", "").strip()
 
-    if not mes_atual or not saldo_txt:
+    try:
+        saldo_inicial = float(saldo_txt)
+    except ValueError:
+        return redirect("/sistema")
+
+    if not validar_mes_web(mes_atual):
         return redirect("/sistema")
 
     try:
-        saldo = float(saldo_txt)
-        update_config_db(mes_atual, saldo)
-    except ValueError:
-        return redirect("/sistema")
+        update_config_db(session["user_id"], mes_atual, saldo_inicial)
     except Exception as e:
         app.logger.exception("Erro ao atualizar config")
         flash(f"Erro ao atualizar config: {e}", "error")
