@@ -12,7 +12,6 @@ from database import (
     get_user_by_username,
     delete_user,
     export_to_dict,
-    save_all_from_dict,
     add_despesa as db_add_despesa,
     delete_despesa as db_delete_despesa,
     update_despesa_pago as db_update_despesa_pago,
@@ -34,6 +33,7 @@ from database import (
     add_meta_db,
     update_meta_db,
     delete_meta_db,
+    update_config_db,
 )
 
 app = Flask(__name__)
@@ -674,28 +674,25 @@ def sistema():
 @app.route("/update_config", methods=["POST"])
 @login_required
 def update_config():
-    dados = export_to_dict()
-
-    saldo_txt = request.form.get("saldo_inicial", "").strip()
     mes_atual = request.form.get("mes_atual", "").strip()
+    saldo_txt = request.form.get("saldo_inicial", "").strip()
+
+    if not mes_atual or not saldo_txt:
+        return redirect("/sistema")
 
     try:
-        saldo_inicial = float(saldo_txt)
+        saldo = float(saldo_txt)
+        update_config_db(mes_atual, saldo)
     except ValueError:
         return redirect("/sistema")
-
-    if not validar_mes_web(mes_atual):
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar config")
+        flash(f"Erro ao atualizar config: {e}", "error")
         return redirect("/sistema")
 
-    dados["saldo_inicial"] = saldo_inicial
-    dados["mes_atual"] = mes_atual
+    flash("Configuração atualizada com sucesso.", "success")
+    return redirect("/sistema")
 
-    dados.setdefault("meses", {})
-    if mes_atual not in dados["meses"]:
-        dados["meses"][mes_atual] = {"despesas": {}}
-
-    save_all_from_dict(dados)
-    return redirect("/sistema")    
 
 @app.route("/add_salario", methods=["POST"])
 @login_required
@@ -1082,7 +1079,6 @@ def update_despesa(nome_antigo):
         "pago": pago
     }
 
-    save_all_from_dict(dados)
     flash("Despesa atualizada com sucesso.", "success")
     return redirect("/despesas")
 

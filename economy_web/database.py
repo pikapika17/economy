@@ -314,132 +314,6 @@ def export_to_dict():
 
     conn.close()
     return dados
-
-
-# ---------------- SAVE ----------------
-
-def save_all_from_dict(dados):
-    init_db()
-    conn = get_connection()
-    cur = conn.cursor()
-
-    try:
-        for table in [
-            "config",
-            "salarios",
-            "contribuicoes",
-            "categorias",
-            "despesas",
-            "dividas",
-            "pendentes",
-            "despesas_fixas",
-            "metas",
-        ]:
-            cur.execute(f"DELETE FROM {table}")
-
-        # config — usar a MESMA ligação
-        cur.execute(
-            "INSERT INTO config (`key`, value) VALUES (%s, %s)",
-            ("mes_atual", json.dumps(dados.get("mes_atual", "")))
-        )
-        cur.execute(
-            "INSERT INTO config (`key`, value) VALUES (%s, %s)",
-            ("saldo_inicial", json.dumps(dados.get("saldo_inicial", 0.0)))
-        )
-
-        # salarios
-        for nome, valor in dados.get("salarios", {}).items():
-            cur.execute(
-                "INSERT INTO salarios (nome, valor) VALUES (%s, %s)",
-                (nome, float(valor))
-            )
-
-        # contribuicoes
-        for nome, valor in dados.get("contribuicoes", {}).items():
-            cur.execute(
-                "INSERT INTO contribuicoes (nome, valor) VALUES (%s, %s)",
-                (nome, float(valor))
-            )
-
-        # categorias
-        for nome in dados.get("categorias", []):
-            cur.execute(
-                "INSERT INTO categorias (nome) VALUES (%s)",
-                (nome,)
-            )
-
-        # despesas
-        for mes, info_mes in dados.get("meses", {}).items():
-            for nome, info in info_mes.get("despesas", {}).items():
-                if isinstance(info, dict):
-                    valor = float(info.get("valor", 0))
-                    categoria = info.get("categoria", "Sem categoria")
-                    pago = 1 if info.get("pago", False) else 0
-                else:
-                    valor = float(info)
-                    categoria = "Sem categoria"
-                    pago = 0
-
-                cur.execute("""
-                    INSERT INTO despesas (mes, nome, valor, categoria, pago)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (mes, nome, valor, categoria, pago))
-
-        # dividas
-        for nome, info in dados.get("dividas", {}).items():
-            cur.execute("""
-                INSERT INTO dividas (nome, inicial, total, taxa, prestacao)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (
-                nome,
-                float(info.get("inicial", info.get("total", 0))),
-                float(info.get("total", 0)),
-                float(info.get("taxa", 0)),
-                float(info.get("prestacao", 0)),
-            ))
-
-        # pendentes
-        for nome, info in dados.get("pendentes", {}).items():
-            cur.execute("""
-                INSERT INTO pendentes (nome, valor_mensal, desde, notas)
-                VALUES (%s, %s, %s, %s)
-            """, (
-                nome,
-                float(info.get("valor_mensal", 0)),
-                info.get("desde", ""),
-                info.get("notas", ""),
-            ))
-
-        # despesas fixas
-        for nome, info in dados.get("despesas_fixas", {}).items():
-            cur.execute("""
-                INSERT INTO despesas_fixas (nome, valor, categoria)
-                VALUES (%s, %s, %s)
-            """, (
-                nome,
-                float(info.get("valor", 0)),
-                info.get("categoria", "Sem categoria"),
-            ))
-
-        # metas
-        for meta in dados.get("metas", []):
-            cur.execute("""
-                INSERT INTO metas (nome, tipo, alvo)
-                VALUES (%s, %s, %s)
-            """, (
-                meta.get("nome", ""),
-                meta.get("tipo", ""),
-                float(meta.get("alvo", 0)),
-            ))
-
-        conn.commit()
-
-    except Exception:
-        conn.rollback()
-        raise
-
-    finally:
-        conn.close()
         
 
 # ---------------- DESPESAS (SQL DIRETO) ----------------
@@ -741,4 +615,24 @@ def delete_meta_db(meta_id):
     conn.commit()
     conn.close()
     
-	
+# ---------------- CONFIG (SQL DIRETO) ----------------
+
+def update_config_db(mes_atual, saldo_inicial):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO config (`key`, value)
+        VALUES ('mes_atual', %s)
+        ON DUPLICATE KEY UPDATE value = %s
+    """, (json.dumps(mes_atual), json.dumps(mes_atual)))
+
+    cur.execute("""
+        INSERT INTO config (`key`, value)
+        VALUES ('saldo_inicial', %s)
+        ON DUPLICATE KEY UPDATE value = %s
+    """, (json.dumps(float(saldo_inicial)), json.dumps(float(saldo_inicial))))
+
+    conn.commit()
+    conn.close()
+    
