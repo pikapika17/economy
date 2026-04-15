@@ -2,7 +2,8 @@ import sqlite3
 import json
 import os
 
-DB_FILE = "economy.db"
+DB_FILE = os.environ.get("DB_FILE", "economy.db")
+
 JSON_FILE = "dados.json"
 
 

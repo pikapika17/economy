@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Despesas{% endblock %}
+
+{% block content %}
+<h1>Despesas</h1>
+
+<div class="box">
+    <h2>Adicionar despesa</h2>
+    <form method="POST" action="/add_despesa">
+        <input name="nome" placeholder="Nome" required>
+        <input name="valor" type="number" step="0.01" placeholder="Valor" required>
+        <input name="categoria" placeholder="Categoria" required>
+        <button type="submit">Guardar</button>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>Nome</th>
+        <th>Valor</th>
+        <th>Categoria</th>
+        <th>Estado</th>
+        <th>Ações</th>
+    </tr>
+
+    {% for nome, d in despesas.items() %}
+    <tr>
+        <td>{{ nome }}</td>
+        <td>{{ "%.2f"|format(d.valor) }} CHF</td>
+        <td>{{ d.categoria }}</td>
+        <td class="{{ 'green' if d.pago else 'orange' }}">
+            {{ 'Pago' if d.pago else 'Por pagar' }}
+        </td>
+        <td class="acoes">
+            <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Pago</a>
+            <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}">Remover</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Timeline{% endblock %}
+
+{% block content %}
+<h1>Timeline</h1>
+
+<div class="box">
+    <form method="GET" action="/timeline">
+        <input name="extra" type="number" step="0.01" value="{{ extra }}" placeholder="Extra mensal">
+        <select name="modo">
+            <option value="resumo" {% if modo == "resumo" %}selected{% endif %}>Resumo</option>
+            <option value="detalhado" {% if modo == "detalhado" %}selected{% endif %}>Detalhado</option>
+        </select>
+        <button type="submit">Calcular</button>
+    </form>
+</div>
+
+<div class="box">
+    <h2>Resumo</h2>
+    <p>Meses estimados: {{ resultado.meses }}</p>
+    <p>Juros estimados: {{ "%.2f"|format(resultado.juros) }} CHF</p>
+    {% if resultado.problema %}
+    <p class="orange">A simulação pode estar instável.</p>
+    {% endif %}
+</div>
+
+{% for reg in historico %}
+<div class="box">
+    <strong>Mês {{ reg.mes }}</strong>
+    <p>Total restante: {{ "%.2f"|format(reg.total_restante) }} CHF</p>
+    <ul>
+        {% for item in reg.itens %}
+        <li>{{ item.nome }} — {{ "%.2f"|format(item.restante) }} CHF</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endfor %}
+{% endblock %}

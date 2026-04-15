@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Sistema{% endblock %}
+
+{% block content %}
+<h1>Sistema</h1>
+
+<div class="box">
+    <h2>Configuração</h2>
+    <form method="POST" action="/update_config">
+        <input name="saldo_inicial" type="number" step="0.01" value="{{ saldo_inicial }}" placeholder="Saldo inicial">
+        <input name="mes_atual" value="{{ mes_atual }}" placeholder="YYYY-MM">
+        <button type="submit">Guardar configuração</button>
+    </form>
+</div>
+
+<div class="grid-2">
+    <div>
+        <div class="box">
+            <h2>Adicionar rendimento</h2>
+            <form method="POST" action="/add_salario">
+                <input name="nome" placeholder="Nome">
+                <input name="valor" type="number" step="0.01" placeholder="Valor">
+                <button type="submit">Adicionar</button>
+            </form>
+        </div>
+
+        <table>
+            <tr>
+                <th colspan="3">Rendimentos</th>
+            </tr>
+            {% for nome, valor in salarios.items() %}
+            <tr>
+                <td>
+                    <form class="inline-form" method="POST" action="/update_salario/{{ nome }}">
+                        <input name="novo_nome" value="{{ nome }}">
+                </td>
+                <td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
+                <td class="acoes">
+                        <button type="submit">Guardar</button>
+                        <a class="btn-link btn-danger" href="/delete_salario/{{ nome }}">Remover</a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div>
+        <div class="box">
+            <h2>Adicionar contribuição</h2>
+            <form method="POST" action="/add_contribuicao">
+                <input name="nome" placeholder="Nome">
+                <input name="valor" type="number" step="0.01" placeholder="Valor">
+                <button type="submit">Adicionar</button>
+            </form>
+        </div>
+
+        <table>
+            <tr>
+                <th colspan="3">Contribuições</th>
+            </tr>
+            {% for nome, valor in contribuicoes.items() %}
+            <tr>
+                <td>
+                    <form class="inline-form" method="POST" action="/update_contribuicao/{{ nome }}">
+                        <input name="novo_nome" value="{{ nome }}">
+                </td>
+                <td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
+                <td class="acoes">
+                        <button type="submit">Guardar</button>
+                        <a class="btn-link btn-danger" href="/delete_contribuicao/{{ nome }}">Remover</a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<div class="box">
+    <h2>Adicionar categoria</h2>
+    <form method="POST" action="/add_categoria">
+        <input name="nome" placeholder="Nova categoria">
+        <button type="submit">Adicionar</button>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>Categoria</th>
+        <th>Ações</th>
+    </tr>
+    {% for nome in categorias %}
+    <tr>
+        <td>{{ nome }}</td>
+        <td class="acoes">
+            <a class="btn-link btn-danger" href="/delete_categoria/{{ nome }}">Remover</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

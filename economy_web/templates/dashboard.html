@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="cards">
+    <div class="card">
+        <h3>Entradas</h3>
+        <p>{{ "%.2f"|format(entradas) }} CHF</p>
+    </div>
+
+    <div class="card">
+        <h3>Despesas</h3>
+        <p>{{ "%.2f"|format(despesas) }} CHF</p>
+    </div>
+
+    <div class="card">
+        <h3>Dívidas</h3>
+        <p>{{ "%.2f"|format(dividas) }} CHF</p>
+    </div>
+
+    <div class="card">
+        <h3>Pendentes</h3>
+        <p class="orange">{{ "%.2f"|format(pendentes) }} CHF</p>
+    </div>
+
+    <div class="card">
+        <h3>Saldo</h3>
+        <p class="{{ 'green' if saldo >= 0 else 'red' }}">
+            {{ "%.2f"|format(saldo) }} CHF
+        </p>
+    </div>
+</div>
+
+<div class="box">
+    <h2>Resumo rápido</h2>
+    <p class="muted">A aplicação já está a ler e gravar a partir da SQLite. Agora o foco é melhorar a UX e os fluxos no browser.</p>
+</div>
+{% endblock %}
