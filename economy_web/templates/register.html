@@ -17,13 +17,9 @@
 
 			<select name="country" required>
 				<option value="">País</option>
-				<option value="Portugal">Portugal</option>
-				<option value="Switzerland">Switzerland</option>
-				<option value="Germany">Germany</option>
-				<option value="France">France</option>
-				<option value="Spain">Spain</option>
-				<option value="Italy">Italy</option>
-				<option value="Other">Other</option>
+				{% for country in countries %}
+					<option value="{{ country }}">{{ country }}</option>
+				{% endfor %}
 			</select>
 
 			<select name="language" required>
@@ -33,9 +29,11 @@
 			</select>
 
 			<select name="currency" required>
-				<option value="CHF">CHF</option>
-				<option value="EUR">EUR</option>
-				<option value="USD">USD</option>
+				{% for currency in currencies %}
+					<option value="{{ currency }}" {% if currency == "CHF" %}selected{% endif %}>
+						{{ currency }}
+					</option>
+				{% endfor %}
 			</select>
 
 			<input type="password" name="password" placeholder="Password" required>

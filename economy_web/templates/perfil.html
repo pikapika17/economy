@@ -17,13 +17,11 @@
 			
 			<select name="country" required>
 				<option value="">País</option>
-				<option value="Portugal" {% if user.country == "Portugal" %}selected{% endif %}>Portugal</option>
-				<option value="Switzerland" {% if user.country == "Switzerland" %}selected{% endif %}>Switzerland</option>
-				<option value="Germany" {% if user.country == "Germany" %}selected{% endif %}>Germany</option>
-				<option value="France" {% if user.country == "France" %}selected{% endif %}>France</option>
-				<option value="Spain" {% if user.country == "Spain" %}selected{% endif %}>Spain</option>
-				<option value="Italy" {% if user.country == "Italy" %}selected{% endif %}>Italy</option>
-				<option value="Other" {% if user.country == "Other" %}selected{% endif %}>Other</option>
+				{% for country in countries %}
+					<option value="{{ country }}" {% if user.country == country %}selected{% endif %}>
+						{{ country }}
+					</option>
+				{% endfor %}
 			</select>
 
 			<select name="language" required>
@@ -33,9 +31,11 @@
 			</select>
 
 			<select name="currency" required>
-				<option value="CHF" {% if user.currency == "CHF" %}selected{% endif %}>CHF</option>
-				<option value="EUR" {% if user.currency == "EUR" %}selected{% endif %}>EUR</option>
-				<option value="USD" {% if user.currency == "USD" %}selected{% endif %}>USD</option>
+				{% for currency in currencies %}
+					<option value="{{ currency }}" {% if user.currency == currency %}selected{% endif %}>
+						{{ currency }}
+					</option>
+				{% endfor %}
 			</select>
 
 			<button type="submit">Guardar perfil</button>

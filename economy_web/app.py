@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from functools import wraps
 
+import pycountry
 import os
 
 from database import (
@@ -304,6 +305,22 @@ def simular_dividas_web(dados, extra=0):
 def resposta_ok(texto, tipo="success"):
 	return {"texto": texto, "tipo": tipo}
 	
+def get_all_countries():
+    countries = sorted([country.name for country in pycountry.countries], key=lambda x: x.lower())
+    return countries
+
+
+def get_common_currencies():
+    return [
+        "CHF",
+        "EUR",
+        "USD",
+        "GBP",
+        "JPY",
+        "CNY",
+        "CAD",
+        "AUD",
+    ]
 
 @app.route("/")
 @login_required
@@ -1137,28 +1154,52 @@ def register():
 
 		if not username or not email or not password or not confirm_password or not invite_code or not first_name or not last_name or not country:
 			flash("Preenche todos os campos obrigatórios.", "error")
-			return render_template("register.html"), 400
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 400
 
 		if password != confirm_password:
 			flash("As passwords não coincidem.", "error")
-			return render_template("register.html"), 400
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 400
 
 		if len(password) < 6:
 			flash("A password deve ter pelo menos 6 caracteres.", "error")
-			return render_template("register.html"), 400
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 400
 
 		if get_user_by_username(username):
 			flash("Já existe um utilizador com esse nome.", "warning")
-			return render_template("register.html"), 400
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 400
 
 		if get_user_by_email(email):
 			flash("Já existe uma conta com esse email.", "warning")
-			return render_template("register.html"), 400
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 400
 
 		convite = invite_code_exists(invite_code)
 		if not convite:
 			flash("Código de convite inválido ou já usado.", "error")
-			return render_template("register.html"), 400
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 400
 
 		try:
 			add_user(
@@ -1192,9 +1233,17 @@ def register():
 		except Exception as e:
 			app.logger.exception("Erro ao registar utilizador")
 			flash(f"Erro ao criar conta: {e}", "error")
-			return render_template("register.html"), 500
+			return render_template(
+				"register.html",
+				countries=get_all_countries(),
+				currencies=get_common_currencies(),
+			), 500
 
-	return render_template("register.html")
+	return render_template(
+		"register.html",
+		countries=get_all_countries(),
+		currencies=get_common_currencies(),
+	)
 
 
 @app.route("/forgot-password", methods=["GET", "POST"])
@@ -1274,7 +1323,13 @@ def perfil():
         flash("Utilizador não encontrado.", "error")
         return redirect(url_for("dashboard"))
 
-    return render_template("perfil.html", user=user)
+    return render_template(
+        "perfil.html",
+        user=user,
+        countries=get_all_countries(),
+        currencies=get_common_currencies(),
+    )
+
 
 
 @app.route("/perfil/update", methods=["POST"])
