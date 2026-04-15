@@ -60,35 +60,39 @@
 
         {% for nome, d in despesas.items() %}
         <tr>
-            <td>
-                <strong>{{ nome }}</strong>
-            </td>
+            <form method="POST" action="/update_despesa/{{ nome }}">
+                <td>
+                    <input name="novo_nome" value="{{ nome }}" required>
+                </td>
 
-            <td style="text-align:right;">
-                {{ "%.2f"|format(d.valor) }} CHF
-            </td>
+                <td style="text-align:right;">
+                    <input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
+                </td>
 
-            <td>
-                <span class="muted">{{ d.categoria }}</span>
-            </td>
+                <td>
+                    <input name="categoria" value="{{ d.categoria }}" required>
+                </td>
 
-            <td>
-                {% if d.pago %}
-                    <span class="green"><strong>Pago</strong></span>
-                {% else %}
-                    <span class="orange"><strong>Por pagar</strong></span>
-                {% endif %}
-            </td>
+                <td>
+                    {% if d.pago %}
+                        <span class="green"><strong>Pago</strong></span>
+                    {% else %}
+                        <span class="orange"><strong>Por pagar</strong></span>
+                    {% endif %}
+                </td>
 
-            <td class="acoes">
-                {% if d.pago %}
-                    <a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
-                {% else %}
-                    <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
-                {% endif %}
+                <td class="acoes">
+                    <button type="submit">Guardar</button>
 
-                <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}">Remover</a>
-            </td>
+                    {% if d.pago %}
+                        <a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
+                    {% else %}
+                        <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
+                    {% endif %}
+
+                    <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}">Remover</a>
+                </td>
+            </form>
         </tr>
         {% endfor %}
     </table>

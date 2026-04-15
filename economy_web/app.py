@@ -901,6 +901,50 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+@app.route("/update_despesa/<nome_antigo>", methods=["POST"])
+@login_required
+def update_despesa(nome_antigo):
+    dados = export_to_dict()
+    mes = dados.get("mes_atual", "")
+
+    if "meses" not in dados:
+        dados["meses"] = {}
+
+    if mes not in dados["meses"]:
+        dados["meses"][mes] = {"despesas": {}}
+
+    despesas = dados["meses"][mes]["despesas"]
+
+    if nome_antigo not in despesas:
+        return redirect("/despesas")
+
+    novo_nome = request.form.get("novo_nome", "").strip()
+    valor_txt = request.form.get("valor", "").strip()
+    categoria = request.form.get("categoria", "").strip()
+
+    if not novo_nome or not valor_txt or not categoria:
+        return redirect("/despesas")
+
+    try:
+        valor = float(valor_txt)
+    except ValueError:
+        return redirect("/despesas")
+
+    info_antiga = despesas[nome_antigo]
+    pago = info_antiga.get("pago", False) if isinstance(info_antiga, dict) else False
+
+    if novo_nome != nome_antigo:
+        del despesas[nome_antigo]
+
+    despesas[novo_nome] = {
+        "valor": valor,
+        "categoria": categoria,
+        "pago": pago
+    }
+
+    save_all_from_dict(dados)
+    return redirect("/despesas")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
