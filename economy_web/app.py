@@ -1275,6 +1275,9 @@ def login():
 			display_name = f"{(user.get('first_name') or '').strip()} {(user.get('last_name') or '').strip()}".strip()
 			if not display_name:
 				display_name = user["username"]
+
+			session["user"] = user["username"]
+			session["display_name"] = display_name
 			session["user_id"] = user["id"]
 			session["is_admin"] = user["is_admin"]
 			return redirect(url_for("dashboard"))
