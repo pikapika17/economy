@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -116,9 +117,21 @@ def init_db():
         )
     """)
 
+    mes_atual_default = datetime.now().strftime("%Y-%m")
+
+    cur.execute("""
+        INSERT IGNORE INTO config (`key`, value)
+        VALUES ('mes_atual', %s)
+    """, (json.dumps(mes_atual_default),))
+
+    cur.execute("""
+        INSERT IGNORE INTO config (`key`, value)
+        VALUES ('saldo_inicial', %s)
+    """, (json.dumps(0.0),))
+
     conn.commit()
     conn.close()
-
+    
 
 # ---------------- USERS ----------------
 
