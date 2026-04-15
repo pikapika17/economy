@@ -5,10 +5,10 @@ import os
 from database import export_to_dict, save_all_from_dict
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "10bc07e31911f989b27123a4624e766b4afebc702fe79b5847209dd80cc42a70")
+app.secret_key = os.environ.get("SECRET_KEY", "muda_isto_agora")
 
 APP_USER = os.environ.get("APP_USER", "admin")
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "C.entrino051497")
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin123")
 
 
 def login_required(f):
