@@ -1,0 +1,55 @@
+{
+    "mes_atual": "2026-04",
+    "objetivo": 1000,
+    "salarios": {
+        "Tiago": 4000.0,
+        "Johana": 3000.0
+    },
+    "meses": {
+        "2026-04": {
+            "despesas": {}
+        }
+    },
+    "dividas": {},
+    "despesas": {
+        "Comida": {
+            "valor": 600,
+            "categoria": "Alimentacao"
+        },
+        "Casa": {
+            "valor": 1336,
+            "categoria": "Habitacao"
+        },
+        "Luxos": {
+            "valor": 500,
+            "categoria": "Lazer"
+        }
+    },
+    "categorias": [
+        "Alimentacao",
+        "Habitacao",
+        "Transporte",
+        "Lazer",
+        "Outros"
+    ],
+    "metas": [],
+    "despesas_fixas": {
+        "Casa": {
+            "valor": 1336.0,
+            "categoria": "Habitacao"
+        },
+        "Swisscom": {
+            "valor": 94.8,
+            "categoria": "Subscricoes"
+        },
+        "Salt": {
+            "valor": 109.85,
+            "categoria": "Sunrise"
+        }
+    },
+    "pendentes": {},
+    "contribuicoes": {
+        "Pessoa extra": 500.0
+    },
+    "saldo_inicial": 0.0
+}
