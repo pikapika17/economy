@@ -565,3 +565,30 @@ def delete_contribuicao_db(nome):
 
     conn.commit()
     conn.close()
+    
+# ---------------- CATEGORIAS (SQL DIRETO) ----------------
+
+def add_categoria_db(nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO categorias (nome)
+        VALUES (%s)
+    """, (nome,))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_categoria_db(nome):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM categorias
+        WHERE nome = %s
+    """, (nome,))
+
+    conn.commit()
+    conn.close()

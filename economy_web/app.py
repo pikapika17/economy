@@ -22,6 +22,8 @@ from database import (
     add_contribuicao_db,
     update_contribuicao_db,
     delete_contribuicao_db,
+    add_categoria_db,
+    delete_categoria_db,
 )
 
 app = Flask(__name__)
@@ -830,31 +832,35 @@ def delete_contribuicao(nome):
 @app.route("/add_categoria", methods=["POST"])
 @login_required
 def add_categoria():
-    dados = export_to_dict()
-
     nome = request.form.get("nome", "").strip()
+
     if not nome:
         return redirect("/sistema")
 
-    dados.setdefault("categorias", [])
-    if nome not in dados["categorias"]:
-        dados["categorias"].append(nome)
-        dados["categorias"].sort()
+    try:
+        add_categoria_db(nome)
+    except Exception as e:
+        app.logger.exception("Erro ao adicionar categoria")
+        flash(f"Erro ao adicionar categoria: {e}", "error")
+        return redirect("/sistema")
 
-    save_all_from_dict(dados)
+    flash("Categoria adicionada com sucesso.", "success")
     return redirect("/sistema")
 
 
 @app.route("/delete_categoria/<nome>")
 @login_required
 def delete_categoria(nome):
-    dados = export_to_dict()
+    try:
+        delete_categoria_db(nome)
+    except Exception as e:
+        app.logger.exception("Erro ao remover categoria")
+        flash(f"Erro ao remover categoria: {e}", "error")
+        return redirect("/sistema")
 
-    if nome in dados.get("categorias", []):
-        dados["categorias"].remove(nome)
-        save_all_from_dict(dados)
-
+    flash("Categoria removida.", "warning")
     return redirect("/sistema")
+
 
 @app.route("/planeamento")
 @login_required
