@@ -5,6 +5,36 @@
 {% block content %}
 <h1>Despesas</h1>
 
+<div class="cards">
+    <div class="card">
+        <h3>Total de despesas</h3>
+        <p>
+            {{ "%.2f"|format(
+                despesas.values() | map(attribute='valor') | sum
+            ) if despesas else "0.00" }} CHF
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Pagas</h3>
+        <p class="green">
+            {{ despesas.values() | selectattr("pago") | list | length }}
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Por pagar</h3>
+        <p class="orange">
+            {{ despesas.values() | rejectattr("pago") | list | length }}
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Total itens</h3>
+        <p>{{ despesas|length }}</p>
+    </div>
+</div>
+
 <div class="box">
     <h2>Adicionar despesa</h2>
     <form method="POST" action="/add_despesa">
@@ -15,28 +45,55 @@
     </form>
 </div>
 
-<table>
-    <tr>
-        <th>Nome</th>
-        <th>Valor</th>
-        <th>Categoria</th>
-        <th>Estado</th>
-        <th>Ações</th>
-    </tr>
+<div class="box">
+    <h2>Lista de despesas</h2>
 
-    {% for nome, d in despesas.items() %}
-    <tr>
-        <td>{{ nome }}</td>
-        <td>{{ "%.2f"|format(d.valor) }} CHF</td>
-        <td>{{ d.categoria }}</td>
-        <td class="{{ 'green' if d.pago else 'orange' }}">
-            {{ 'Pago' if d.pago else 'Por pagar' }}
-        </td>
-        <td class="acoes">
-            <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Pago</a>
-            <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}">Remover</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+    {% if despesas %}
+    <table>
+        <tr>
+            <th>Nome</th>
+            <th style="text-align:right;">Valor</th>
+            <th>Categoria</th>
+            <th>Estado</th>
+            <th>Ações</th>
+        </tr>
+
+        {% for nome, d in despesas.items() %}
+        <tr>
+            <td>
+                <strong>{{ nome }}</strong>
+            </td>
+
+            <td style="text-align:right;">
+                {{ "%.2f"|format(d.valor) }} CHF
+            </td>
+
+            <td>
+                <span class="muted">{{ d.categoria }}</span>
+            </td>
+
+            <td>
+                {% if d.pago %}
+                    <span class="green"><strong>Pago</strong></span>
+                {% else %}
+                    <span class="orange"><strong>Por pagar</strong></span>
+                {% endif %}
+            </td>
+
+            <td class="acoes">
+                {% if d.pago %}
+                    <a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
+                {% else %}
+                    <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
+                {% endif %}
+
+                <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}">Remover</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <div class="muted">Ainda não tens despesas registadas neste mês.</div>
+    {% endif %}
+</div>
 {% endblock %}
