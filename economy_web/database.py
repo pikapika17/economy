@@ -1,24 +1,28 @@
-import sqlite3
 import json
 import os
+import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_DB_FILE = os.path.join(BASE_DIR, "economy.db")
-DB_FILE = os.environ.get("DB_FILE", DEFAULT_DB_FILE)
+
+DB_HOST = os.environ.get("DB_HOST", "localhost")
+DB_USER = os.environ.get("DB_USER", "economy_user")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "C.entrino051497")
+DB_NAME = os.environ.get("DB_NAME", "economy_db")
 
 JSON_FILE = "dados.json"
 
 
 def get_connection():
-	db_dir = os.path.dirname(DB_FILE)
-	if db_dir:
-		os.makedirs(db_dir, exist_ok=True)
-
-	conn = sqlite3.connect(DB_FILE)
-	conn.row_factory = sqlite3.Row
-	return conn
-
+	return pymysql.connect(
+		host=DB_HOST,
+		user=DB_USER,
+		password=DB_PASSWORD,
+		database=DB_NAME,
+		charset="utf8mb4",
+		autocommit=False,
+		cursorclass=pymysql.cursors.DictCursor,
+	)
 
 def init_db():
 	conn = get_connection()
@@ -194,9 +198,9 @@ def set_config(key, value):
 	conn = get_connection()
 	cur = conn.cursor()
 	cur.execute("""
-		INSERT INTO config (key, value)
-		VALUES (?, ?)
-		ON CONFLICT(key) DO UPDATE SET value=excluded.value
+		INSERT INTO config (`key`, value)
+		VALUES (%s, %s)
+		ON DUPLICATE KEY UPDATE value = VALUES(value)
 	""", (key, json.dumps(value)))
 	conn.commit()
 	conn.close()
