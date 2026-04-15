@@ -34,6 +34,7 @@ from database import (
     update_meta_db,
     delete_meta_db,
     update_config_db,
+    ensure_user_defaults,
 )
 
 app = Flask(__name__)
@@ -1026,6 +1027,7 @@ def login():
             return render_template("login.html", erro=erro), 500
 
         if user:
+            ensure_user_defaults(user["id"])
             session["logged_in"] = True
             session["user"] = user["username"]
             session["user_id"] = user["id"]

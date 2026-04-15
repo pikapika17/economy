@@ -39,8 +39,10 @@ def init_db():
 
 	cur.execute("""
 		CREATE TABLE IF NOT EXISTS config (
-			`key` VARCHAR(255) PRIMARY KEY,
-			value TEXT
+			user_id INT NOT NULL,
+			`key` VARCHAR(255) NOT NULL,
+			value TEXT,
+			PRIMARY KEY (user_id, `key`)
 		)
 	""")
 
@@ -117,10 +119,12 @@ def init_db():
 		)
 	""")
 
+	mes_atual_default = datetime.now().strftime("%Y-%m")
+
 	cur.execute("""
 		INSERT IGNORE INTO config (user_id, `key`, value)
 		VALUES (1, 'mes_atual', %s)
-	""", (json.dumps(datetime.now().strftime("%Y-%m")),))
+	""", (json.dumps(mes_atual_default),))
 
 	cur.execute("""
 		INSERT IGNORE INTO config (user_id, `key`, value)
@@ -672,3 +676,21 @@ def update_config_db(mes_atual, saldo_inicial):
 	conn.commit()
 	conn.close()
 	
+def ensure_user_defaults(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    mes_atual_default = datetime.now().strftime("%Y-%m")
+
+    cur.execute("""
+        INSERT IGNORE INTO config (user_id, `key`, value)
+        VALUES (%s, 'mes_atual', %s)
+    """, (int(user_id), json.dumps(mes_atual_default)))
+
+    cur.execute("""
+        INSERT IGNORE INTO config (user_id, `key`, value)
+        VALUES (%s, 'saldo_inicial', %s)
+    """, (int(user_id), json.dumps(0.0)))
+
+    conn.commit()
+    conn.close()
