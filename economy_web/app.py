@@ -823,7 +823,7 @@ def add_categoria():
         return redirect("/sistema")
 
     try:
-        add_categoria_db(nome)
+        add_categoria_db(session["user_id"], nome)
     except Exception as e:
         app.logger.exception("Erro ao adicionar categoria")
         flash(f"Erro ao adicionar categoria: {e}", "error")
@@ -837,7 +837,7 @@ def add_categoria():
 @login_required
 def delete_categoria(nome):
     try:
-        delete_categoria_db(nome)
+        delete_categoria_db(session["user_id"], nome)
     except Exception as e:
         app.logger.exception("Erro ao remover categoria")
         flash(f"Erro ao remover categoria: {e}", "error")

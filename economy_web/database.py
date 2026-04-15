@@ -469,27 +469,27 @@ def delete_contribuicao_db(user_id, nome):
     
 # ---------------- CATEGORIAS (SQL DIRETO) ----------------
 
-def add_categoria_db(nome):
+def add_categoria_db(user_id, nome):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO categorias (nome)
-        VALUES (%s)
-    """, (nome,))
+        INSERT INTO categorias (user_id, nome)
+        VALUES (%s, %s)
+    """, (int(user_id), nome))
 
     conn.commit()
     conn.close()
 
 
-def delete_categoria_db(nome):
+def delete_categoria_db(user_id, nome):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         DELETE FROM categorias
-        WHERE nome = %s
-    """, (nome,))
+        WHERE user_id = %s AND nome = %s
+    """, (int(user_id), nome))
 
     conn.commit()
     conn.close()
