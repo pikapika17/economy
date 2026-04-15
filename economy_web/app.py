@@ -467,7 +467,7 @@ def add_divida():
         inicial = float(inicial_txt)
         taxa = float(taxa_txt)
         prestacao = float(prestacao_txt)
-        add_divida_db(nome, inicial, taxa, prestacao)
+        add_divida_db(session["user_id"], nome, inicial, taxa, prestacao)
     except ValueError:
         return redirect("/dividas")
     except Exception as e:
@@ -483,7 +483,7 @@ def add_divida():
 @login_required
 def delete_divida(nome):
     try:
-        delete_divida_db(nome)
+        delete_divida_db(session["user_id"], nome)
     except Exception as e:
         app.logger.exception("Erro ao remover dívida")
         flash(f"Erro ao remover dívida: {e}", "error")
@@ -506,7 +506,7 @@ def update_divida(nome):
         total = float(total_txt)
         taxa = float(taxa_txt)
         prestacao = float(prestacao_txt)
-        update_divida_db(nome, inicial, total, taxa, prestacao)
+        update_divida_db(session["user_id"], nome, inicial, total, taxa, prestacao)
     except ValueError:
         return redirect("/dividas")
     except Exception as e:
