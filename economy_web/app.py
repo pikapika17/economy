@@ -31,6 +31,9 @@ from database import (
     update_pendente_db,
     delete_pendente_db,
     convert_pendente_to_divida_db,
+    add_meta_db,
+    update_meta_db,
+    delete_meta_db,
 )
 
 app = Flask(__name__)
@@ -1082,6 +1085,75 @@ def update_despesa(nome_antigo):
     save_all_from_dict(dados)
     flash("Despesa atualizada com sucesso.", "success")
     return redirect("/despesas")
+
+
+@app.route("/metas")
+@login_required
+def metas():
+    dados = export_to_dict()
+    return render_template("metas.html", metas=dados.get("metas", []))
+
+
+@app.route("/add_meta", methods=["POST"])
+@login_required
+def add_meta():
+    nome = request.form.get("nome", "").strip()
+    tipo = request.form.get("tipo", "").strip()
+    alvo_txt = request.form.get("alvo", "").strip()
+
+    if not nome or not tipo or not alvo_txt:
+        return redirect("/metas")
+
+    try:
+        alvo = float(alvo_txt)
+        add_meta_db(nome, tipo, alvo)
+    except ValueError:
+        return redirect("/metas")
+    except Exception as e:
+        app.logger.exception("Erro ao adicionar meta")
+        flash(f"Erro ao adicionar meta: {e}", "error")
+        return redirect("/metas")
+
+    flash("Meta adicionada com sucesso.", "success")
+    return redirect("/metas")
+
+
+@app.route("/update_meta/<int:meta_id>", methods=["POST"])
+@login_required
+def update_meta(meta_id):
+    nome = request.form.get("nome", "").strip()
+    tipo = request.form.get("tipo", "").strip()
+    alvo_txt = request.form.get("alvo", "").strip()
+
+    if not nome or not tipo or not alvo_txt:
+        return redirect("/metas")
+
+    try:
+        alvo = float(alvo_txt)
+        update_meta_db(meta_id, nome, tipo, alvo)
+    except ValueError:
+        return redirect("/metas")
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar meta")
+        flash(f"Erro ao atualizar meta: {e}", "error")
+        return redirect("/metas")
+
+    flash("Meta atualizada com sucesso.", "success")
+    return redirect("/metas")
+
+
+@app.route("/delete_meta/<int:meta_id>")
+@login_required
+def delete_meta(meta_id):
+    try:
+        delete_meta_db(meta_id)
+    except Exception as e:
+        app.logger.exception("Erro ao remover meta")
+        flash(f"Erro ao remover meta: {e}", "error")
+        return redirect("/metas")
+
+    flash("Meta removida.", "warning")
+    return redirect("/metas")
 
 
 init_db()

@@ -700,4 +700,45 @@ def convert_pendente_to_divida_db(nome, total, novo_nome_divida=None):
     finally:
         conn.close()
         
-		
+# ---------------- METAS (SQL DIRETO) ----------------
+
+def add_meta_db(nome, tipo, alvo):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO metas (nome, tipo, alvo)
+        VALUES (%s, %s, %s)
+    """, (nome, tipo, float(alvo)))
+
+    conn.commit()
+    conn.close()
+
+
+def update_meta_db(meta_id, nome, tipo, alvo):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE metas
+        SET nome = %s, tipo = %s, alvo = %s
+        WHERE id = %s
+    """, (nome, tipo, float(alvo), int(meta_id)))
+
+    conn.commit()
+    conn.close()
+
+
+def delete_meta_db(meta_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        DELETE FROM metas
+        WHERE id = %s
+    """, (int(meta_id),))
+
+    conn.commit()
+    conn.close()
+    
+	
