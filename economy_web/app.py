@@ -270,9 +270,40 @@ def despesas():
     if mes not in dados["meses"]:
         dados["meses"][mes] = {"despesas": {}}
 
-    despesas = dados["meses"][mes]["despesas"]
+    despesas_dict = dados["meses"][mes]["despesas"]
+    categorias = sorted(dados.get("categorias", []))
 
-    return render_template("despesas.html", despesas=despesas)
+    pesquisa = request.args.get("pesquisa", "").strip().lower()
+    categoria = request.args.get("categoria", "").strip()
+    estado = request.args.get("estado", "").strip()
+
+    despesas_filtradas = {}
+
+    for nome, d in despesas_dict.items():
+        nome_match = pesquisa in nome.lower() if pesquisa else True
+        categoria_match = (not categoria or categoria == "Todas" or d.get("categoria", "") == categoria)
+
+        pago = d.get("pago", False)
+        if estado == "Pagas":
+            estado_match = pago
+        elif estado == "Por pagar":
+            estado_match = not pago
+        else:
+            estado_match = True
+
+        if nome_match and categoria_match and estado_match:
+            despesas_filtradas[nome] = d
+
+    return render_template(
+        "despesas.html",
+        despesas=despesas_filtradas,
+        categorias=categorias,
+        filtros={
+            "pesquisa": request.args.get("pesquisa", ""),
+            "categoria": request.args.get("categoria", "Todas"),
+            "estado": request.args.get("estado", "Todas")
+        }
+    )
 
 
 @app.route("/add_despesa", methods=["POST"])
@@ -498,6 +529,7 @@ def add_pendente():
     }
 
     save_all_from_dict(dados)
+    flash("Pendente adicionado com sucesso.", "success")
     return redirect("/pendentes")
 
 @app.route("/update_pendente/<nome>", methods=["POST"])
@@ -534,6 +566,7 @@ def update_pendente(nome):
     }
 
     save_all_from_dict(dados)
+    flash("Pendente atualizado com sucesso.", "success")
     return redirect("/pendentes")
 
 @app.route("/delete_pendente/<nome>")
@@ -544,6 +577,7 @@ def delete_pendente(nome):
     if nome in dados.get("pendentes", {}):
         del dados["pendentes"][nome]
         save_all_from_dict(dados)
+        flash("Pendente removido.", "warning")
 
     return redirect("/pendentes")
 
@@ -579,6 +613,7 @@ def convert_pendente(nome):
     del dados["pendentes"][nome]
 
     save_all_from_dict(dados)
+    flash("Pendente convertido em dívida.", "success")
     return redirect("/pendentes")
 
 @app.route("/sistema")

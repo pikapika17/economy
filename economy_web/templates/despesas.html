@@ -46,6 +46,29 @@
 </div>
 
 <div class="box">
+    <h2>Filtros</h2>
+    <form method="GET" action="/despesas">
+        <input name="pesquisa" placeholder="Pesquisar nome" value="{{ filtros.pesquisa }}">
+
+        <select name="categoria">
+            <option {% if filtros.categoria == "Todas" %}selected{% endif %}>Todas</option>
+            {% for cat in categorias %}
+                <option value="{{ cat }}" {% if filtros.categoria == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="estado">
+            <option {% if filtros.estado == "Todas" %}selected{% endif %}>Todas</option>
+            <option {% if filtros.estado == "Pagas" %}selected{% endif %}>Pagas</option>
+            <option {% if filtros.estado == "Por pagar" %}selected{% endif %}>Por pagar</option>
+        </select>
+
+        <button type="submit">Aplicar</button>
+        <a class="btn-link" href="/despesas">Limpar</a>
+    </form>
+</div>
+
+<div class="box">
     <h2>Lista de despesas</h2>
 
     {% if despesas %}
@@ -90,14 +113,14 @@
                         <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
                     {% endif %}
 
-                    <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}">Remover</a>
+                    <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('Remover esta despesa?')">Remover</a>
                 </td>
             </form>
         </tr>
         {% endfor %}
     </table>
     {% else %}
-    <div class="muted">Ainda não tens despesas registadas neste mês.</div>
+    <div class="muted">Nenhuma despesa encontrada com os filtros atuais.</div>
     {% endif %}
 </div>
 {% endblock %}
