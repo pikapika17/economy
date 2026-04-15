@@ -104,14 +104,14 @@ def init_db():
 	)
 	""")
 
-cur.execute("""
-	CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		username TEXT NOT NULL UNIQUE,
-		password_hash TEXT NOT NULL,
-		is_admin INTEGER NOT NULL DEFAULT 0
-	)
-	""")
+	cur.execute("""
+		CREATE TABLE IF NOT EXISTS users (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			username TEXT NOT NULL UNIQUE,
+			password_hash TEXT NOT NULL,
+			is_admin INTEGER NOT NULL DEFAULT 0
+		)
+		""")
 
 	conn.commit()
 	conn.close()
@@ -188,7 +188,7 @@ def delete_user(username):
 	cur.execute("DELETE FROM users WHERE username = ?", (username,))
 	conn.commit()
 	conn.close()
-	
+
 
 def set_config(key, value):
 	conn = get_connection()
