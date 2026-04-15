@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            background: #1e1e1e;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .box {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 16px;
+            width: 340px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input {
+            background: #1a1a1a;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        button {
+            background: #1f6aa5;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2a7dc4;
+        }
+
+        .erro {
+            color: #ff5c5c;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>Entrar</h1>
+
+        {% if erro %}
+            <div class="erro">{{ erro }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+</body>
+</html>
