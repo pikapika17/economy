@@ -920,23 +920,21 @@ def get_admin_stats():
     cur.execute("SELECT COUNT(*) AS total FROM invite_codes WHERE is_active = 1")
     stats["active_invites"] = cur.fetchone()["total"]
 
-    cur.execute("SELECT COUNT(*) AS total FROM despesas")
-    stats["total_despesas"] = cur.fetchone()["total"]
-
-    cur.execute("SELECT COALESCE(SUM(valor), 0) AS total FROM despesas")
-    stats["valor_total_despesas"] = float(cur.fetchone()["total"])
-
-    cur.execute("SELECT COUNT(*) AS total FROM dividas")
-    stats["total_dividas"] = cur.fetchone()["total"]
-
-    cur.execute("SELECT COALESCE(SUM(total), 0) AS total FROM dividas")
-    stats["valor_total_dividas"] = float(cur.fetchone()["total"])
-
-    cur.execute("SELECT COUNT(*) AS total FROM pendentes")
-    stats["total_pendentes"] = cur.fetchone()["total"]
-
-    cur.execute("SELECT COUNT(*) AS total FROM metas")
-    stats["total_metas"] = cur.fetchone()["total"]
-
     conn.close()
     return stats
+
+
+def get_latest_users(limit=5):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, username, is_admin
+        FROM users
+        ORDER BY id DESC
+        LIMIT %s
+    """, (int(limit),))
+
+    rows = cur.fetchall()
+    conn.close()
+    return rows

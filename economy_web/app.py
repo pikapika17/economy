@@ -45,6 +45,7 @@ from database import (
 	set_user_admin,
     update_user_password,
 	get_admin_stats,
+	get_latest_users,
 )
 
 app = Flask(__name__)
@@ -972,7 +973,8 @@ def timeline():
 @admin_required
 def admin_dashboard():
     stats = get_admin_stats()
-    return render_template("admin_dashboard.html", stats=stats)
+    latest_users = get_latest_users(5)
+    return render_template("admin_dashboard.html", stats=stats, latest_users=latest_users)
 
 
 @app.route("/admin/users")

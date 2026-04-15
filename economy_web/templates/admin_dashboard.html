@@ -9,66 +9,59 @@
     <div class="card">
         <h3>Utilizadores</h3>
         <p>{{ stats.total_users }}</p>
-        <div class="muted" style="margin-top:8px;">Total de contas</div>
+        <div class="muted">Total de contas</div>
     </div>
 
     <div class="card">
         <h3>Admins</h3>
         <p>{{ stats.total_admins }}</p>
-        <div class="muted" style="margin-top:8px;">Administradores ativos</div>
+        <div class="muted">Administradores</div>
     </div>
 
     <div class="card">
         <h3>Convites ativos</h3>
         <p>{{ stats.active_invites }}</p>
-        <div class="muted" style="margin-top:8px;">Códigos disponíveis</div>
+        <div class="muted">Disponíveis</div>
     </div>
 
     <div class="card">
         <h3>Convites totais</h3>
         <p>{{ stats.total_invites }}</p>
-        <div class="muted" style="margin-top:8px;">Códigos criados</div>
+        <div class="muted">Criados</div>
     </div>
 </div>
 
-<div class="cards" style="margin-top: 20px;">
-    <div class="card">
-        <h3>Despesas</h3>
-        <p>{{ stats.total_despesas }}</p>
-        <div class="muted" style="margin-top:8px;">Registos totais</div>
-    </div>
+<div class="box" style="margin-top: 24px;">
+    <h2>Últimos utilizadores</h2>
 
-    <div class="card">
-        <h3>Total despesas</h3>
-        <p class="orange">{{ "%.2f"|format(stats.valor_total_despesas) }} CHF</p>
-        <div class="muted" style="margin-top:8px;">Somatório global</div>
-    </div>
+    {% if latest_users %}
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Utilizador</th>
+                <th>Função</th>
+            </tr>
 
-    <div class="card">
-        <h3>Dívidas</h3>
-        <p>{{ stats.total_dividas }}</p>
-        <div class="muted" style="margin-top:8px;">Registos totais</div>
+            {% for user in latest_users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>
+                    {{ user.username }}
+                    {% if user.is_admin %}
+                        <span class="badge badge-success">Admin</span>
+                    {% else %}
+                        <span class="badge badge-muted">User</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
-
-    <div class="card">
-        <h3>Total dívida</h3>
-        <p class="red">{{ "%.2f"|format(stats.valor_total_dividas) }} CHF</p>
-        <div class="muted" style="margin-top:8px;">Valor global</div>
-    </div>
-</div>
-
-<div class="cards" style="margin-top: 20px;">
-    <div class="card">
-        <h3>Pendentes</h3>
-        <p>{{ stats.total_pendentes }}</p>
-        <div class="muted" style="margin-top:8px;">Pendentes registados</div>
-    </div>
-
-    <div class="card">
-        <h3>Metas</h3>
-        <p>{{ stats.total_metas }}</p>
-        <div class="muted" style="margin-top:8px;">Metas criadas</div>
-    </div>
+    {% else %}
+    <div class="muted">Ainda não existem utilizadores.</div>
+    {% endif %}
 </div>
 
 <div class="box" style="margin-top: 24px;">
