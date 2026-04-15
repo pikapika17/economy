@@ -217,5 +217,12 @@ def export_to_dict():
 def init_db():
     pass
 
-def save_all_from_dict(dados):
-    pass
+conn = get_connection()
+cur = conn.cursor()
+
+cur.execute(
+    "INSERT INTO despesas (mes, nome, valor, categoria, pago) VALUES (%s, %s, %s, %s, %s)",
+    (mes, nome, valor, categoria, pago)
+)
+
+conn.close()
