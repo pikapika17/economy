@@ -480,6 +480,71 @@
 			color: #3b82f6;
 		}
 
+		.auth-page {
+			min-height: calc(100vh - 120px);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 24px 16px;
+		}
+
+		.auth-card {
+			width: 100%;
+			max-width: 420px;
+			background: #111827;
+			border: 1px solid rgba(255,255,255,0.08);
+			border-radius: 18px;
+			padding: 24px;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+		}
+
+		.auth-card h1 {
+			margin-bottom: 8px;
+		}
+
+		.auth-form {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			margin-top: 18px;
+		}
+
+		.auth-form input,
+		.auth-form button {
+			width: 100%;
+		}
+
+		.auth-links {
+			margin-top: 16px;
+			display: flex;
+			justify-content: space-between;
+			gap: 12px;
+			flex-wrap: wrap;
+		}
+
+		.alert {
+			margin-top: 12px;
+			padding: 10px 12px;
+			border-radius: 10px;
+		}
+
+		.alert-error {
+			background: rgba(239, 68, 68, 0.12);
+			color: #f87171;
+		}
+
+		@media (max-width: 640px) {
+			.auth-card {
+				padding: 18px;
+				border-radius: 14px;
+			}
+
+			.auth-links {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+		}
+
 	</style>
 </head>
 <body>
@@ -493,10 +558,10 @@
 	<div class="layout">
 		<div id="sidebar" class="sidebar">
 			<h2>Finanças</h2>
-			{% if session_user %}
-				<div class="sidebar-user">
-					Sessão: <strong>{{ session_user }}</strong>{% if session_is_admin %} (admin){% endif %}
-				</div>
+			{% if session_display_name %}
+				Bem-vindo, {{ session_display_name }}
+			{% elif session_user %}
+				Bem-vindo, {{ session_user }}
 			{% endif %}
 			<a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
 			<a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>

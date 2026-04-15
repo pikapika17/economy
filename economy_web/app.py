@@ -43,9 +43,15 @@ from database import (
 	create_random_invite_code,
 	create_multiple_invite_codes,
 	set_user_admin,
-    update_user_password,
+	update_user_password,
 	get_admin_stats,
 	get_latest_users,
+	get_user_by_email,
+	get_user_by_username_or_email,
+	create_password_reset_token,
+	get_valid_password_reset,
+	mark_password_reset_used,
+	update_user_password_by_id,
 )
 
 app = Flask(__name__)
@@ -80,10 +86,11 @@ def admin_required(f):
 
 @app.context_processor
 def inject_user_context():
-	return {
-		"session_user": session.get("user"),
-		"session_is_admin": bool(session.get("is_admin", False))
-	}
+    return {
+        "session_user": session.get("user"),
+        "session_display_name": session.get("display_name"),
+        "session_is_admin": bool(session.get("is_admin", False))
+    }
 
 
 def calcular_info_divida_web(divida):
@@ -972,9 +979,9 @@ def timeline():
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
-    stats = get_admin_stats()
-    latest_users = get_latest_users(5)
-    return render_template("admin_dashboard.html", stats=stats, latest_users=latest_users)
+	stats = get_admin_stats()
+	latest_users = get_latest_users(5)
+	return render_template("admin_dashboard.html", stats=stats, latest_users=latest_users)
 
 
 @app.route("/admin/users")
@@ -988,20 +995,25 @@ def admin_users():
 @admin_required
 def admin_add_user():
 	username = request.form.get("username", "").strip()
+	email = request.form.get("email", "").strip().lower()
 	password = request.form.get("password", "").strip()
 	role = request.form.get("role", "user").strip().lower()
 	is_admin = role == "admin"
 
-	if not username or not password:
-		flash("Preenche utilizador e password.", "error")
+	if not username or not email or not password:
+		flash("Preenche utilizador, email e password.", "error")
 		return redirect(url_for("admin_users"))
 
 	if get_user_by_username(username):
 		flash("Já existe um utilizador com esse nome.", "warning")
 		return redirect(url_for("admin_users"))
 
+	if get_user_by_email(email):
+		flash("Já existe um utilizador com esse email.", "warning")
+		return redirect(url_for("admin_users"))
+
 	try:
-		add_user(username, password, is_admin=is_admin)
+		add_user(username, email, password, is_admin=is_admin)
 	except Exception:
 		flash("Não foi possível criar o utilizador.", "error")
 		return redirect(url_for("admin_users"))
@@ -1036,82 +1048,87 @@ def admin_delete_user(username):
 @app.route("/admin/users/toggle-admin/<username>", methods=["POST"])
 @admin_required
 def admin_toggle_user_admin(username):
-    if username == session.get("user"):
-        flash("Não podes alterar o teu próprio papel aqui.", "warning")
-        return redirect(url_for("admin_users"))
+	if username == session.get("user"):
+		flash("Não podes alterar o teu próprio papel aqui.", "warning")
+		return redirect(url_for("admin_users"))
 
-    user = get_user_by_username(username)
-    if not user:
-        flash("Utilizador não encontrado.", "warning")
-        return redirect(url_for("admin_users"))
+	user = get_user_by_username(username)
+	if not user:
+		flash("Utilizador não encontrado.", "warning")
+		return redirect(url_for("admin_users"))
 
-    novo_estado = not bool(user["is_admin"])
+	novo_estado = not bool(user["is_admin"])
 
-    if not novo_estado:
-        admins = [u for u in list_users() if u["is_admin"]]
-        if len(admins) <= 1:
-            flash("Não podes remover o último administrador.", "warning")
-            return redirect(url_for("admin_users"))
+	if not novo_estado:
+		admins = [u for u in list_users() if u["is_admin"]]
+		if len(admins) <= 1:
+			flash("Não podes remover o último administrador.", "warning")
+			return redirect(url_for("admin_users"))
 
-    try:
-        set_user_admin(username, novo_estado)
-    except Exception as e:
-        app.logger.exception("Erro ao alterar permissões do utilizador")
-        flash(f"Erro ao atualizar permissões: {e}", "error")
-        return redirect(url_for("admin_users"))
+	try:
+		set_user_admin(username, novo_estado)
+	except Exception as e:
+		app.logger.exception("Erro ao alterar permissões do utilizador")
+		flash(f"Erro ao atualizar permissões: {e}", "error")
+		return redirect(url_for("admin_users"))
 
-    if novo_estado:
-        flash("Utilizador promovido a administrador.", "success")
-    else:
-        flash("Permissões de administrador removidas.", "warning")
+	if novo_estado:
+		flash("Utilizador promovido a administrador.", "success")
+	else:
+		flash("Permissões de administrador removidas.", "warning")
 
-    return redirect(url_for("admin_users"))
+	return redirect(url_for("admin_users"))
 
 
 @app.route("/admin/users/reset-password/<username>", methods=["POST"])
 @admin_required
 def admin_reset_user_password(username):
-    user = get_user_by_username(username)
-    if not user:
-        flash("Utilizador não encontrado.", "warning")
-        return redirect(url_for("admin_users"))
+	user = get_user_by_username(username)
+	if not user:
+		flash("Utilizador não encontrado.", "warning")
+		return redirect(url_for("admin_users"))
 
-    new_password = request.form.get("new_password", "").strip()
-    confirm_password = request.form.get("confirm_password", "").strip()
+	new_password = request.form.get("new_password", "").strip()
+	confirm_password = request.form.get("confirm_password", "").strip()
 
-    if not new_password or not confirm_password:
-        flash("Preenche os dois campos da nova password.", "error")
-        return redirect(url_for("admin_users"))
+	if not new_password or not confirm_password:
+		flash("Preenche os dois campos da nova password.", "error")
+		return redirect(url_for("admin_users"))
 
-    if new_password != confirm_password:
-        flash("As passwords não coincidem.", "error")
-        return redirect(url_for("admin_users"))
+	if new_password != confirm_password:
+		flash("As passwords não coincidem.", "error")
+		return redirect(url_for("admin_users"))
 
-    if len(new_password) < 6:
-        flash("A password deve ter pelo menos 6 caracteres.", "error")
-        return redirect(url_for("admin_users"))
+	if len(new_password) < 6:
+		flash("A password deve ter pelo menos 6 caracteres.", "error")
+		return redirect(url_for("admin_users"))
 
-    try:
-        update_user_password(username, new_password)
-    except Exception as e:
-        app.logger.exception("Erro ao atualizar password")
-        flash(f"Erro ao atualizar password: {e}", "error")
-        return redirect(url_for("admin_users"))
+	try:
+		update_user_password(username, new_password)
+	except Exception as e:
+		app.logger.exception("Erro ao atualizar password")
+		flash(f"Erro ao atualizar password: {e}", "error")
+		return redirect(url_for("admin_users"))
 
-    flash(f"Password do utilizador {username} atualizada com sucesso.", "success")
-    return redirect(url_for("admin_users"))
+	flash(f"Password do utilizador {username} atualizada com sucesso.", "success")
+	return redirect(url_for("admin_users"))
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
 	if request.method == "POST":
 		username = request.form.get("username", "").strip()
+		email = request.form.get("email", "").strip().lower()
 		password = request.form.get("password", "").strip()
 		confirm_password = request.form.get("confirm_password", "").strip()
 		invite_code = request.form.get("invite_code", "").strip()
+		first_name = request.form.get("first_name", "").strip()
+		last_name = request.form.get("last_name", "").strip()
+		birth_date = request.form.get("birth_date", "").strip()
+		country = request.form.get("country", "").strip()
 
-		if not username or not password or not confirm_password or not invite_code:
-			flash("Preenche todos os campos.", "error")
+		if not username or not email or not password or not confirm_password or not invite_code or not first_name or not last_name or not country:
+			flash("Preenche todos os campos obrigatórios.", "error")
 			return render_template("register.html"), 400
 
 		if password != confirm_password:
@@ -1126,16 +1143,29 @@ def register():
 			flash("Já existe um utilizador com esse nome.", "warning")
 			return render_template("register.html"), 400
 
+		if get_user_by_email(email):
+			flash("Já existe uma conta com esse email.", "warning")
+			return render_template("register.html"), 400
+
 		convite = invite_code_exists(invite_code)
 		if not convite:
 			flash("Código de convite inválido ou já usado.", "error")
 			return render_template("register.html"), 400
 
 		try:
-			add_user(username, password, is_admin=False)
+			add_user(
+				username=username,
+				email=email,
+				password=password,
+				is_admin=False,
+				first_name=first_name,
+				last_name=last_name,
+				birth_date=birth_date if birth_date else None,
+				country=country,
+			)
 			use_invite_code(invite_code)
 
-			user = authenticate_user(username, password)
+			user = authenticate_user(email, password)
 
 			if user:
 				ensure_user_defaults(user["id"])
@@ -1157,15 +1187,84 @@ def register():
 	return render_template("register.html")
 
 
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+	if request.method == "POST":
+		email = request.form.get("email", "").strip().lower()
+
+		if not email:
+			flash("Introduz o teu email.", "error")
+			return render_template("forgot_password.html"), 400
+
+		try:
+			token = create_password_reset_token(email)
+
+			# Para já mostramos o link no flash/log.
+			# Mais tarde ligamos SMTP e mandamos email real.
+			if token:
+				reset_link = url_for("reset_password", token=token, _external=True)
+				app.logger.info("Password reset link for %s: %s", email, reset_link)
+				flash(f"Link de reset gerado: {reset_link}", "success")
+			else:
+				flash("Se existir uma conta com esse email, o link foi gerado.", "success")
+
+		except Exception as e:
+			app.logger.exception("Erro ao gerar reset de password")
+			flash(f"Erro ao processar pedido: {e}", "error")
+			return render_template("forgot_password.html"), 500
+
+		return redirect(url_for("login"))
+
+	return render_template("forgot_password.html")
+
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+	reset_entry = get_valid_password_reset(token)
+
+	if not reset_entry:
+		flash("Link inválido ou expirado.", "error")
+		return redirect(url_for("login"))
+
+	if request.method == "POST":
+		password = request.form.get("password", "").strip()
+		confirm_password = request.form.get("confirm_password", "").strip()
+
+		if not password or not confirm_password:
+			flash("Preenche ambos os campos.", "error")
+			return render_template("reset_password.html", token=token), 400
+
+		if password != confirm_password:
+			flash("As passwords não coincidem.", "error")
+			return render_template("reset_password.html", token=token), 400
+
+		if len(password) < 6:
+			flash("A password deve ter pelo menos 6 caracteres.", "error")
+			return render_template("reset_password.html", token=token), 400
+
+		try:
+			update_user_password_by_id(reset_entry["user_id"], password)
+			mark_password_reset_used(token)
+			flash("Password atualizada com sucesso.", "success")
+			return redirect(url_for("login"))
+		except Exception as e:
+			app.logger.exception("Erro ao atualizar password")
+			flash(f"Erro ao atualizar password: {e}", "error")
+			return render_template("reset_password.html", token=token), 500
+
+	return render_template("reset_password.html", token=token)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 	erro = None
 
 	if request.method == "POST":
-		username = request.form.get("username", "").strip()
+		identifier = request.form.get("identifier", "").strip()
 		password = request.form.get("password", "").strip()
+
 		try:
-			user = authenticate_user(username, password)
+			user = authenticate_user(identifier, password)
 		except Exception:
 			erro = "Erro interno a validar credenciais. Tenta novamente."
 			return render_template("login.html", erro=erro), 500
@@ -1173,7 +1272,9 @@ def login():
 		if user:
 			ensure_user_defaults(user["id"])
 			session["logged_in"] = True
-			session["user"] = user["username"]
+			display_name = f"{(user.get('first_name') or '').strip()} {(user.get('last_name') or '').strip()}".strip()
+			if not display_name:
+				display_name = user["username"]
 			session["user_id"] = user["id"]
 			session["is_admin"] = user["is_admin"]
 			return redirect(url_for("dashboard"))
@@ -1304,77 +1405,77 @@ def delete_meta(meta_id):
 @app.route("/admin/invites")
 @admin_required
 def admin_invites():
-    invites = list_invite_codes()
-    return render_template("admin_invites.html", invites=invites)
+	invites = list_invite_codes()
+	return render_template("admin_invites.html", invites=invites)
 
 
 @app.route("/admin/invites/add", methods=["POST"])
 @admin_required
 def admin_add_invite():
-    code = request.form.get("code", "").strip()
+	code = request.form.get("code", "").strip()
 
-    if not code:
-        flash("Código inválido.", "error")
-        return redirect(url_for("admin_invites"))
+	if not code:
+		flash("Código inválido.", "error")
+		return redirect(url_for("admin_invites"))
 
-    try:
-        create_invite_code(code)
-        flash("Código de convite criado com sucesso.", "success")
-    except Exception as e:
-        app.logger.exception("Erro ao criar código de convite")
-        flash(f"Erro ao criar código: {e}", "error")
+	try:
+		create_invite_code(code)
+		flash("Código de convite criado com sucesso.", "success")
+	except Exception as e:
+		app.logger.exception("Erro ao criar código de convite")
+		flash(f"Erro ao criar código: {e}", "error")
 
-    return redirect(url_for("admin_invites"))
+	return redirect(url_for("admin_invites"))
 
 
 @app.route("/admin/invites/delete/<code>", methods=["POST"])
 @admin_required
 def admin_delete_invite(code):
-    try:
-        delete_invite_code(code)
-        flash("Código removido.", "warning")
-    except Exception as e:
-        app.logger.exception("Erro ao remover código")
-        flash(f"Erro ao remover código: {e}", "error")
+	try:
+		delete_invite_code(code)
+		flash("Código removido.", "warning")
+	except Exception as e:
+		app.logger.exception("Erro ao remover código")
+		flash(f"Erro ao remover código: {e}", "error")
 
-    return redirect(url_for("admin_invites"))
+	return redirect(url_for("admin_invites"))
 
 
 @app.route("/admin/invites/generate", methods=["POST"])
 @admin_required
 def admin_generate_invite():
-    try:
-        code = create_random_invite_code(10)
-        flash(f"Código gerado com sucesso: {code}", "success")
-    except Exception as e:
-        app.logger.exception("Erro ao gerar código de convite")
-        flash(f"Erro ao gerar código: {e}", "error")
+	try:
+		code = create_random_invite_code(10)
+		flash(f"Código gerado com sucesso: {code}", "success")
+	except Exception as e:
+		app.logger.exception("Erro ao gerar código de convite")
+		flash(f"Erro ao gerar código: {e}", "error")
 
-    return redirect(url_for("admin_invites"))
+	return redirect(url_for("admin_invites"))
 
 
 @app.route("/admin/invites/generate-multiple", methods=["POST"])
 @admin_required
 def admin_generate_multiple_invites():
-    quantity_txt = request.form.get("quantity", "5").strip()
+	quantity_txt = request.form.get("quantity", "5").strip()
 
-    try:
-        quantity = int(quantity_txt)
-        if quantity < 1:
-            quantity = 1
-        if quantity > 50:
-            quantity = 50
-    except ValueError:
-        quantity = 5
+	try:
+		quantity = int(quantity_txt)
+		if quantity < 1:
+			quantity = 1
+		if quantity > 50:
+			quantity = 50
+	except ValueError:
+		quantity = 5
 
-    try:
-        codes = create_multiple_invite_codes(quantity, 10)
-        flash("Códigos gerados: " + ", ".join(codes), "success")
-    except Exception as e:
-        app.logger.exception("Erro ao gerar múltiplos códigos")
-        flash(f"Erro ao gerar códigos: {e}", "error")
+	try:
+		codes = create_multiple_invite_codes(quantity, 10)
+		flash("Códigos gerados: " + ", ".join(codes), "success")
+	except Exception as e:
+		app.logger.exception("Erro ao gerar múltiplos códigos")
+		flash(f"Erro ao gerar códigos: {e}", "error")
 
-    return redirect(url_for("admin_invites"))
+	return redirect(url_for("admin_invites"))
 
 
 init_db()

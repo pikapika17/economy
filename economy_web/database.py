@@ -2,7 +2,7 @@ import json
 import os
 import secrets
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -34,8 +34,23 @@ def init_db():
 		CREATE TABLE IF NOT EXISTS users (
 			id INT AUTO_INCREMENT PRIMARY KEY,
 			username VARCHAR(255) NOT NULL UNIQUE,
+			email VARCHAR(255) NOT NULL UNIQUE,
+			first_name VARCHAR(255) NOT NULL DEFAULT '',
+			last_name VARCHAR(255) NOT NULL DEFAULT '',
+			birth_date DATE NULL,
+			country VARCHAR(255) NOT NULL DEFAULT '',
 			password_hash TEXT NOT NULL,
 			is_admin TINYINT(1) NOT NULL DEFAULT 0
+		)
+	""")
+
+	cur.execute("""
+		CREATE TABLE IF NOT EXISTS password_resets (
+			id INT AUTO_INCREMENT PRIMARY KEY,
+			user_id INT NOT NULL,
+			token VARCHAR(255) NOT NULL UNIQUE,
+			expires_at DATETIME NOT NULL,
+			used TINYINT(1) NOT NULL DEFAULT 0
 		)
 	""")
 
@@ -203,17 +218,36 @@ def list_users():
 	return rows
 
 
-def add_user(username, password, is_admin=False):
-	conn = get_connection()
-	cur = conn.cursor()
+def add_user(username, email, password, is_admin=False, first_name="", last_name="", birth_date=None, country=""):
+    conn = get_connection()
+    cur = conn.cursor()
 
-	cur.execute(
-		"INSERT INTO users (username, password_hash, is_admin) VALUES (%s, %s, %s)",
-		(username, generate_password_hash(password), 1 if is_admin else 0)
-	)
+    cur.execute("""
+        INSERT INTO users (
+            username, email, first_name, last_name, birth_date, country, password_hash, is_admin
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, (
+        username,
+        email,
+        first_name,
+        last_name,
+        birth_date if birth_date else None,
+        country,
+        generate_password_hash(password),
+        1 if is_admin else 0
+    ))
 
-	conn.commit()
-	conn.close()
+    conn.commit()
+    conn.close()
+	
+
+def get_display_name(user):
+    first_name = (user.get("first_name") or "").strip()
+    last_name = (user.get("last_name") or "").strip()
+
+    full_name = f"{first_name} {last_name}".strip()
+    return full_name if full_name else user["username"]
 
 
 def delete_user(username):
@@ -938,3 +972,116 @@ def get_latest_users(limit=5):
     rows = cur.fetchall()
     conn.close()
     return rows
+
+
+def get_user_by_email(email):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+    row = cur.fetchone()
+
+    conn.close()
+    return row
+
+
+def get_user_by_username_or_email(identifier):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM users
+        WHERE username = %s OR email = %s
+        LIMIT 1
+    """, (identifier, identifier))
+    row = cur.fetchone()
+
+    conn.close()
+    return row
+
+
+def authenticate_user(identifier, password):
+    user = get_user_by_username_or_email(identifier)
+
+    if not user:
+        return None
+
+    if check_password_hash(user["password_hash"], password):
+        return {
+            "id": user["id"],
+            "username": user["username"],
+            "email": user["email"],
+            "is_admin": bool(user["is_admin"])
+        }
+
+    return None
+
+
+def create_password_reset_token(email):
+    user = get_user_by_email(email)
+    if not user:
+        return None
+
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now() + timedelta(hours=1)
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO password_resets (user_id, token, expires_at, used)
+        VALUES (%s, %s, %s, 0)
+    """, (int(user["id"]), token, expires_at.strftime("%Y-%m-%d %H:%M:%S")))
+
+    conn.commit()
+    conn.close()
+
+    return token
+
+
+def get_valid_password_reset(token):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT pr.*, u.username, u.email
+        FROM password_resets pr
+        JOIN users u ON u.id = pr.user_id
+        WHERE pr.token = %s
+          AND pr.used = 0
+          AND pr.expires_at >= NOW()
+        LIMIT 1
+    """, (token,))
+
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
+def mark_password_reset_used(token):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE password_resets
+        SET used = 1
+        WHERE token = %s
+    """, (token,))
+
+    conn.commit()
+    conn.close()
+
+
+def update_user_password_by_id(user_id, new_password):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET password_hash = %s
+        WHERE id = %s
+    """, (generate_password_hash(new_password), int(user_id)))
+
+    conn.commit()
+    conn.close()

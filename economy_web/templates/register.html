@@ -3,13 +3,29 @@
 {% block title %}Criar conta{% endblock %}
 
 {% block content %}
-<div class="auth-wrapper">
+<div class="auth-page">
 	<div class="auth-card">
 		<h1>Criar conta</h1>
-		<p class="muted">Regista-te para começares a usar a aplicação.</p>
+		<p class="muted">Registo por convite</p>
 
 		<form method="POST" action="/register" class="auth-form">
+			<input type="text" name="first_name" placeholder="Nome" required>
+			<input type="text" name="last_name" placeholder="Apelido" required>
 			<input type="text" name="username" placeholder="Utilizador" required>
+			<input type="email" name="email" placeholder="Email" required>
+			<input type="date" name="birth_date" required>
+
+			<select name="country" required>
+				<option value="">País</option>
+				<option value="Portugal">Portugal</option>
+				<option value="Switzerland">Switzerland</option>
+				<option value="Germany">Germany</option>
+				<option value="France">France</option>
+				<option value="Spain">Spain</option>
+				<option value="Italy">Italy</option>
+				<option value="Other">Other</option>
+			</select>
+
 			<input type="password" name="password" placeholder="Password" required>
 			<input type="password" name="confirm_password" placeholder="Confirmar password" required>
 			<input type="text" name="invite_code" placeholder="Código de convite" required>
@@ -17,9 +33,8 @@
 			<button type="submit">Criar conta</button>
 		</form>
 
-		<div class="muted" style="margin-top: 16px;">
-			Já tens conta?
-			<a href="/login">Entrar</a>
+		<div class="auth-links">
+			<a href="/login">Já tenho conta</a>
 		</div>
 	</div>
 </div>
