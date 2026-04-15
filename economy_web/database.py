@@ -39,6 +39,8 @@ def init_db():
 			last_name VARCHAR(255) NOT NULL DEFAULT '',
 			birth_date DATE NULL,
 			country VARCHAR(255) NOT NULL DEFAULT '',
+			language VARCHAR(10) NOT NULL DEFAULT 'pt',
+			currency VARCHAR(10) NOT NULL DEFAULT 'CHF',
 			password_hash TEXT NOT NULL,
 			is_admin TINYINT(1) NOT NULL DEFAULT 0
 		)
@@ -218,15 +220,27 @@ def list_users():
 	return rows
 
 
-def add_user(username, email, password, is_admin=False, first_name="", last_name="", birth_date=None, country=""):
+def add_user(
+    username,
+    email,
+    password,
+    is_admin=False,
+    first_name="",
+    last_name="",
+    birth_date=None,
+    country="",
+    language="pt",
+    currency="CHF"
+):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         INSERT INTO users (
-            username, email, first_name, last_name, birth_date, country, password_hash, is_admin
+            username, email, first_name, last_name, birth_date, country,
+            language, currency, password_hash, is_admin
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         username,
         email,
@@ -234,6 +248,8 @@ def add_user(username, email, password, is_admin=False, first_name="", last_name
         last_name,
         birth_date if birth_date else None,
         country,
+        language,
+        currency,
         generate_password_hash(password),
         1 if is_admin else 0
     ))
@@ -1105,7 +1121,7 @@ def get_user_by_id(user_id):
     return row
 
 
-def update_user_profile(user_id, first_name, last_name, email, birth_date, country):
+def update_user_profile(user_id, first_name, last_name, email, birth_date, country, language, currency):
     conn = get_connection()
     cur = conn.cursor()
 
@@ -1115,7 +1131,9 @@ def update_user_profile(user_id, first_name, last_name, email, birth_date, count
             last_name = %s,
             email = %s,
             birth_date = %s,
-            country = %s
+            country = %s,
+            language = %s,
+            currency = %s
         WHERE id = %s
     """, (
         first_name,
@@ -1123,6 +1141,8 @@ def update_user_profile(user_id, first_name, last_name, email, birth_date, count
         email,
         birth_date if birth_date else None,
         country,
+        language,
+        currency,
         int(user_id),
     ))
 

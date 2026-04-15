@@ -16,7 +16,7 @@
     <h2>Cenário atual</h2>
     <p>Prioridade: {{ resultado.prioridade }}</p>
     <p>Meses estimados: {{ resultado.meses }}</p>
-    <p>Juros estimados: {{ "%.2f"|format(resultado.juros) }} CHF</p>
+    <p>Juros estimados: {{ "%.2f"|format(total_geral) }} {{ session_currency }}</p>
     {% if resultado.problema %}
     <p class="orange">Há dívidas que quase não amortizam ou a simulação ficou instável.</p>
     {% endif %}

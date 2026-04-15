@@ -93,7 +93,9 @@ def inject_user_context():
     return {
         "session_user": session.get("user"),
         "session_display_name": session.get("display_name"),
-        "session_is_admin": bool(session.get("is_admin", False))
+        "session_is_admin": bool(session.get("is_admin", False)),
+        "session_language": session.get("language", "pt"),
+        "session_currency": session.get("currency", "CHF"),
     }
 
 
@@ -1130,6 +1132,8 @@ def register():
 		last_name = request.form.get("last_name", "").strip()
 		birth_date = request.form.get("birth_date", "").strip()
 		country = request.form.get("country", "").strip()
+		language = request.form.get("language", "pt").strip()
+		currency = request.form.get("currency", "CHF").strip()
 
 		if not username or not email or not password or not confirm_password or not invite_code or not first_name or not last_name or not country:
 			flash("Preenche todos os campos obrigatórios.", "error")
@@ -1166,6 +1170,8 @@ def register():
 				last_name=last_name,
 				birth_date=birth_date if birth_date else None,
 				country=country,
+				language=language,
+				currency=currency,
 			)
 			use_invite_code(invite_code)
 
@@ -1281,8 +1287,10 @@ def update_profile():
     email = request.form.get("email", "").strip().lower()
     birth_date = request.form.get("birth_date", "").strip()
     country = request.form.get("country", "").strip()
+    language = request.form.get("language", "").strip()
+    currency = request.form.get("currency", "").strip()
 
-    if not first_name or not last_name or not email or not country:
+    if not first_name or not last_name or not email or not country or not language or not currency:
         flash("Preenche todos os campos obrigatórios.", "error")
         return redirect(url_for("perfil"))
 
@@ -1291,10 +1299,21 @@ def update_profile():
         return redirect(url_for("perfil"))
 
     try:
-        update_user_profile(user_id, first_name, last_name, email, birth_date, country)
+        update_user_profile(
+            user_id,
+            first_name,
+            last_name,
+            email,
+            birth_date,
+            country,
+            language,
+            currency
+        )
 
         display_name = f"{first_name} {last_name}".strip()
         session["display_name"] = display_name if display_name else session.get("user")
+        session["language"] = language
+        session["currency"] = currency
 
         flash("Perfil atualizado com sucesso.", "success")
     except Exception as e:
@@ -1356,15 +1375,18 @@ def login():
 
 		if user:
 			ensure_user_defaults(user["id"])
-			session["logged_in"] = True
+
 			display_name = f"{(user.get('first_name') or '').strip()} {(user.get('last_name') or '').strip()}".strip()
 			if not display_name:
 				display_name = user["username"]
 
+			session["logged_in"] = True
 			session["user"] = user["username"]
 			session["display_name"] = display_name
 			session["user_id"] = user["id"]
 			session["is_admin"] = user["is_admin"]
+			session["language"] = user.get("language", "pt")
+			session["currency"] = user.get("currency", "CHF")
 			return redirect(url_for("dashboard"))
 
 		erro = "Credenciais inválidas."

@@ -127,7 +127,7 @@
 		<p class="muted" style="margin-bottom:10px;">Visão curta da tua situação:</p>
 		<ul style="margin:0; padding-left:18px; line-height:1.8;">
 			<li>Entradas atuais: <strong>{{ "%.2f"|format(entradas) }} CHF</strong></li>
-			<li>Saída mensal total: <strong>{{ "%.2f"|format(despesas + dividas) }} CHF</strong></li>
+			<li>Saída mensal total: <strong>{{ "%.2f"|format(total_geral) }} {{ session_currency }}</strong></li>
 			<li>Pendentes acumulados: <strong class="orange">{{ "%.2f"|format(pendentes) }} CHF</strong></li>
 			<li>Saldo real: <strong class="{{ 'green' if saldo >= 0 else 'red' }}">{{ "%.2f"|format(saldo) }} CHF</strong></li>
 		</ul>
