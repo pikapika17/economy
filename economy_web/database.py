@@ -3,12 +3,18 @@ import json
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_FILE = os.environ.get("DB_FILE", "/var/www/economy_data/economy.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_DB_FILE = os.path.join(BASE_DIR, "economy.db")
+DB_FILE = os.environ.get("DB_FILE", DEFAULT_DB_FILE)
 
 JSON_FILE = "dados.json"
 
 
 def get_connection():
+	db_dir = os.path.dirname(DB_FILE)
+	if db_dir:
+		os.makedirs(db_dir, exist_ok=True)
+
 	conn = sqlite3.connect(DB_FILE)
 	conn.row_factory = sqlite3.Row
 	return conn
