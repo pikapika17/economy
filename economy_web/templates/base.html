@@ -89,6 +89,12 @@
             font-weight: 700;
         }
 
+        .sidebar-user {
+            margin: 0 8px 12px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
         .sidebar a {
             display: block;
             text-decoration: none;
@@ -463,6 +469,11 @@
     <div class="layout">
         <div id="sidebar" class="sidebar">
             <h2>Finanças</h2>
+            {% if session_user %}
+                <div class="sidebar-user">
+                    Sessão: <strong>{{ session_user }}</strong>{% if session_is_admin %} (admin){% endif %}
+                </div>
+            {% endif %}
             <a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
             <a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
             <a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
@@ -471,6 +482,9 @@
             <a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
             <a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
             <a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
+            {% if session_is_admin %}
+                <a href="/admin/users" onclick="closeSidebar()">👑 Administração</a>
+            {% endif %}
             <a href="/logout" class="logout" onclick="closeSidebar()">🚪 Logout</a>
         </div>
 

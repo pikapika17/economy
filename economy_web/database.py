@@ -1,6 +1,7 @@
 import sqlite3
 import json
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_FILE = os.environ.get("DB_FILE", "/var/www/economy_data/economy.db")
 
@@ -97,6 +98,84 @@ def init_db():
 	)
 	""")
 
+	cur.execute("""
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		username TEXT NOT NULL UNIQUE,
+		password_hash TEXT NOT NULL,
+		is_admin INTEGER NOT NULL DEFAULT 0
+	)
+	""")
+
+	conn.commit()
+	conn.close()
+
+
+def ensure_default_admin(username, password):
+	init_db()
+	conn = get_connection()
+	cur = conn.cursor()
+	cur.execute("SELECT id FROM users LIMIT 1")
+	existe = cur.fetchone()
+
+	if not existe:
+		cur.execute(
+			"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1)",
+			(username, generate_password_hash(password))
+		)
+		conn.commit()
+
+	conn.close()
+
+
+def get_user_by_username(username):
+	conn = get_connection()
+	cur = conn.cursor()
+	cur.execute("SELECT id, username, password_hash, is_admin FROM users WHERE username = ?", (username,))
+	row = cur.fetchone()
+	conn.close()
+	return row
+
+
+def authenticate_user(username, password):
+	user = get_user_by_username(username)
+	if not user:
+		return None
+
+	if check_password_hash(user["password_hash"], password):
+		return {
+			"id": user["id"],
+			"username": user["username"],
+			"is_admin": bool(user["is_admin"])
+		}
+
+	return None
+
+
+def list_users():
+	conn = get_connection()
+	cur = conn.cursor()
+	cur.execute("SELECT id, username, is_admin FROM users ORDER BY username")
+	rows = cur.fetchall()
+	conn.close()
+	return rows
+
+
+def add_user(username, password, is_admin=False):
+	conn = get_connection()
+	cur = conn.cursor()
+	cur.execute(
+		"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
+		(username, generate_password_hash(password), 1 if is_admin else 0)
+	)
+	conn.commit()
+	conn.close()
+
+
+def delete_user(username):
+	conn = get_connection()
+	cur = conn.cursor()
+	cur.execute("DELETE FROM users WHERE username = ?", (username,))
 	conn.commit()
 	conn.close()
 

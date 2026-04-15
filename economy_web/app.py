@@ -2,7 +2,17 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 from functools import wraps
 import os
 
-from database import export_to_dict, save_all_from_dict
+from database import (
+    init_db,
+    ensure_default_admin,
+    authenticate_user,
+    list_users,
+    add_user,
+    get_user_by_username,
+    delete_user,
+    export_to_dict,
+    save_all_from_dict,
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "muda_isto_agora")
@@ -18,6 +28,28 @@ def login_required(f):
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorated_function
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+
+        if not session.get("is_admin"):
+            flash("Apenas administradores podem aceder a esta área.", "warning")
+            return redirect(url_for("dashboard"))
+
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+@app.context_processor
+def inject_user_context():
+    return {
+        "session_user": session.get("user"),
+        "session_is_admin": bool(session.get("is_admin", False))
+    }
 
 
 def calcular_info_divida_web(divida):
@@ -916,23 +948,80 @@ def timeline():
         historico=historico
     )
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    users = list_users()
+    return render_template("admin_users.html", users=users)
+
+
+@app.route("/admin/users/add", methods=["POST"])
+@admin_required
+def admin_add_user():
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "").strip()
+    role = request.form.get("role", "user").strip().lower()
+    is_admin = role == "admin"
+
+    if not username or not password:
+        flash("Preenche utilizador e password.", "error")
+        return redirect(url_for("admin_users"))
+
+    if get_user_by_username(username):
+        flash("Já existe um utilizador com esse nome.", "warning")
+        return redirect(url_for("admin_users"))
+
+    try:
+        add_user(username, password, is_admin=is_admin)
+    except Exception:
+        flash("Não foi possível criar o utilizador.", "error")
+        return redirect(url_for("admin_users"))
+
+    flash("Utilizador criado com sucesso.", "success")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/users/delete/<username>", methods=["POST"])
+@admin_required
+def admin_delete_user(username):
+    if username == session.get("user"):
+        flash("Não podes remover o teu próprio utilizador.", "warning")
+        return redirect(url_for("admin_users"))
+
+    user = get_user_by_username(username)
+    if not user:
+        flash("Utilizador não encontrado.", "warning")
+        return redirect(url_for("admin_users"))
+
+    if bool(user["is_admin"]):
+        admins = [u for u in list_users() if u["is_admin"]]
+        if len(admins) <= 1:
+            flash("Não podes remover o último administrador.", "warning")
+            return redirect(url_for("admin_users"))
+
+    delete_user(username)
+    flash("Utilizador removido.", "success")
+    return redirect(url_for("admin_users"))
+
+
+app.route("/login", methods=["GET", "POST"])
 def login():
     erro = None
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
+        user = authenticate_user(username, password)
 
-        if username == APP_USER and password == APP_PASSWORD:
+        if user:
             session["logged_in"] = True
-            session["user"] = username
+            session["user"] = user["username"]
+            session["is_admin"] = user["is_admin"]
             return redirect(url_for("dashboard"))
-        else:
-            erro = "Credenciais inválidas."
+
+        erro = "Credenciais inválidas."
 
     return render_template("login.html", erro=erro)
-
 
 @app.route("/logout")
 def logout():
@@ -983,6 +1072,10 @@ def update_despesa(nome_antigo):
     save_all_from_dict(dados)
     flash("Despesa atualizada com sucesso.", "success")
     return redirect("/despesas")
+
+
+init_db()
+ensure_default_admin(APP_USER, APP_PASSWORD)
 
 
 if __name__ == "__main__":
