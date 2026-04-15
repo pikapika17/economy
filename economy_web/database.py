@@ -386,41 +386,41 @@ def update_despesa_pago(user_id, mes, nome, pago):
         
 # ---------------- SALARIOS (SQL DIRETO) ----------------
 
-def add_salario(nome, valor):
+def add_salario(user_id, nome, valor):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        INSERT INTO salarios (nome, valor)
-        VALUES (%s, %s)
-    """, (nome, float(valor)))
+        INSERT INTO salarios (user_id, nome, valor)
+        VALUES (%s, %s, %s)
+    """, (int(user_id), nome, float(valor)))
 
     conn.commit()
     conn.close()
 
 
-def update_salario(nome_antigo, novo_nome, valor):
+def update_salario(user_id, nome_antigo, novo_nome, valor):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         UPDATE salarios
         SET nome = %s, valor = %s
-        WHERE nome = %s
-    """, (novo_nome, float(valor), nome_antigo))
+        WHERE user_id = %s AND nome = %s
+    """, (novo_nome, float(valor), int(user_id), nome_antigo))
 
     conn.commit()
     conn.close()
 
 
-def delete_salario_db(nome):
+def delete_salario_db(user_id, nome):
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
         DELETE FROM salarios
-        WHERE nome = %s
-    """, (nome,))
+        WHERE user_id = %s AND nome = %s
+    """, (int(user_id), nome))
 
     conn.commit()
     conn.close()

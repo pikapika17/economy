@@ -705,7 +705,7 @@ def add_salario():
 
     try:
         valor = float(valor_txt)
-        db_add_salario(nome, valor)
+        db_add_salario(session["user_id"], nome, valor)
     except ValueError:
         return redirect("/sistema")
     except Exception as e:
@@ -728,7 +728,7 @@ def update_salario(nome):
 
     try:
         valor = float(valor_txt)
-        db_update_salario(nome, novo_nome, valor)
+        db_update_salario(session["user_id"], nome, novo_nome, valor)
     except ValueError:
         return redirect("/sistema")
     except Exception as e:
@@ -744,7 +744,7 @@ def update_salario(nome):
 @login_required
 def delete_salario(nome):
     try:
-        delete_salario_db(nome)
+        delete_salario_db(session["user_id"], nome)
     except Exception as e:
         app.logger.exception("Erro ao remover salário")
         flash(f"Erro ao remover salário: {e}", "error")
