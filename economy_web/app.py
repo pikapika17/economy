@@ -898,44 +898,47 @@ def delete_categoria(nome):
 @app.route("/planeamento")
 @login_required
 def planeamento():
-	dados = export_to_dict(session["user_id"])
-	mes = dados.get("mes_atual", "")
+    dados = export_to_dict(session["user_id"])
+    mes = dados.get("mes_atual", "")
 
-	entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
-	saldo_inicial = float(dados.get("saldo_inicial", 0))
-	saldo_real = saldo_inicial + sobra
-	pendentes = total_pendentes_web(dados)
+    entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
+    saldo_inicial = float(dados.get("saldo_inicial", 0))
+    saldo_real = saldo_inicial + sobra
+    pendentes = total_pendentes_web(dados)
 
-	total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
-	score, detalhes = score_web(dados, mes)
+    total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
+    score, detalhes = score_web(dados, mes)
 
-	if total_divida <= 0:
-		meses_liberdade = 0
-	elif sobra <= 0:
-		meses_liberdade = "∞"
-	else:
-		meses_liberdade = int(total_divida / sobra)
+    total_geral = despesas + prestacoes + pendentes
 
-	prioridade = "Sem dívidas"
-	if dados.get("dividas"):
-		pior = max(dados["dividas"].items(), key=lambda x: x[1]["taxa"])
-		prioridade = f"{pior[0]} ({pior[1]['taxa']:.2f}%)"
+    if total_divida <= 0:
+        meses_liberdade = 0
+    elif sobra <= 0:
+        meses_liberdade = "∞"
+    else:
+        meses_liberdade = int(total_divida / sobra)
 
-	return render_template(
-		"planeamento.html",
-		mes=mes,
-		entradas=entradas,
-		despesas=despesas,
-		prestacoes=prestacoes,
-		sobra=sobra,
-		saldo_real=saldo_real,
-		pendentes=pendentes,
-		total_divida=total_divida,
-		meses_liberdade=meses_liberdade,
-		prioridade=prioridade,
-		score=score,
-		detalhes=detalhes
-	)
+    prioridade = "Sem dívidas"
+    if dados.get("dividas"):
+        pior = max(dados["dividas"].items(), key=lambda x: x[1]["taxa"])
+        prioridade = f"{pior[0]} ({pior[1]['taxa']:.2f}%)"
+
+    return render_template(
+        "planeamento.html",
+        mes=mes,
+        entradas=entradas,
+        despesas=despesas,
+        prestacoes=prestacoes,
+        sobra=sobra,
+        saldo_real=saldo_real,
+        pendentes=pendentes,
+        total_divida=total_divida,
+        total_geral=total_geral,
+        meses_liberdade=meses_liberdade,
+        prioridade=prioridade,
+        score=score,
+        detalhes=detalhes
+    )
 
 @app.route("/simulacao")
 @login_required
