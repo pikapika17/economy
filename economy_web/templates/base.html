@@ -475,6 +475,11 @@
 			color: #94a3b8;
 		}
 
+		.badge-info {
+			background: rgba(59, 130, 246, 0.15);
+			color: #3b82f6;
+		}
+
 	</style>
 </head>
 <body>
@@ -502,8 +507,9 @@
 			<a href="/metas" onclick="closeSidebar()">🎯 Metas</a>
 			<a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
 			{% if session_is_admin %}
-				<a href="/admin/users" onclick="closeSidebar()">👑 Administração</a>
-				<a href="/admin/invites" onclick="closeSidebar()">🎟️ Convites</a>
+				<a href="/admin" onclick="closeSidebar()">📊 Admin</a>
+				<a href="/admin/users onclick="closeSidebar()"">👥 Utilizadores</a>
+				<a href="/admin/invites onclick="closeSidebar()"">🎟️ Convites</a>
 			{% endif %}
 			<a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
 			<a href="/logout" class="logout" onclick="closeSidebar()">🚪 Logout</a>

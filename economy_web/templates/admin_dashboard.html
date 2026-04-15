@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1>📊 Admin Dashboard</h1>
+
+<div class="cards">
+    <div class="card">
+        <h3>Utilizadores</h3>
+        <p>{{ stats.total_users }}</p>
+        <div class="muted" style="margin-top:8px;">Total de contas</div>
+    </div>
+
+    <div class="card">
+        <h3>Admins</h3>
+        <p>{{ stats.total_admins }}</p>
+        <div class="muted" style="margin-top:8px;">Administradores ativos</div>
+    </div>
+
+    <div class="card">
+        <h3>Convites ativos</h3>
+        <p>{{ stats.active_invites }}</p>
+        <div class="muted" style="margin-top:8px;">Códigos disponíveis</div>
+    </div>
+
+    <div class="card">
+        <h3>Convites totais</h3>
+        <p>{{ stats.total_invites }}</p>
+        <div class="muted" style="margin-top:8px;">Códigos criados</div>
+    </div>
+</div>
+
+<div class="cards" style="margin-top: 20px;">
+    <div class="card">
+        <h3>Despesas</h3>
+        <p>{{ stats.total_despesas }}</p>
+        <div class="muted" style="margin-top:8px;">Registos totais</div>
+    </div>
+
+    <div class="card">
+        <h3>Total despesas</h3>
+        <p class="orange">{{ "%.2f"|format(stats.valor_total_despesas) }} CHF</p>
+        <div class="muted" style="margin-top:8px;">Somatório global</div>
+    </div>
+
+    <div class="card">
+        <h3>Dívidas</h3>
+        <p>{{ stats.total_dividas }}</p>
+        <div class="muted" style="margin-top:8px;">Registos totais</div>
+    </div>
+
+    <div class="card">
+        <h3>Total dívida</h3>
+        <p class="red">{{ "%.2f"|format(stats.valor_total_dividas) }} CHF</p>
+        <div class="muted" style="margin-top:8px;">Valor global</div>
+    </div>
+</div>
+
+<div class="cards" style="margin-top: 20px;">
+    <div class="card">
+        <h3>Pendentes</h3>
+        <p>{{ stats.total_pendentes }}</p>
+        <div class="muted" style="margin-top:8px;">Pendentes registados</div>
+    </div>
+
+    <div class="card">
+        <h3>Metas</h3>
+        <p>{{ stats.total_metas }}</p>
+        <div class="muted" style="margin-top:8px;">Metas criadas</div>
+    </div>
+</div>
+
+<div class="box" style="margin-top: 24px;">
+    <h2>Acesso rápido</h2>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn-link" href="/admin/users">👥 Utilizadores</a>
+        <a class="btn-link" href="/admin/invites">🎟️ Convites</a>
+        <a class="btn-link" href="/metas">🎯 Metas</a>
+        <a class="btn-link" href="/sistema">⚙️ Sistema</a>
+    </div>
+</div>
+{% endblock %}

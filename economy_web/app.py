@@ -44,6 +44,7 @@ from database import (
 	create_multiple_invite_codes,
 	set_user_admin,
     update_user_password,
+	get_admin_stats,
 )
 
 app = Flask(__name__)
@@ -965,6 +966,14 @@ def timeline():
 		resultado=resultado,
 		historico=historico
 	)
+
+
+@app.route("/admin")
+@admin_required
+def admin_dashboard():
+    stats = get_admin_stats()
+    return render_template("admin_dashboard.html", stats=stats)
+
 
 @app.route("/admin/users")
 @admin_required
