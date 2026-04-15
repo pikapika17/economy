@@ -30,7 +30,7 @@
     <form method="POST" action="/add_pendente">
         <input name="nome" placeholder="Nome" required>
         <input name="valor_mensal" type="number" step="0.01" placeholder="Valor mensal" required>
-        <input name="desde" placeholder="YYYY-MM" required>
+        <input name="desde" type="month" required>
         <input name="notas" placeholder="Notas">
         <button type="submit">Guardar</button>
     </form>
@@ -64,7 +64,7 @@
                     </td>
 
                     <td>
-                        <input name="desde" value="{{ p.desde }}" required>
+                        <input name="desde" type="month" value="{{ p.desde }}" required>
                     </td>
 
                     <td style="text-align:center;">
