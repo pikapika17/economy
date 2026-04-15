@@ -142,7 +142,7 @@ def get_user_by_username(username):
 	init_db()
 	conn = get_connection()
 	cur = conn.cursor()
-	cur.execute("SELECT id, username, password_hash, is_admin FROM users WHERE username = ?", (username,))
+	cur.execute("SELECT id, username, password_hash, is_admin FROM users WHERE username = %s", (username,))
 	row = cur.fetchone()
 	conn.close()
 	return row
@@ -189,7 +189,7 @@ def delete_user(username):
 	init_db()
 	conn = get_connection()
 	cur = conn.cursor()
-	cur.execute("DELETE FROM users WHERE username = ?", (username,))
+	cur.execute("DELETE FROM users WHERE username = %s", (username,))
 	conn.commit()
 	conn.close()
 
