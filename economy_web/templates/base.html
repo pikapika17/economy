@@ -581,9 +581,10 @@
 			border: 1px solid rgba(255,255,255,0.08);
 			border-radius: 12px;
 			color: #fff;
-			overflow: hidden;
 			z-index: 9999;
-			min-width: 100%;
+			width: auto;
+			min-width: 250px;
+			max-width: 90vw;
 		}
 
 		.ts-dropdown .option {
@@ -597,11 +598,16 @@
 		.ts-dropdown .ts-dropdown-content {
 			max-height: 220px;
 			overflow-y: auto;
+			overflow-x: hidden;
 		}
 
 		.ts-control,
 		.ts-dropdown {
 			font-size: 14px;
+		}
+
+		.ts-dropdown {
+			box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 		}
 
 	</style>
