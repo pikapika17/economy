@@ -40,53 +40,55 @@
     <h2>Lista de pendentes</h2>
 
     {% if pendentes %}
-    <table>
-        <tr>
-            <th>Nome</th>
-            <th style="text-align:right;">Valor mensal</th>
-            <th>Desde</th>
-            <th style="text-align:center;">Meses</th>
-            <th style="text-align:right;">Total</th>
-            <th>Notas</th>
-            <th>Ações</th>
-        </tr>
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Nome</th>
+                <th style="text-align:right;">Valor mensal</th>
+                <th>Desde</th>
+                <th style="text-align:center;">Meses</th>
+                <th style="text-align:right;">Total</th>
+                <th>Notas</th>
+                <th>Ações</th>
+            </tr>
 
-        {% for p in pendentes %}
-        <tr>
-            <form method="POST" action="/update_pendente/{{ p.nome }}">
-                <td>
-                    <input name="novo_nome" value="{{ p.nome }}" required>
-                </td>
+            {% for p in pendentes %}
+            <tr>
+                <form method="POST" action="/update_pendente/{{ p.nome }}">
+                    <td>
+                        <input name="novo_nome" value="{{ p.nome }}" required>
+                    </td>
 
-                <td style="text-align:right;">
-                    <input name="valor_mensal" type="number" step="0.01" value="{{ p.valor_mensal }}" required>
-                </td>
+                    <td style="text-align:right;">
+                        <input name="valor_mensal" type="number" step="0.01" value="{{ p.valor_mensal }}" required>
+                    </td>
 
-                <td>
-                    <input name="desde" value="{{ p.desde }}" required>
-                </td>
+                    <td>
+                        <input name="desde" value="{{ p.desde }}" required>
+                    </td>
 
-                <td style="text-align:center;">
-                    <strong>{{ p.meses }}</strong>
-                </td>
+                    <td style="text-align:center;">
+                        <strong>{{ p.meses }}</strong>
+                    </td>
 
-                <td style="text-align:right;">
-                    <strong class="orange">{{ "%.2f"|format(p.total) }} CHF</strong>
-                </td>
+                    <td style="text-align:right;">
+                        <strong class="orange">{{ "%.2f"|format(p.total) }} CHF</strong>
+                    </td>
 
-                <td>
-                    <input name="notas" value="{{ p.notas }}">
-                </td>
+                    <td>
+                        <input name="notas" value="{{ p.notas }}">
+                    </td>
 
-                <td class="acoes">
-                    <button type="submit">Guardar</button>
-                    <a class="btn-link" href="/convert_pendente/{{ p.nome }}" onclick="return confirm('Converter este pendente em dívida?')">Converter</a>
-                    <a class="btn-link btn-danger" href="/delete_pendente/{{ p.nome }}" onclick="return confirm('Remover este pendente?')">Remover</a>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
-    </table>
+                    <td class="acoes">
+                        <button type="submit">Guardar</button>
+                        <a class="btn-link" href="/convert_pendente/{{ p.nome }}" onclick="return confirm('Converter este pendente em dívida?')">Converter</a>
+                        <a class="btn-link btn-danger" href="/delete_pendente/{{ p.nome }}" onclick="return confirm('Remover este pendente?')">Remover</a>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
     {% else %}
     <div class="muted">Ainda não tens pendentes registados.</div>
     {% endif %}

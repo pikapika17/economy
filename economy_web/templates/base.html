@@ -2,6 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Finanças{% endblock %}</title>
     <style>
         :root {
@@ -24,7 +25,6 @@
             --red: #ff5c5c;
             --orange: #ffb347;
             --radius: 18px;
-            --radius-sm: 12px;
             --shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
         }
 
@@ -41,6 +41,34 @@
             min-height: 100vh;
         }
 
+        .mobile-topbar {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+            background: rgba(20, 20, 20, 0.96);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 12px 14px;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .menu-btn {
+            border: none;
+            background: linear-gradient(180deg, #2f7fc4, var(--primary));
+            color: white;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         .layout {
             display: flex;
             min-height: 100vh;
@@ -52,6 +80,7 @@
             border-right: 1px solid rgba(255, 255, 255, 0.04);
             padding: 22px 12px;
             flex-shrink: 0;
+            transition: transform 0.2s ease;
         }
 
         .sidebar h2 {
@@ -90,6 +119,7 @@
         .content {
             flex: 1;
             padding: 26px;
+            min-width: 0;
         }
 
         h1 {
@@ -161,8 +191,8 @@
         select,
         textarea,
         button {
-            height: 46px;
-            padding: 0 14px;
+            min-height: 46px;
+            padding: 10px 14px;
             border-radius: 12px;
             font-size: 14px;
         }
@@ -178,8 +208,7 @@
         }
 
         textarea {
-            height: 100px;
-            padding: 12px 14px;
+            min-height: 100px;
             resize: vertical;
         }
 
@@ -256,8 +285,15 @@
             background: linear-gradient(180deg, #2faa70, var(--success-hover));
         }
 
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius);
+        }
+
         table {
             width: 100%;
+            min-width: 760px;
             border-collapse: separate;
             border-spacing: 0;
             border-radius: var(--radius);
@@ -283,12 +319,19 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
+        table input {
+            width: 100%;
+            min-width: 0;
+            min-height: 40px;
+        }
+
         .acoes {
             white-space: nowrap;
         }
 
         .acoes > * {
             margin-right: 6px;
+            margin-bottom: 4px;
         }
 
         .green { color: var(--green); }
@@ -318,71 +361,154 @@
             color: var(--orange);
         }
 
+        .sidebar-backdrop {
+            display: none;
+        }
+
         @media (max-width: 980px) {
-            .layout {
-                flex-direction: column;
+            .mobile-topbar {
+                display: flex;
+            }
+
+            .content {
+                padding: 18px 14px;
             }
 
             .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1002;
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.45);
+                z-index: 1001;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+            }
+
+            h1 {
+                font-size: 28px;
             }
 
             .grid-2 {
                 grid-template-columns: 1fr;
             }
+
+            form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            form input,
+            form select,
+            form textarea,
+            form button,
+            form a.btn-link {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                min-width: 700px;
+            }
         }
 
-        table input {
-            width: 100%;
-            min-width: 0;
-            height: 40px;
-        }
+        @media (max-width: 560px) {
+            .content {
+                padding: 14px 10px;
+            }
 
-        .acoes button,
-        .acoes a {
-            margin-bottom: 4px;
-        }
+            .box,
+            .card {
+                padding: 16px;
+                border-radius: 14px;
+            }
 
-        select {
-            min-width: 150px;
-        }
+            .card p {
+                font-size: 22px;
+            }
 
-        .box h2 {
-            margin-bottom: 14px;
+            h1 {
+                font-size: 24px;
+            }
         }
-
     </style>
 </head>
 <body>
-<div class="layout">
-    <div class="sidebar">
-        <h2>Finanças</h2>
-        <a href="/">🏠 Dashboard</a>
-        <a href="/despesas">💸 Despesas</a>
-        <a href="/dividas">💳 Dívidas</a>
-        <a href="/pendentes">📌 Pendentes</a>
-        <a href="/sistema">⚙️ Sistema</a>
-        <a href="/planeamento">📅 Planeamento</a>
-        <a href="/simulacao">📊 Simulação</a>
-        <a href="/timeline">🗓️ Timeline</a>
-        <a href="/logout" class="logout">🚪 Logout</a>
+    <div class="mobile-topbar">
+        <div class="mobile-title">Finanças</div>
+        <button class="menu-btn" type="button" onclick="toggleSidebar()">☰ Menu</button>
     </div>
 
-    <div class="content">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash flash-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
-        {% block content %}{% endblock %}
+    <div class="layout">
+        <div id="sidebar" class="sidebar">
+            <h2>Finanças</h2>
+            <a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
+            <a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
+            <a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
+            <a href="/pendentes" onclick="closeSidebar()">📌 Pendentes</a>
+            <a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
+            <a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
+            <a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
+            <a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
+            <a href="/logout" class="logout" onclick="closeSidebar()">🚪 Logout</a>
+        </div>
+
+        <div class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
     </div>
-</div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("sidebarBackdrop");
+            sidebar.classList.toggle("open");
+            backdrop.classList.toggle("show");
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("sidebarBackdrop");
+            sidebar.classList.remove("open");
+            backdrop.classList.remove("show");
+        }
+
+        window.addEventListener("resize", function () {
+            if (window.innerWidth > 980) {
+                closeSidebar();
+            }
+        });
+    </script>
 </body>
 </html>

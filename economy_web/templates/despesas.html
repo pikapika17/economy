@@ -72,53 +72,55 @@
     <h2>Lista de despesas</h2>
 
     {% if despesas %}
-    <table>
-        <tr>
-            <th>Nome</th>
-            <th style="text-align:right;">Valor</th>
-            <th>Categoria</th>
-            <th>Estado</th>
-            <th>Ações</th>
-        </tr>
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>Nome</th>
+                <th style="text-align:right;">Valor</th>
+                <th>Categoria</th>
+                <th>Estado</th>
+                <th>Ações</th>
+            </tr>
 
-        {% for nome, d in despesas.items() %}
-        <tr>
-            <form method="POST" action="/update_despesa/{{ nome }}">
-                <td>
-                    <input name="novo_nome" value="{{ nome }}" required>
-                </td>
+            {% for nome, d in despesas.items() %}
+            <tr>
+                <form method="POST" action="/update_despesa/{{ nome }}">
+                    <td>
+                        <input name="novo_nome" value="{{ nome }}" required>
+                    </td>
 
-                <td style="text-align:right;">
-                    <input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
-                </td>
+                    <td style="text-align:right;">
+                        <input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
+                    </td>
 
-                <td>
-                    <input name="categoria" value="{{ d.categoria }}" required>
-                </td>
+                    <td>
+                        <input name="categoria" value="{{ d.categoria }}" required>
+                    </td>
 
-                <td>
-                    {% if d.pago %}
-                        <span class="green"><strong>Pago</strong></span>
-                    {% else %}
-                        <span class="orange"><strong>Por pagar</strong></span>
-                    {% endif %}
-                </td>
+                    <td>
+                        {% if d.pago %}
+                            <span class="green"><strong>Pago</strong></span>
+                        {% else %}
+                            <span class="orange"><strong>Por pagar</strong></span>
+                        {% endif %}
+                    </td>
 
-                <td class="acoes">
-                    <button type="submit">Guardar</button>
+                    <td class="acoes">
+                        <button type="submit">Guardar</button>
 
-                    {% if d.pago %}
-                        <a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
-                    {% else %}
-                        <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
-                    {% endif %}
+                        {% if d.pago %}
+                            <a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
+                        {% else %}
+                            <a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
+                        {% endif %}
 
-                    <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('Remover esta despesa?')">Remover</a>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
-    </table>
+                        <a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('Remover esta despesa?')">Remover</a>
+                    </td>
+                </form>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
     {% else %}
     <div class="muted">Nenhuma despesa encontrada com os filtros atuais.</div>
     {% endif %}
