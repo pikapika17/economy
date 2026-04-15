@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+<h1>👤 Perfil</h1>
+
+<div class="grid-2">
+    <div class="box">
+        <h2>Dados pessoais</h2>
+
+        <form method="POST" action="/perfil/update" class="auth-form">
+            <input type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="Nome" required>
+            <input type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="Apelido" required>
+            <input type="email" name="email" value="{{ user.email or '' }}" placeholder="Email" required>
+            <input type="date" name="birth_date" value="{{ user.birth_date if user.birth_date else '' }}">
+            
+            <select name="country" required>
+                <option value="">País</option>
+                <option value="Portugal" {% if user.country == "Portugal" %}selected{% endif %}>Portugal</option>
+                <option value="Switzerland" {% if user.country == "Switzerland" %}selected{% endif %}>Switzerland</option>
+                <option value="Germany" {% if user.country == "Germany" %}selected{% endif %}>Germany</option>
+                <option value="France" {% if user.country == "France" %}selected{% endif %}>France</option>
+                <option value="Spain" {% if user.country == "Spain" %}selected{% endif %}>Spain</option>
+                <option value="Italy" {% if user.country == "Italy" %}selected{% endif %}>Italy</option>
+                <option value="Other" {% if user.country == "Other" %}selected{% endif %}>Other</option>
+            </select>
+
+            <button type="submit">Guardar perfil</button>
+        </form>
+    </div>
+
+    <div class="box">
+        <h2>Segurança</h2>
+
+        <form method="POST" action="/perfil/password" class="auth-form">
+            <input type="password" name="current_password" placeholder="Password atual" required>
+            <input type="password" name="new_password" placeholder="Nova password" required>
+            <input type="password" name="confirm_password" placeholder="Confirmar nova password" required>
+
+            <button type="submit">Atualizar password</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

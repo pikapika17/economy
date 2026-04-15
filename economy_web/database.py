@@ -240,7 +240,7 @@ def add_user(username, email, password, is_admin=False, first_name="", last_name
 
     conn.commit()
     conn.close()
-	
+
 
 def get_display_name(user):
     first_name = (user.get("first_name") or "").strip()
@@ -1085,3 +1085,94 @@ def update_user_password_by_id(user_id, new_password):
 
     conn.commit()
     conn.close()
+
+
+# ---------------- PERFIL ----------------
+
+def get_user_by_id(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM users
+        WHERE id = %s
+        LIMIT 1
+    """, (int(user_id),))
+
+    row = cur.fetchone()
+    conn.close()
+    return row
+
+
+def update_user_profile(user_id, first_name, last_name, email, birth_date, country):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET first_name = %s,
+            last_name = %s,
+            email = %s,
+            birth_date = %s,
+            country = %s
+        WHERE id = %s
+    """, (
+        first_name,
+        last_name,
+        email,
+        birth_date if birth_date else None,
+        country,
+        int(user_id),
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def email_belongs_to_other_user(email, user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id
+        FROM users
+        WHERE email = %s AND id != %s
+        LIMIT 1
+    """, (email, int(user_id)))
+
+    row = cur.fetchone()
+    conn.close()
+    return row is not None
+
+
+def update_own_password(user_id, current_password, new_password):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, password_hash
+        FROM users
+        WHERE id = %s
+        LIMIT 1
+    """, (int(user_id),))
+
+    user = cur.fetchone()
+
+    if not user:
+        conn.close()
+        return False, "Utilizador não encontrado."
+
+    if not check_password_hash(user["password_hash"], current_password):
+        conn.close()
+        return False, "A password atual está incorreta."
+
+    cur.execute("""
+        UPDATE users
+        SET password_hash = %s
+        WHERE id = %s
+    """, (generate_password_hash(new_password), int(user_id)))
+
+    conn.commit()
+    conn.close()
+    return True, "Password atualizada com sucesso."

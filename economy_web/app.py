@@ -52,6 +52,10 @@ from database import (
 	get_valid_password_reset,
 	mark_password_reset_used,
 	update_user_password_by_id,
+	get_user_by_id,
+    update_user_profile,
+    email_belongs_to_other_user,
+    update_own_password,
 )
 
 app = Flask(__name__)
@@ -1253,6 +1257,87 @@ def reset_password(token):
 			return render_template("reset_password.html", token=token), 500
 
 	return render_template("reset_password.html", token=token)
+
+
+@app.route("/perfil")
+@login_required
+def perfil():
+    user = get_user_by_id(session["user_id"])
+
+    if not user:
+        flash("Utilizador não encontrado.", "error")
+        return redirect(url_for("dashboard"))
+
+    return render_template("perfil.html", user=user)
+
+
+@app.route("/perfil/update", methods=["POST"])
+@login_required
+def update_profile():
+    user_id = session["user_id"]
+
+    first_name = request.form.get("first_name", "").strip()
+    last_name = request.form.get("last_name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    birth_date = request.form.get("birth_date", "").strip()
+    country = request.form.get("country", "").strip()
+
+    if not first_name or not last_name or not email or not country:
+        flash("Preenche todos os campos obrigatórios.", "error")
+        return redirect(url_for("perfil"))
+
+    if email_belongs_to_other_user(email, user_id):
+        flash("Esse email já está a ser usado por outra conta.", "warning")
+        return redirect(url_for("perfil"))
+
+    try:
+        update_user_profile(user_id, first_name, last_name, email, birth_date, country)
+
+        display_name = f"{first_name} {last_name}".strip()
+        session["display_name"] = display_name if display_name else session.get("user")
+
+        flash("Perfil atualizado com sucesso.", "success")
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar perfil")
+        flash(f"Erro ao atualizar perfil: {e}", "error")
+
+    return redirect(url_for("perfil"))
+
+
+@app.route("/perfil/password", methods=["POST"])
+@login_required
+def update_profile_password():
+    user_id = session["user_id"]
+
+    current_password = request.form.get("current_password", "").strip()
+    new_password = request.form.get("new_password", "").strip()
+    confirm_password = request.form.get("confirm_password", "").strip()
+
+    if not current_password or not new_password or not confirm_password:
+        flash("Preenche todos os campos da password.", "error")
+        return redirect(url_for("perfil"))
+
+    if new_password != confirm_password:
+        flash("As novas passwords não coincidem.", "error")
+        return redirect(url_for("perfil"))
+
+    if len(new_password) < 6:
+        flash("A nova password deve ter pelo menos 6 caracteres.", "error")
+        return redirect(url_for("perfil"))
+
+    try:
+        ok, message = update_own_password(user_id, current_password, new_password)
+
+        if ok:
+            flash(message, "success")
+        else:
+            flash(message, "error")
+
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar password do perfil")
+        flash(f"Erro ao atualizar password: {e}", "error")
+
+    return redirect(url_for("perfil"))
 
 
 @app.route("/login", methods=["GET", "POST"])
