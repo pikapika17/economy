@@ -344,7 +344,7 @@
         .acoes a {
             margin-bottom: 4px;
         }
-        
+
     </style>
 </head>
 <body>
@@ -363,11 +363,15 @@
     </div>
 
     <div class="content">
-        {% if mensagem %}
-            <div class="flash flash-{{ mensagem.tipo }}">
-                {{ mensagem.texto }}
-            </div>
-        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         {% block content %}{% endblock %}
     </div>

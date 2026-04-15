@@ -2,7 +2,7 @@ import sqlite3
 import json
 import os
 
-DB_FILE = os.environ.get("DB_FILE", "economy.db")
+DB_FILE = os.environ.get("DB_FILE", "/var/www/economy_data/economy.db")
 
 JSON_FILE = "dados.json"
 

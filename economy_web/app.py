@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 from functools import wraps
 import os
 
@@ -306,6 +306,7 @@ def add_despesa():
     }
 
     save_all_from_dict(dados)
+    flash("Despesa adicionada com sucesso.", "success")
     return redirect("/despesas")
 
 
@@ -319,6 +320,7 @@ def delete_despesa(nome):
         del dados["meses"][mes]["despesas"][nome]
 
     save_all_from_dict(dados)
+    flash("Despesa removida.", "warning")
     return redirect("/despesas")
 
 
@@ -332,6 +334,7 @@ def toggle_pago(nome):
     d["pago"] = not d.get("pago", False)
 
     save_all_from_dict(dados)
+    flash("Estado da despesa atualizado.", "success")
     return redirect("/despesas")
 
 @app.route("/dividas")
@@ -943,6 +946,7 @@ def update_despesa(nome_antigo):
     }
 
     save_all_from_dict(dados)
+    flash("Despesa atualizada com sucesso.", "success")
     return redirect("/despesas")
 
 
