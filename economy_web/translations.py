@@ -13,11 +13,12 @@ translations = {
         "export": "Exportar dados",
         "import": "Importar dados",
         "logout": "Logout",
-        "welcome": "Bem-vindo",
+        "welcome_user": "Bem-vindo, {name}",
         "finances": "Finanças",
         "account": "Conta",
         "admin": "Admin",
     },
+    
     "en": {
         "dashboard": "Dashboard",
         "expenses": "Expenses",
@@ -32,7 +33,7 @@ translations = {
         "export": "Export data",
         "import": "Import data",
         "logout": "Logout",
-        "welcome": "Welcome",
+        "welcome_user": "Welcome, {name}",
         "finances": "Finances",
         "account": "Account",
         "admin": "Admin",

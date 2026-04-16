@@ -68,9 +68,12 @@ app.secret_key = os.environ.get("SECRET_KEY", "muda_isto_agora")
 APP_USER = os.environ.get("APP_USER", "admin")
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin123")
 
-def t(key):
+
+def t(key, **kwargs):
     lang = session.get("language", "pt")
-    return translations.get(lang, translations["pt"]).get(key, key)
+    text = translations.get(lang, translations["pt"]).get(key, key)
+    return text.format(**kwargs)
+
 
 def login_required(f):
 	@wraps(f)
