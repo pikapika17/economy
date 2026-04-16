@@ -17,6 +17,7 @@ translations = {
         "finances": "Finanças",
         "account": "Conta",
         "admin": "Admin",
+        "enter": "Entrar",
     },
     
     "en": {
@@ -37,5 +38,6 @@ translations = {
         "finances": "Finances",
         "account": "Account",
         "admin": "Admin",
+        "enter": "Enter",
     }
 }
