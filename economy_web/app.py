@@ -328,6 +328,12 @@ def get_common_currencies():
     ]
 
 
+@app.before_request
+def ensure_language():
+    if "language" not in session:
+        session["language"] = "pt"
+
+		
 @app.context_processor
 def inject_translations():
     return dict(t=t)
@@ -1249,6 +1255,9 @@ def register():
 				session["user"] = user["username"]
 				session["user_id"] = user["id"]
 				session["is_admin"] = user["is_admin"]
+				session["language"] = user.get("language", "pt")
+				session["currency"] = user.get("currency", "CHF")
+
 				flash("Conta criada com sucesso.", "success")
 				return redirect(url_for("dashboard"))
 
@@ -1465,7 +1474,7 @@ def login():
 			session["display_name"] = display_name
 			session["user_id"] = user["id"]
 			session["is_admin"] = user["is_admin"]
-			session["language"] = user.language
+			session["language"] = user.get("language", "pt")
 			session["currency"] = user.get("currency", "CHF")
 			return redirect(url_for("dashboard"))
 
