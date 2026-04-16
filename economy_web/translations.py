@@ -25,6 +25,9 @@ translations = {
         "user_or_email": "Utilizador ou email",
         "password": "Palavra-passe",
         "logout": "Terminar sessão",
+        "admdash": "Admin Dashboard",
+        "users": "Utilizadores",
+        "invites": "Convites",
     },
     
     "en": {
@@ -53,5 +56,8 @@ translations = {
         "user_or_email": "User or email",
         "password": "Password",
         "logout": "Logout",
+        "admdash": "Admin Dashboard",
+        "users": "Users",
+        "invites": "Invites",
     }
 }
