@@ -71,10 +71,11 @@
 <script>
 function copyInviteCode(elementId) {
     const text = document.getElementById(elementId).innerText;
+
     navigator.clipboard.writeText(text).then(() => {
-        alert("{{ t('code_copied') }} " + text);
+        showToast({{ t('code_copied') | tojson }} + " " + text, "success");
     }).catch(() => {
-        alert("{{ t('copy_failed') }}");
+        showToast({{ t('copy_failed') | tojson }}, "error");
     });
 }
 </script>
