@@ -732,7 +732,7 @@
 				{% endif %}
 			</div>
 
-			<a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
+			<a href="/" onclick="closeSidebar()">🏠 {{ t("dashboard") }}</a>
 
 			<div class="sidebar-group">
 				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-financas')">
@@ -740,10 +740,10 @@
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-financas" class="sidebar-group-links">
-					<a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
-					<a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
-					<a href="/pendentes" onclick="closeSidebar()">📌 Pendentes</a>
-					<a href="/metas" onclick="closeSidebar()">🎯 Metas</a>
+					<a href="/despesas" onclick="closeSidebar()">💸 {{ t("expenses") }}</a>
+					<a href="/dividas" onclick="closeSidebar()">💳 {{ t("debts") }}</a>
+					<a href="/pendentes" onclick="closeSidebar()">📌 {{ t("pending") }}</a>
+					<a href="/metas" onclick="closeSidebar()">🎯 {{ t("goals") }}</a>
 				</div>
 			</div>
 
@@ -753,9 +753,9 @@
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-planeamento" class="sidebar-group-links">
-					<a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
-					<a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
-					<a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
+					<a href="/planeamento" onclick="closeSidebar()">📅 {{ t("planning") }}</a>
+					<a href="/simulacao" onclick="closeSidebar()">📊 {{ t("simulation") }}</a>
+					<a href="/timeline" onclick="closeSidebar()">🗓️ {{ t("timeline") }}</a>
 				</div>
 			</div>
 
@@ -765,10 +765,10 @@
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-conta" class="sidebar-group-links">
-					<a href="/perfil" onclick="closeSidebar()">👤 Perfil</a>
-					<a href="/export" onclick="closeSidebar()">📦 Exportar dados</a>
-					<a href="/import" onclick="closeSidebar()">📥 Importar dados</a>
-					<a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
+					<a href="/perfil" onclick="closeSidebar()">👤 {{ t("profile") }}</a>
+					<a href="/export" onclick="closeSidebar()">📦 {{ t("export") }}</a>
+					<a href="/import" onclick="closeSidebar()">📥 {{ t("import") }}</a>
+					<a href="/sistema" onclick="closeSidebar()">⚙️ {{ t("system") }}</a>
 				</div>
 			</div>
 

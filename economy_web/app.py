@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
 from functools import wraps
 from datetime import datetime
+from translations import translations
 
 import io, json, pycountry, os, csv
 
@@ -66,6 +67,9 @@ app.secret_key = os.environ.get("SECRET_KEY", "muda_isto_agora")
 APP_USER = os.environ.get("APP_USER", "admin")
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin123")
 
+def t(key):
+    lang = session.get("language", "pt")
+    return translations.get(lang, translations["pt"]).get(key, key)
 
 def login_required(f):
 	@wraps(f)
@@ -322,6 +326,12 @@ def get_common_currencies():
         "CAD",
         "AUD",
     ]
+
+
+@app.context_processor
+def inject_translations():
+    return dict(t=t)
+
 
 @app.route("/")
 @login_required
@@ -1455,7 +1465,7 @@ def login():
 			session["display_name"] = display_name
 			session["user_id"] = user["id"]
 			session["is_admin"] = user["is_admin"]
-			session["language"] = user.get("language", "pt")
+			session["language"] = user.language
 			session["currency"] = user.get("currency", "CHF")
 			return redirect(url_for("dashboard"))
 
