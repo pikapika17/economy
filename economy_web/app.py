@@ -3,7 +3,21 @@ from functools import wraps
 from datetime import datetime
 from translations import translations
 
-import io, json, pycountry, os, csv
+from config import (
+    SECRET_KEY,
+    BOOTSTRAP_ADMIN,
+    APP_USER,
+    APP_PASSWORD,
+    ALLOWED_LANGUAGES,
+    COMMON_CURRENCIES,
+    FLASK_HOST,
+    FLASK_PORT,
+    FLASK_DEBUG,
+)
+
+import io, json, pycountry, csv
+
+import io, json, pycountry, csv
 
 from database import (
 	init_db,
@@ -63,10 +77,7 @@ from database import (
 )
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "muda_isto_agora")
-
-APP_USER = os.environ.get("APP_USER", "admin")
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin123")
+app.secret_key = SECRET_KEY
 
 
 def t(key, **kwargs):
@@ -320,16 +331,7 @@ def get_all_countries():
 
 
 def get_common_currencies():
-    return [
-        "CHF",
-        "EUR",
-        "USD",
-        "GBP",
-        "JPY",
-        "CNY",
-        "CAD",
-        "AUD",
-    ]
+    return COMMON_CURRENCIES
 
 
 @app.before_request
@@ -345,7 +347,7 @@ def inject_translations():
 
 @app.route("/set-language-public/<lang>", methods=["POST"])
 def set_language_public(lang):
-    allowed = ["pt", "en"]
+    allowed = ALLOWED_LANGUAGES
 
     if lang not in allowed:
         return redirect(request.referrer or url_for("login"))
@@ -1335,7 +1337,7 @@ def forgot_password():
 @app.route("/set-language/<lang>", methods=["POST"])
 @login_required
 def set_language(lang):
-    allowed = ["pt", "en"]
+    allowed = ALLOWED_LANGUAGES
 
     if lang not in allowed:
         flash("Idioma inválido.", "error")
@@ -2007,8 +2009,13 @@ def import_data():
 
 
 init_db()
-ensure_default_admin(APP_USER, APP_PASSWORD)
+if BOOTSTRAP_ADMIN:
+    if not APP_USER or not APP_PASSWORD:
+        raise RuntimeError(
+            "BOOTSTRAP_ADMIN is enabled but APP_USER or APP_PASSWORD is missing."
+        )
+    ensure_default_admin(APP_USER, APP_PASSWORD)
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000, debug=True)
+	app.run(host=FLASK_HOST, port=FLASK_PORT, debug=FLASK_DEBUG)
