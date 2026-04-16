@@ -343,6 +343,17 @@ def inject_translations():
     return dict(t=t)
 
 
+@app.route("/set-language-public/<lang>", methods=["POST"])
+def set_language_public(lang):
+    allowed = ["pt", "en"]
+
+    if lang not in allowed:
+        return redirect(request.referrer or url_for("login"))
+
+    session["language"] = lang
+    return redirect(request.referrer or url_for("login"))
+
+
 @app.route("/")
 @login_required
 def dashboard():

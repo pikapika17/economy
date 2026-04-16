@@ -755,13 +755,23 @@
 			</div>
 
 			<div class="language-switch">
-				<form method="POST" action="/set-language/pt" style="display:inline;">
-					<button type="submit" class="lang-btn {% if session_language == 'pt' %}active{% endif %}">🇵🇹 PT</button>
-				</form>
+				{% if session_user %}
+					<form method="POST" action="/set-language/pt" style="display:inline;">
+						<button type="submit" class="lang-btn {% if session_language == 'pt' %}active{% endif %}">🇵🇹 PT</button>
+					</form>
 
-				<form method="POST" action="/set-language/en" style="display:inline;">
-					<button type="submit" class="lang-btn {% if session_language == 'en' %}active{% endif %}">🇬🇧 EN</button>
-				</form>
+					<form method="POST" action="/set-language/en" style="display:inline;">
+						<button type="submit" class="lang-btn {% if session_language == 'en' %}active{% endif %}">🇬🇧 EN</button>
+					</form>
+				{% else %}
+					<form method="POST" action="/set-language-public/pt" style="display:inline;">
+						<button type="submit" class="lang-btn {% if session_language == 'pt' %}active{% endif %}">🇵🇹 PT</button>
+					</form>
+
+					<form method="POST" action="/set-language-public/en" style="display:inline;">
+						<button type="submit" class="lang-btn {% if session_language == 'en' %}active{% endif %}">🇬🇧 EN</button>
+					</form>
+				{% endif %}
 			</div>
 
 			<a href="/" onclick="closeSidebar()">🏠 {{ t("dashboard") }}</a>

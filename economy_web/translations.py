@@ -18,6 +18,11 @@ translations = {
         "account": "Conta",
         "admin": "Admin",
         "enter": "Entrar",
+        "email_user": "Usa o teu utilizador ou email",
+        "fpass": "Esqueci a palavra-passe",
+        "newacc": "Criar conta",
+        "user_or_email": "Utilizador or email",
+        "password": "Palavra-passe",
     },
     
     "en": {
@@ -39,5 +44,8 @@ translations = {
         "account": "Account",
         "admin": "Admin",
         "enter": "Enter",
+        "email_user": "Use your username or email",
+        "fpass": "Forgot your password?",
+        "newacc": "Create account",
     }
 }
