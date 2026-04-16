@@ -43,6 +43,13 @@ translations = {
         "expcsv": "Exportar em CSV",
         "backupcsv": "Ideal para abrir no Excel ou Google Sheets.",
         "downloadcsv": "Descarregar CSV",
+        "import_json_title": "Importar backup JSON",
+        "import_json_warning": "Isto vai substituir os teus dados atuais pelos dados do ficheiro importado.",
+        "import_confirm": "Isto vai substituir os teus dados atuais. Continuar?",
+        "import_json_button": "Importar JSON",
+        "import_csv_title": "Importar CSV",
+        "import_csv_info": "Importa dados a partir de ficheiros CSV (Excel, etc).",
+        "import_csv_button": "Importar CSV",
     },
     
     "en": {
@@ -89,5 +96,12 @@ translations = {
         "expcsv": "Export in CSV",
         "backupcsv": "Ideal for opening in Excel or Google Sheets.",
         "downloadcsv": "Download CSV",
+        "import_json_title": "Import JSON backup",
+        "import_json_warning": "This will replace your current data with the imported file.",
+        "import_confirm": "This will replace your current data. Continue?",
+        "import_json_button": "Import JSON",
+        "import_csv_title": "Import CSV",
+        "import_csv_info": "Import data from CSV files (Excel, etc).",
+        "import_csv_button": "Import CSV",
     }
 }

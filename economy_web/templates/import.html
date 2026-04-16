@@ -1,21 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Importar dados · Finances1st{% endblock %}
+{% block title %}{{ t("import") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>📥 Importar dados</h1>
+<h1>📥 {{ t("import") }}</h1>
 
 <div class="box">
-    <h2>Importar backup JSON</h2>
+    <h2>{{ t("import_json_title") }}</h2>
     <p class="muted">
-        Isto vai substituir os teus dados atuais pelos dados do ficheiro importado.
+        {{ t("import_json_warning") }}
     </p>
 
     <form method="POST" action="/import" enctype="multipart/form-data" class="auth-form">
         <input type="file" name="file" accept=".json,application/json" required>
-        <button type="submit" onclick="return confirm('Isto vai substituir os teus dados atuais. Continuar?')">
-            Importar JSON
+        <button type="submit" onclick="return confirm('{{ t('import_confirm') }}')">
+            {{ t("import_json_button") }}
         </button>
     </form>
 </div>
+
+<div class="box">
+    <h2>{{ t("import_csv_title") }}</h2>
+    <p class="muted">
+        {{ t("import_csv_info") }}
+    </p>
+
+    <form method="POST" action="/import/csv" enctype="multipart/form-data" class="auth-form">
+        <input type="file" name="file" accept=".csv,text/csv" required>
+        
+        <select name="type" required>
+            <option value="expenses">{{ t("expenses") }}</option>
+            <option value="debts">{{ t("debts") }}</option>
+            <option value="pending">{{ t("pending") }}</option>
+        </select>
+
+        <button type="submit">
+            {{ t("import_csv_button") }}
+        </button>
+    </form>
+</div>
+
 {% endblock %}

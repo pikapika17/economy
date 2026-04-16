@@ -1840,6 +1840,36 @@ def export_data_csv():
         return redirect(url_for("export_page"))
 	
 
+@app.route("/import/csv", methods=["POST"])
+@login_required
+def import_csv():
+    file = request.files.get("file")
+    data_type = request.form.get("type")
+
+    if not file:
+        flash("Ficheiro inválido.", "error")
+        return redirect(url_for("import_page"))
+
+    try:
+        import csv
+        import io
+
+        stream = io.StringIO(file.stream.read().decode("utf-8"))
+        reader = csv.DictReader(stream)
+
+        rows = list(reader)
+
+        # TODO: tratar consoante data_type
+        print(f"Import {data_type}: {len(rows)} linhas")
+
+        flash("CSV importado com sucesso.", "success")
+
+    except Exception as e:
+        flash(f"Erro ao importar CSV: {e}", "error")
+
+    return redirect(url_for("import_page"))
+
+
 @app.route("/import", methods=["GET", "POST"])
 @login_required
 def import_data():
