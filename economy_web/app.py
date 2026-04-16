@@ -1251,22 +1251,22 @@ def register():
 			user = authenticate_user(email, password)
 
 			if user:
-			ensure_user_defaults(user["id"])
+				ensure_user_defaults(user["id"])
 
-			display_name = f"{(user.get('first_name') or '').strip()} {(user.get('last_name') or '').strip()}".strip()
-			if not display_name:
-				display_name = user["username"]
+				display_name = f"{(user.get('first_name') or '').strip()} {(user.get('last_name') or '').strip()}".strip()
+				if not display_name:
+					display_name = user["username"]
 
-			session["logged_in"] = True
-			session["user"] = user["username"]
-			session["display_name"] = display_name
-			session["user_id"] = user["id"]
-			session["is_admin"] = user["is_admin"]
-			session["language"] = user.get("language", "pt")
-			session["currency"] = user.get("currency", "CHF")
+				session["logged_in"] = True
+				session["user"] = user["username"]
+				session["display_name"] = display_name
+				session["user_id"] = user["id"]
+				session["is_admin"] = user["is_admin"]
+				session["language"] = user.get("language", "pt")
+				session["currency"] = user.get("currency", "CHF")
 
-			flash("Conta criada com sucesso.", "success")
-			return redirect(url_for("dashboard"))
+				flash("Conta criada com sucesso.", "success")
+				return redirect(url_for("dashboard"))
 
 			flash("Conta criada, mas não foi possível iniciar sessão.", "warning")
 			return redirect(url_for("login"))
