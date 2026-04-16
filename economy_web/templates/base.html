@@ -637,6 +637,62 @@
 			display: none !important;
 		}
 
+		.sidebar-group {
+			margin: 10px 0;
+		}
+
+		.sidebar-group-toggle {
+			width: 100%;
+			border: none;
+			background: linear-gradient(180deg, #2f7fc4, var(--primary));
+			color: white;
+			padding: 12px 14px;
+			border-radius: 12px;
+			text-align: left;
+			font-weight: 700;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			box-shadow: 0 6px 14px rgba(43, 116, 180, 0.18);
+		}
+
+		.sidebar-group-toggle:hover {
+			transform: translateY(-1px);
+			background: linear-gradient(180deg, #3b90db, var(--primary-hover));
+		}
+
+		.sidebar-group-links {
+			display: none;
+			padding: 8px 0 0 10px;
+		}
+
+		.sidebar-group-links.open {
+			display: block;
+		}
+
+		.sidebar-group-links a {
+			background: rgba(255, 255, 255, 0.04);
+			box-shadow: none;
+			margin: 6px 0;
+			padding: 10px 12px;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+
+		.sidebar-group-links a:hover {
+			background: rgba(255, 255, 255, 0.08);
+		}
+
+		.sidebar-caret {
+			font-size: 14px;
+			transition: transform 0.2s ease;
+		}
+
+		.sidebar-group-toggle.open .sidebar-caret {
+			transform: rotate(180deg);
+		}
+
 	</style>
 </head>
 <body>
@@ -650,28 +706,69 @@
 	<div class="layout">
 		<div id="sidebar" class="sidebar">
 			<h2>Finanças</h2>
-			{% if session_display_name %}
-				Bem-vindo, {{ session_display_name }}
-			{% elif session_user %}
-				Bem-vindo, {{ session_user }}
-			{% endif %}
+
+			<div class="sidebar-user">
+				{% if session_display_name %}
+					Bem-vindo, {{ session_display_name }}
+				{% elif session_user %}
+					Bem-vindo, {{ session_user }}
+				{% endif %}
+			</div>
+
 			<a href="/" onclick="closeSidebar()">🏠 Dashboard</a>
-			<a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
-			<a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
-			<a href="/pendentes" onclick="closeSidebar()">📌 Pendentes</a>
-			<a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
-			<a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
-			<a href="/metas" onclick="closeSidebar()">🎯 Metas</a>
-			<a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
+
+			<div class="sidebar-group">
+				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-financas')">
+					<span>💸 Finanças</span>
+					<span class="sidebar-caret">▼</span>
+				</button>
+				<div id="group-financas" class="sidebar-group-links">
+					<a href="/despesas" onclick="closeSidebar()">💸 Despesas</a>
+					<a href="/dividas" onclick="closeSidebar()">💳 Dívidas</a>
+					<a href="/pendentes" onclick="closeSidebar()">📌 Pendentes</a>
+					<a href="/metas" onclick="closeSidebar()">🎯 Metas</a>
+				</div>
+			</div>
+
+			<div class="sidebar-group">
+				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-planeamento')">
+					<span>📅 Planeamento</span>
+					<span class="sidebar-caret">▼</span>
+				</button>
+				<div id="group-planeamento" class="sidebar-group-links">
+					<a href="/planeamento" onclick="closeSidebar()">📅 Planeamento</a>
+					<a href="/simulacao" onclick="closeSidebar()">📊 Simulação</a>
+					<a href="/timeline" onclick="closeSidebar()">🗓️ Timeline</a>
+				</div>
+			</div>
+
+			<div class="sidebar-group">
+				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-conta')">
+					<span>👤 Conta</span>
+					<span class="sidebar-caret">▼</span>
+				</button>
+				<div id="group-conta" class="sidebar-group-links">
+					<a href="/perfil" onclick="closeSidebar()">👤 Perfil</a>
+					<a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
+					<a href="/export" onclick="closeSidebar()">📦 Exportar dados</a>
+					<a href="/import" onclick="closeSidebar()">📥 Importar dados</a>
+				</div>
+			</div>
+
 			{% if session_is_admin %}
-				<a href="/admin" onclick="closeSidebar()">📊 Admin</a>
-				<a href="/admin/users" onclick="closeSidebar()">👥 Utilizadores</a>
-				<a href="/admin/invites" onclick="closeSidebar()">🎟️ Convites</a>
+			<div class="sidebar-group">
+				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-admin')">
+					<span>🛠️ Admin</span>
+					<span class="sidebar-caret">▼</span>
+				</button>
+				<div id="group-admin" class="sidebar-group-links">
+					<a href="/admin" onclick="closeSidebar()">📊 Admin Dashboard</a>
+					<a href="/admin/users" onclick="closeSidebar()">👥 Utilizadores</a>
+					<a href="/admin/invites" onclick="closeSidebar()">🎟️ Convites</a>
+				</div>
+			</div>
 			{% endif %}
-			<a href="/sistema" onclick="closeSidebar()">⚙️ Sistema</a>
-			<a href="/perfil" onclick="closeSidebar()">👤 Perfil</a>
-			<a href="/export" onclick="closeSidebar()">📦 Exportar dados</a>
-			<a href="/import" onclick="closeSidebar()">📥 Importar dados</a>
+
 			<a href="/logout" class="logout" onclick="closeSidebar()">🚪 Logout</a>
 		</div>
 
@@ -703,6 +800,12 @@
 			const backdrop = document.getElementById("sidebarBackdrop");
 			sidebar.classList.remove("open");
 			backdrop.classList.remove("show");
+		}
+
+		function toggleSidebarGroup(button, groupId) {
+			const group = document.getElementById(groupId);
+			group.classList.toggle("open");
+			button.classList.toggle("open");
 		}
 
 		window.addEventListener("resize", function () {
