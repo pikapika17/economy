@@ -19,7 +19,7 @@
 		<div class="box">
 			<h2>{{ t("addincome") }}</h2>
 			<form method="POST" action="/add_salario">
-				<input name="nome" placeholder="Nome">
+				<input name="nome" placeholder="{{ t("addcontribution") }}">
 				<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}">
 				<button type="submit">{{ t("add") }}</button>
 			</form>
@@ -50,7 +50,7 @@
 		<div class="box">
 			<h2>{{ t("addcontribution") }}</h2>
 			<form method="POST" action="/add_contribuicao">
-				<input name="nome" placeholder="Nome">
+				<input name="nome" placeholder="{{ t("name") }}">
 				<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}">
 				<button type="submit">{{ t("add") }}</button>
 			</form>
