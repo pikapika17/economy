@@ -38,11 +38,9 @@
 	<div class="box">
 		<h2>{{ t("score") }}</h2>
 		<p>{{ score }}/100</p>
-		<ul>
-			{% for d in detalhes %}
-			<li>{{ d }}</li>
-			{% endfor %}
-		</ul>
+		{% for d in detalhes %}
+		<li>{{ t(d) }}</li>
+		{% endfor %}
 	</div>
 </div>
 {% endblock %}

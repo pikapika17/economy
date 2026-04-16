@@ -190,48 +190,48 @@ def score_web(dados, mes):
 
 	if sobra > 1000:
 		score += 40
-		detalhes.append("Boa sobra mensal")
+		detalhes.append("score_good_surplus")
 	elif sobra > 500:
 		score += 30
-		detalhes.append("Sobra positiva forte")
+		detalhes.append("score_strong_positive_surplus")
 	elif sobra > 0:
 		score += 15
-		detalhes.append("Sobra positiva")
+		detalhes.append("score_positive_surplus")
 	else:
-		detalhes.append("Sobra mensal negativa")
+		detalhes.append("score_negative_surplus")
 
 	if entradas > 0:
 		ratio = despesas / entradas
 		if ratio < 0.5:
 			score += 20
-			detalhes.append("Despesas controladas")
+			detalhes.append("score_expenses_controlled")
 		elif ratio < 0.7:
 			score += 10
-			detalhes.append("Despesas aceitáveis")
+			detalhes.append("score_expenses_acceptable")
 		else:
-			detalhes.append("Despesas pesadas")
+			detalhes.append("score_expenses_heavy")
 
 	if entradas > 0:
 		ratio_div = total_divida / (entradas * 12)
 		if ratio_div < 1:
 			score += 20
-			detalhes.append("Dívida baixa face ao rendimento")
+			detalhes.append("score_debt_low_vs_income")
 		elif ratio_div < 2:
 			score += 10
-			detalhes.append("Dívida moderada")
+			detalhes.append("score_debt_moderate")
 		else:
-			detalhes.append("Dívida elevada")
+			detalhes.append("score_debt_high")
 
 	if dividas:
 		max_taxa = max(d["taxa"] for d in dividas.values())
 		if max_taxa < 5:
 			score += 20
-			detalhes.append("Juros baixos")
+			detalhes.append("score_interest_low")
 		elif max_taxa < 10:
 			score += 10
-			detalhes.append("Juros moderados")
+			detalhes.append("score_interest_moderate")
 		else:
-			detalhes.append("Juros altos")
+			detalhes.append("score_interest_high")
 
 	return score, detalhes
 
