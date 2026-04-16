@@ -196,7 +196,7 @@ translations = {
         "quickaccess": "Quick access",
         "manageexpenses": "Manage expenses",
         "managedebts": "Manage debts",
-        "viewoutsandings": "View outstanding",
+        "viewoutstandings": "View outstanding",
         "quickread": "Quick read",
         "quickoverview": "Short overview of your situation:",
         "nextsteps": "Next steps",
