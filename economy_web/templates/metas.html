@@ -1,39 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Metas · Finances1st{% endblock %}
+{% block title %}{{ t("goals") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Metas</h1>
+<h1>{{ t("goals") }}</h1>
 
 <div class="box">
-	<h2>Adicionar meta</h2>
+	<h2>{{ t("add_goal") }}</h2>
 	<form method="POST" action="/add_meta">
-		<input name="nome" placeholder="Nome" required>
+		<input name="nome" placeholder="{{ t('name') }}" required>
 
 		<select name="tipo" required>
-			<option value="">Tipo</option>
-			<option value="poupanca">Poupança</option>
-			<option value="divida">Redução de dívida</option>
-			<option value="outro">Outro</option>
+			<option value="">{{ t("type") }}</option>
+			<option value="poupanca">{{ t("goal_savings") }}</option>
+			<option value="divida">{{ t("goal_debt_reduction") }}</option>
+			<option value="outro">{{ t("goal_other") }}</option>
 		</select>
 
-		<input name="alvo" type="number" step="0.01" placeholder="Valor alvo" required>
+		<input name="alvo" type="number" step="0.01" placeholder="{{ t('target_value') }}" required>
 
-		<button type="submit">Guardar</button>
+		<button type="submit">{{ t("save") }}</button>
 	</form>
 </div>
 
 <div class="box">
-	<h2>Lista de metas</h2>
+	<h2>{{ t("goals_list") }}</h2>
 
 	{% if metas %}
 	<div class="table-wrap">
 		<table>
 			<tr>
-				<th>Nome</th>
-				<th>Tipo</th>
-				<th style="text-align:right;">Alvo</th>
-				<th>Ações</th>
+				<th>{{ t("name") }}</th>
+				<th>{{ t("type") }}</th>
+				<th style="text-align:right;">{{ t("target") }}</th>
+				<th>{{ t("actions") }}</th>
 			</tr>
 
 			{% for m in metas %}
@@ -45,9 +45,9 @@
 
 					<td>
 						<select name="tipo" required>
-							<option value="poupanca" {% if m.tipo == "poupanca" %}selected{% endif %}>Poupança</option>
-							<option value="divida" {% if m.tipo == "divida" %}selected{% endif %}>Redução de dívida</option>
-							<option value="outro" {% if m.tipo == "outro" %}selected{% endif %}>Outro</option>
+							<option value="poupanca" {% if m.tipo == "poupanca" %}selected{% endif %}>{{ t("goal_savings") }}</option>
+							<option value="divida" {% if m.tipo == "divida" %}selected{% endif %}>{{ t("goal_debt_reduction") }}</option>
+							<option value="outro" {% if m.tipo == "outro" %}selected{% endif %}>{{ t("goal_other") }}</option>
 						</select>
 					</td>
 
@@ -56,11 +56,11 @@
 					</td>
 
 					<td class="acoes">
-						<button type="submit">Guardar</button>
+						<button type="submit">{{ t("save") }}</button>
 						<a class="btn-link btn-danger"
 						   href="/delete_meta/{{ m.id }}"
-						   onclick="return confirm('Remover esta meta?')">
-						   Remover
+						   onclick="return confirm('{{ t('confirm_remove_goal') }}')">
+						   {{ t("remove") }}
 						</a>
 					</td>
 				</form>
@@ -69,7 +69,7 @@
 		</table>
 	</div>
 	{% else %}
-	<div class="muted">Ainda não tens metas definidas.</div>
+	<div class="muted">{{ t("no_goals_yet") }}</div>
 	{% endif %}
 </div>
 

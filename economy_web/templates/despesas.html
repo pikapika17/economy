@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Despesas · Finances1st{% endblock %}
+{% block title %}{{ t("expenses") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Despesas</h1>
+<h1>{{ t("expenses") }}</h1>
 
 <div class="cards">
 	<div class="card">
-		<h3>Total de despesas</h3>
+		<h3>{{ t("total_expenses") }}</h3>
 		<p>
 			{{ "%.2f"|format(
 				despesas.values() | map(attribute='valor') | sum
@@ -16,70 +16,70 @@
 	</div>
 
 	<div class="card">
-		<h3>Pagas</h3>
+		<h3>{{ t("paid") }}</h3>
 		<p class="green">
 			{{ despesas.values() | selectattr("pago") | list | length }}
 		</p>
 	</div>
 
 	<div class="card">
-		<h3>Por pagar</h3>
+		<h3>{{ t("unpaid") }}</h3>
 		<p class="orange">
 			{{ despesas.values() | rejectattr("pago") | list | length }}
 		</p>
 	</div>
 
 	<div class="card">
-		<h3>Total itens</h3>
+		<h3>{{ t("total_items") }}</h3>
 		<p>{{ despesas|length }}</p>
 	</div>
 </div>
 
 <div class="box">
-	<h2>Adicionar despesa</h2>
+	<h2>{{ t("add_expense") }}</h2>
 	<form method="POST" action="/add_despesa">
-		<input name="nome" placeholder="Nome" required>
-		<input name="valor" type="number" step="0.01" placeholder="Valor" required>
-		<input name="categoria" placeholder="Categoria" required>
-		<button type="submit">Guardar</button>
+		<input name="nome" placeholder="{{ t('name') }}" required>
+		<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}" required>
+		<input name="categoria" placeholder="{{ t('category') }}" required>
+		<button type="submit">{{ t("save") }}</button>
 	</form>
 </div>
 
 <div class="box">
-	<h2>Filtros</h2>
+	<h2>{{ t("filters") }}</h2>
 	<form method="GET" action="/despesas">
-		<input name="pesquisa" placeholder="Pesquisar nome" value="{{ filtros.pesquisa }}">
+		<input name="pesquisa" placeholder="{{ t('search_name') }}" value="{{ filtros.pesquisa }}">
 
 		<select name="categoria">
-			<option {% if filtros.categoria == "Todas" %}selected{% endif %}>Todas</option>
+			<option {% if filtros.categoria == "Todas" %}selected{% endif %}>{{ t("all") }}</option>
 			{% for cat in categorias %}
 				<option value="{{ cat }}" {% if filtros.categoria == cat %}selected{% endif %}>{{ cat }}</option>
 			{% endfor %}
 		</select>
 
 		<select name="estado">
-			<option {% if filtros.estado == "Todas" %}selected{% endif %}>Todas</option>
-			<option {% if filtros.estado == "Pagas" %}selected{% endif %}>Pagas</option>
-			<option {% if filtros.estado == "Por pagar" %}selected{% endif %}>Por pagar</option>
+			<option {% if filtros.estado == "Todas" %}selected{% endif %}>{{ t("all") }}</option>
+			<option {% if filtros.estado == "Pagas" %}selected{% endif %}>{{ t("paid") }}</option>
+			<option {% if filtros.estado == "Por pagar" %}selected{% endif %}>{{ t("unpaid") }}</option>
 		</select>
 
-		<button type="submit">Aplicar</button>
-		<a class="btn-link" href="/despesas">Limpar</a>
+		<button type="submit">{{ t("apply") }}</button>
+		<a class="btn-link" href="/despesas">{{ t("clear") }}</a>
 	</form>
 </div>
 
 <div class="box">
-	<h2>Lista de despesas</h2>
+	<h2>{{ t("expenses_list") }}</h2>
 
 	{% if despesas %}
 	<div class="table-wrap">
 		<table>
 			<tr>
-				<th>Nome</th>
-				<th style="text-align:right;">Valor</th>
-				<th>Categoria</th>
-				<th>Estado</th>
-				<th>Ações</th>
+				<th>{{ t("name") }}</th>
+				<th style="text-align:right;">{{ t("value") }}</th>
+				<th>{{ t("category") }}</th>
+				<th>{{ t("status") }}</th>
+				<th>{{ t("actions") }}</th>
 			</tr>
 
 			{% for nome, d in despesas.items() %}
@@ -99,22 +99,22 @@
 
 					<td>
 						{% if d.pago %}
-							<span class="green"><strong>Pago</strong></span>
+							<span class="green"><strong>{{ t("paid") }}</strong></span>
 						{% else %}
-							<span class="orange"><strong>Por pagar</strong></span>
+							<span class="orange"><strong>{{ t("unpaid") }}</strong></span>
 						{% endif %}
 					</td>
 
 					<td class="acoes">
-						<button type="submit">Guardar</button>
+						<button type="submit">{{ t("save") }}</button>
 
 						{% if d.pago %}
-							<a class="btn-link" href="/toggle_pago/{{ nome }}">Desfazer</a>
+							<a class="btn-link" href="/toggle_pago/{{ nome }}">{{ t("undo") }}</a>
 						{% else %}
-							<a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">Marcar pago</a>
+							<a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">{{ t("mark_paid") }}</a>
 						{% endif %}
 
-						<a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('Remover esta despesa?')">Remover</a>
+						<a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('{{ t('confirm_remove_expense') }}')">{{ t("remove") }}</a>
 					</td>
 				</form>
 			</tr>
@@ -122,7 +122,7 @@
 		</table>
 	</div>
 	{% else %}
-	<div class="muted">Nenhuma despesa encontrada com os filtros atuais.</div>
+	<div class="muted">{{ t("no_expenses_found") }}</div>
 	{% endif %}
 </div>
 {% endblock %}
