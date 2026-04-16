@@ -2,10 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 from functools import wraps
 from datetime import datetime
 
-import io
-import json
-import pycountry
-import os
+import io, json, pycountry, os, csv
 
 from database import (
 	init_db,
@@ -60,6 +57,7 @@ from database import (
     update_user_profile,
     email_belongs_to_other_user,
     update_own_password,
+	get_connection,
 )
 
 app = Flask(__name__)
@@ -1662,7 +1660,13 @@ def admin_generate_multiple_invites():
 
 @app.route("/export")
 @login_required
-def export_data():
+def export_page():
+    return render_template("export.html")
+
+
+@app.route("/export/json")
+@login_required
+def export_data_json():
     try:
         dados = export_to_dict(session["user_id"])
 
@@ -1680,9 +1684,237 @@ def export_data():
             mimetype="application/json"
         )
     except Exception as e:
-        app.logger.exception("Erro ao exportar dados")
-        flash(f"Erro ao exportar dados: {e}", "error")
-        return redirect(url_for("dashboard"))
+        app.logger.exception("Erro ao exportar JSON")
+        flash(f"Erro ao exportar JSON: {e}", "error")
+        return redirect(url_for("export_page"))
+
+
+@app.route("/export/csv")
+@login_required
+def export_data_csv():
+    try:
+        dados = export_to_dict(session["user_id"])
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        writer.writerow(["SECÇÃO", "CAMPO_1", "CAMPO_2", "CAMPO_3", "CAMPO_4", "VALOR"])
+
+        writer.writerow(["CONFIG", "mes_atual", "", "", "", dados.get("mes_atual", "")])
+        writer.writerow(["CONFIG", "saldo_inicial", "", "", "", dados.get("saldo_inicial", 0)])
+
+        for nome, valor in dados.get("salarios", {}).items():
+            writer.writerow(["SALARIO", nome, "", "", "", valor])
+
+        for nome, valor in dados.get("contribuicoes", {}).items():
+            writer.writerow(["CONTRIBUICAO", nome, "", "", "", valor])
+
+        for nome in dados.get("categorias", []):
+            writer.writerow(["CATEGORIA", nome, "", "", "", ""])
+
+        for nome, info in dados.get("dividas", {}).items():
+            writer.writerow([
+                "DIVIDA",
+                nome,
+                info.get("inicial", 0),
+                info.get("total", 0),
+                info.get("taxa", 0),
+                info.get("prestacao", 0)
+            ])
+
+        for nome, info in dados.get("pendentes", {}).items():
+            writer.writerow([
+                "PENDENTE",
+                nome,
+                info.get("valor_mensal", 0),
+                info.get("desde", ""),
+                info.get("notas", ""),
+                ""
+            ])
+
+        for nome, info in dados.get("despesas_fixas", {}).items():
+            writer.writerow([
+                "DESPESA_FIXA",
+                nome,
+                info.get("categoria", ""),
+                "",
+                "",
+                info.get("valor", 0)
+            ])
+
+        for meta in dados.get("metas", []):
+            writer.writerow([
+                "META",
+                meta.get("nome", ""),
+                meta.get("tipo", ""),
+                "",
+                "",
+                meta.get("alvo", 0)
+            ])
+
+        for mes, info_mes in dados.get("meses", {}).items():
+            for nome, info in info_mes.get("despesas", {}).items():
+                writer.writerow([
+                    "DESPESA",
+                    mes,
+                    nome,
+                    info.get("categoria", ""),
+                    int(bool(info.get("pago", False))),
+                    info.get("valor", 0)
+                ])
+
+        csv_bytes = io.BytesIO(output.getvalue().encode("utf-8-sig"))
+        csv_bytes.seek(0)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"financas_{session.get('user', 'user')}_{timestamp}.csv"
+
+        return send_file(
+            csv_bytes,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="text/csv"
+        )
+    except Exception as e:
+        app.logger.exception("Erro ao exportar CSV")
+        flash(f"Erro ao exportar CSV: {e}", "error")
+        return redirect(url_for("export_page"))
+	
+
+@app.route("/import", methods=["GET", "POST"])
+@login_required
+def import_data():
+    if request.method == "POST":
+        file = request.files.get("file")
+
+        if not file or file.filename == "":
+            flash("Seleciona um ficheiro para importar.", "error")
+            return redirect(url_for("import_data"))
+
+        if not file.filename.lower().endswith(".json"):
+            flash("Só é permitido importar ficheiros JSON.", "error")
+            return redirect(url_for("import_data"))
+
+        try:
+            dados = json.load(file)
+
+            user_id = session["user_id"]
+
+            # CONFIG
+            update_config_db(
+                user_id,
+                dados.get("mes_atual", datetime.now().strftime("%Y-%m")),
+                float(dados.get("saldo_inicial", 0.0))
+            )
+
+            conn = get_connection()
+            cur = conn.cursor()
+
+            try:
+                cur.execute("DELETE FROM salarios WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM contribuicoes WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM categorias WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM despesas WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM dividas WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM pendentes WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM despesas_fixas WHERE user_id = %s", (user_id,))
+                cur.execute("DELETE FROM metas WHERE user_id = %s", (user_id,))
+
+                for nome, valor in dados.get("salarios", {}).items():
+                    cur.execute("""
+                        INSERT INTO salarios (user_id, nome, valor)
+                        VALUES (%s, %s, %s)
+                    """, (user_id, nome, float(valor)))
+
+                for nome, valor in dados.get("contribuicoes", {}).items():
+                    cur.execute("""
+                        INSERT INTO contribuicoes (user_id, nome, valor)
+                        VALUES (%s, %s, %s)
+                    """, (user_id, nome, float(valor)))
+
+                for nome in dados.get("categorias", []):
+                    cur.execute("""
+                        INSERT INTO categorias (user_id, nome)
+                        VALUES (%s, %s)
+                    """, (user_id, nome))
+
+                for nome, info in dados.get("dividas", {}).items():
+                    cur.execute("""
+                        INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """, (
+                        user_id,
+                        nome,
+                        float(info.get("inicial", info.get("total", 0))),
+                        float(info.get("total", 0)),
+                        float(info.get("taxa", 0)),
+                        float(info.get("prestacao", 0)),
+                    ))
+
+                for nome, info in dados.get("pendentes", {}).items():
+                    cur.execute("""
+                        INSERT INTO pendentes (user_id, nome, valor_mensal, desde, notas)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (
+                        user_id,
+                        nome,
+                        float(info.get("valor_mensal", 0)),
+                        info.get("desde", ""),
+                        info.get("notas", ""),
+                    ))
+
+                for nome, info in dados.get("despesas_fixas", {}).items():
+                    cur.execute("""
+                        INSERT INTO despesas_fixas (user_id, nome, valor, categoria)
+                        VALUES (%s, %s, %s, %s)
+                    """, (
+                        user_id,
+                        nome,
+                        float(info.get("valor", 0)),
+                        info.get("categoria", "Sem categoria"),
+                    ))
+
+                for meta in dados.get("metas", []):
+                    cur.execute("""
+                        INSERT INTO metas (user_id, nome, tipo, alvo)
+                        VALUES (%s, %s, %s, %s)
+                    """, (
+                        user_id,
+                        meta.get("nome", ""),
+                        meta.get("tipo", ""),
+                        float(meta.get("alvo", 0)),
+                    ))
+
+                for mes, info_mes in dados.get("meses", {}).items():
+                    for nome, info in info_mes.get("despesas", {}).items():
+                        cur.execute("""
+                            INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
+                            VALUES (%s, %s, %s, %s, %s, %s)
+                        """, (
+                            user_id,
+                            mes,
+                            nome,
+                            float(info.get("valor", 0)),
+                            info.get("categoria", "Sem categoria"),
+                            1 if info.get("pago", False) else 0,
+                        ))
+
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+            finally:
+                conn.close()
+
+            flash("Dados importados com sucesso.", "success")
+            return redirect(url_for("dashboard"))
+
+        except Exception as e:
+            app.logger.exception("Erro ao importar dados")
+            flash(f"Erro ao importar dados: {e}", "error")
+            return redirect(url_for("import_data"))
+
+    return render_template("import.html")
 
 
 init_db()

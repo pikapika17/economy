@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Importar dados{% endblock %}
+
+{% block content %}
+<h1>📥 Importar dados</h1>
+
+<div class="box">
+    <h2>Importar backup JSON</h2>
+    <p class="muted">
+        Isto vai substituir os teus dados atuais pelos dados do ficheiro importado.
+    </p>
+
+    <form method="POST" action="/import" enctype="multipart/form-data" class="auth-form">
+        <input type="file" name="file" accept=".json,application/json" required>
+        <button type="submit" onclick="return confirm('Isto vai substituir os teus dados atuais. Continuar?')">
+            Importar JSON
+        </button>
+    </form>
+</div>
+{% endblock %}

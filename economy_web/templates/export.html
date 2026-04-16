@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Exportar dados{% endblock %}
+
+{% block content %}
+<h1>📦 Exportar dados</h1>
+
+<div class="grid-2">
+    <div class="box">
+        <h2>Exportar em JSON</h2>
+        <p class="muted">Ideal para backup completo e futura importação.</p>
+        <a class="btn-link btn-success" href="/export/json">Descarregar JSON</a>
+    </div>
+
+    <div class="box">
+        <h2>Exportar em CSV</h2>
+        <p class="muted">Ideal para abrir no Excel ou Google Sheets.</p>
+        <a class="btn-link btn-success" href="/export/csv">Descarregar CSV</a>
+    </div>
+</div>
+{% endblock %}
