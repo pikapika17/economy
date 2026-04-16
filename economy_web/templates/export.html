@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Exportar dados · Finances1st{% endblock %}
+{% block title %}{{ t("export") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>📦 Exportar dados</h1>
+<h1>📦 {{ t("export") }}</h1>
 
 <div class="grid-2">
     <div class="box">
-        <h2>Exportar em JSON</h2>
-        <p class="muted">Ideal para backup completo e futura importação.</p>
-        <a class="btn-link btn-success" href="/export/json">Descarregar JSON</a>
+        <h2>{{ t("expjson") }}</h2>
+        <p class="muted">{{ t("backupjson") }}</p>
+        <a class="btn-link btn-success" href="/export/json">{{ t("downloadjson") }}</a>
     </div>
 
     <div class="box">
-        <h2>Exportar em CSV</h2>
-        <p class="muted">Ideal para abrir no Excel ou Google Sheets.</p>
-        <a class="btn-link btn-success" href="/export/csv">Descarregar CSV</a>
+        <h2>{{ t("expcsv") }}</h2>
+        <p class="muted">{{ t("backupcsv") }}</p>
+        <a class="btn-link btn-success" href="/export/csv">{{ t("downloadcsv") }}</a>
     </div>
 </div>
 {% endblock %}

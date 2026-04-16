@@ -37,6 +37,12 @@ translations = {
         "confirmpassword": "Confirmar nova palavra-passe",
         "updatepassword": "Atualizar palavra-passe",
         "security": "Segurança",
+        "expjson": "Exportar em JSON",
+        "backupjson": "Ideal para backup completo e futura importação.",
+        "downloadjson": "Descarregar JSON",
+        "expcsv": "Exportar em CSV",
+        "backupcsv": "Ideal para abrir no Excel ou Google Sheets.",
+        "downloadcsv": "Descarregar CSV",
     },
     
     "en": {
@@ -77,5 +83,11 @@ translations = {
         "confirmpassword": "Confirm New Password",
         "updatepassword" : "Update password",
         "security": "Security",
+        "expjson": "Export in JSON",
+        "backupjson": "Ideal for full backups and future imports.",
+        "downloadjson": "Download JSON",
+        "expcsv": "Export in CSV",
+        "backupcsv": "Ideal for opening in Excel or Google Sheets.",
+        "downloadcsv": "Download CSV",
     }
 }
