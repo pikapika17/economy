@@ -1736,23 +1736,32 @@ def login():
 			if not display_name:
 				display_name = user["username"]
 
+			selected_lang = session.get("language", "pt")
+
 			session["logged_in"] = True
 			session["user"] = user["username"]
 			session["display_name"] = display_name
 			session["user_id"] = user["id"]
 			session["is_admin"] = user["is_admin"]
-			session["language"] = user.get("language", "pt")
+			session["language"] = selected_lang
 			session["currency"] = user.get("currency", "CHF")
+
+			update_user_language(user["id"], selected_lang)
+
 			return redirect(url_for("dashboard"))
 
 		erro = "Credenciais inválidas."
 
 	return render_template("login.html", erro=erro)
 
+
 @app.route("/logout")
 def logout():
+	lang = session.get("language", "pt")
 	session.clear()
+	session["language"] = lang
 	return redirect(url_for("login"))
+
 
 @app.route("/update_despesa/<nome_antigo>", methods=["POST"])
 @login_required
