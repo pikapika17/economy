@@ -4,6 +4,12 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="theme-color" content="#2563eb">
+	<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+	<meta name="theme-color" content="#2b74b4">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Finances1st">
+	<link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
 	<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
 	<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
 	<title>{% block title %}Finances1st{% endblock %}</title>
@@ -845,6 +851,20 @@
 			});
 		});
 	});
+	</script>
+
+	<script>
+	if ("serviceWorker" in navigator) {
+		window.addEventListener("load", function () {
+			navigator.serviceWorker.register("/static/sw.js")
+				.then(function () {
+					console.log("Service Worker registado com sucesso.");
+				})
+				.catch(function (error) {
+					console.log("Erro ao registar Service Worker:", error);
+				});
+		});
+	}
 	</script>
 </body>
 </html>
