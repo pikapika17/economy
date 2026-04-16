@@ -19,85 +19,122 @@
 		<div class="box">
 			<h2>{{ t("addincome") }}</h2>
 			<form method="POST" action="/add_salario">
-				<input name="nome" placeholder="{{ t("name") }}">
+				<input name="nome" placeholder="{{ t('name') }}">
 				<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}">
 				<button type="submit">{{ t("add") }}</button>
 			</form>
 		</div>
 
-		<table>
-			<tr>
-				<th colspan="3">{{ t("incomes") }}</th>
-			</tr>
-			{% for nome, valor in salarios.items() %}
-			<tr>
-				<td>
-					<form class="inline-form" method="POST" action="/update_salario/{{ nome }}">
-						<input name="novo_nome" value="{{ nome }}">
-				</td>
-				<td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
-				<td class="acoes">
-						<button type="submit">{{ t("save") }}</button>
-						<a class="btn-link btn-danger" href="/delete_salario/{{ nome }}">{{ t("remove") }}</a>
+		<div class="table-wrap desktop-only">
+			<table>
+				<tr>
+					<th colspan="3">{{ t("incomes") }}</th>
+				</tr>
+				{% for nome, valor in salarios.items() %}
+				<tr>
+					<form method="POST" action="/update_salario/{{ nome }}">
+						<td><input name="novo_nome" value="{{ nome }}"></td>
+						<td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
+						<td class="acoes">
+							<button type="submit">{{ t("save") }}</button>
+							<a class="btn-link btn-danger" href="/delete_salario/{{ nome }}">{{ t("remove") }}</a>
+						</td>
 					</form>
-				</td>
-			</tr>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+
+		<div class="mobile-cards mobile-only">
+			{% for nome, valor in salarios.items() %}
+			<div class="box">
+				<form method="POST" action="/update_salario/{{ nome }}" class="auth-form">
+					<input name="novo_nome" value="{{ nome }}">
+					<input name="valor" type="number" step="0.01" value="{{ valor }}">
+					<button type="submit">{{ t("save") }}</button>
+					<a class="btn-link btn-danger" href="/delete_salario/{{ nome }}">{{ t("remove") }}</a>
+				</form>
+			</div>
 			{% endfor %}
-		</table>
+		</div>
 	</div>
 
 	<div>
 		<div class="box">
 			<h2>{{ t("addcontribution") }}</h2>
 			<form method="POST" action="/add_contribuicao">
-				<input name="nome" placeholder="{{ t("name") }}">
+				<input name="nome" placeholder="{{ t('name') }}">
 				<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}">
 				<button type="submit">{{ t("add") }}</button>
 			</form>
 		</div>
 
-		<table>
-			<tr>
-				<th colspan="3">{{ t("contributions") }}</th>
-			</tr>
-			{% for nome, valor in contribuicoes.items() %}
-			<tr>
-				<td>
-					<form class="inline-form" method="POST" action="/update_contribuicao/{{ nome }}">
-						<input name="novo_nome" value="{{ nome }}">
-				</td>
-				<td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
-				<td class="acoes">
-						<button type="submit">{{ t("save") }}</button>
-						<a class="btn-link btn-danger" href="/delete_contribuicao/{{ nome }}">{{ t("remove") }}</a>
+		<div class="table-wrap desktop-only">
+			<table>
+				<tr>
+					<th colspan="3">{{ t("contributions") }}</th>
+				</tr>
+				{% for nome, valor in contribuicoes.items() %}
+				<tr>
+					<form method="POST" action="/update_contribuicao/{{ nome }}">
+						<td><input name="novo_nome" value="{{ nome }}"></td>
+						<td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
+						<td class="acoes">
+							<button type="submit">{{ t("save") }}</button>
+							<a class="btn-link btn-danger" href="/delete_contribuicao/{{ nome }}">{{ t("remove") }}</a>
+						</td>
 					</form>
-				</td>
-			</tr>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+
+		<div class="mobile-cards mobile-only">
+			{% for nome, valor in contribuicoes.items() %}
+			<div class="box">
+				<form method="POST" action="/update_contribuicao/{{ nome }}" class="auth-form">
+					<input name="novo_nome" value="{{ nome }}">
+					<input name="valor" type="number" step="0.01" value="{{ valor }}">
+					<button type="submit">{{ t("save") }}</button>
+					<a class="btn-link btn-danger" href="/delete_contribuicao/{{ nome }}">{{ t("remove") }}</a>
+				</form>
+			</div>
 			{% endfor %}
-		</table>
+		</div>
 	</div>
 </div>
 
 <div class="box">
 	<h2>{{ t("addcategory") }}</h2>
 	<form method="POST" action="/add_categoria">
-		<input name="nome" placeholder="{{ t("newcategory") }}">
+		<input name="nome" placeholder="{{ t('newcategory') }}">
 		<button type="submit">{{ t("add") }}</button>
 	</form>
 </div>
 
-<table>
-	<tr>
-		<th>{{ t("category") }}</th>
-		<th>{{ t("actions") }}</th>
-	</tr>
+<div class="table-wrap desktop-only">
+	<table>
+		<tr>
+			<th>{{ t("category") }}</th>
+			<th>{{ t("actions") }}</th>
+		</tr>
+		{% for nome in categorias %}
+		<tr>
+			<td>{{ nome }}</td>
+			<td class="acoes">
+				<a class="btn-link btn-danger" href="/delete_categoria/{{ nome }}">{{ t("remove") }}</a>
+			</td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+
+<div class="mobile-cards mobile-only">
 	{% for nome in categorias %}
-	<tr>
-		<td>{{ nome }}</td>
-		<td class="acoes">
-			<a class="btn-link btn-danger" href="/delete_categoria/{{ nome }}">{{ t("remove") }}</a>
-		</td>
-	</tr>
+	<div class="box" style="display:flex; flex-direction:column; gap:10px;">
+		<strong>{{ nome }}</strong>
+		<a class="btn-link btn-danger" href="/delete_categoria/{{ nome }}">{{ t("remove") }}</a>
+	</div>
 	{% endfor %}
-</table>
+</div>
 {% endblock %}

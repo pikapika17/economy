@@ -16,7 +16,7 @@
 	</form>
 </div>
 
-<div class="table-wrap">
+<div class="table-wrap desktop-only">
 	<table>
 		<tr>
 			<th>{{ t("name") }}</th>
@@ -30,22 +30,40 @@
 
 		{% for d in dividas %}
 		<tr>
-			<td>{{ d.nome }}</td>
-			<td>
-				<form class="inline-form" method="POST" action="/update_divida/{{ d.nome }}">
-					<input name="inicial" type="number" step="0.01" value="{{ d.inicial }}">
-			</td>
-			<td><input name="total" type="number" step="0.01" value="{{ d.total }}"></td>
-			<td><input name="taxa" type="number" step="0.01" value="{{ d.taxa }}"></td>
-			<td><input name="prestacao" type="number" step="0.01" value="{{ d.prestacao }}"></td>
-			<td class="orange">{{ d.info }}</td>
-			<td class="acoes">
+			<form method="POST" action="/update_divida/{{ d.nome }}">
+				<td>{{ d.nome }}</td>
+				<td><input name="inicial" type="number" step="0.01" value="{{ d.inicial }}"></td>
+				<td><input name="total" type="number" step="0.01" value="{{ d.total }}"></td>
+				<td><input name="taxa" type="number" step="0.01" value="{{ d.taxa }}"></td>
+				<td><input name="prestacao" type="number" step="0.01" value="{{ d.prestacao }}"></td>
+				<td class="orange">{{ d.info }}</td>
+				<td class="acoes">
 					<button type="submit">{{ t("save") }}</button>
 					<a class="btn-link btn-danger" href="/delete_divida/{{ d.nome }}">{{ t("remove") }}</a>
-				</form>
-			</td>
+				</td>
+			</form>
 		</tr>
 		{% endfor %}
 	</table>
+</div>
+
+<div class="mobile-cards mobile-only">
+	{% for d in dividas %}
+	<div class="box">
+		<h2 style="margin-bottom:12px;">{{ d.nome }}</h2>
+
+		<form method="POST" action="/update_divida/{{ d.nome }}" class="auth-form">
+			<input name="inicial" type="number" step="0.01" value="{{ d.inicial }}" placeholder="{{ t('initial') }}">
+			<input name="total" type="number" step="0.01" value="{{ d.total }}" placeholder="{{ t('total') }}">
+			<input name="taxa" type="number" step="0.01" value="{{ d.taxa }}" placeholder="{{ t('rate') }}">
+			<input name="prestacao" type="number" step="0.01" value="{{ d.prestacao }}" placeholder="{{ t('installment') }}">
+
+			<div class="muted">{{ t("info") }}: <span class="orange">{{ d.info }}</span></div>
+
+			<button type="submit">{{ t("save") }}</button>
+			<a class="btn-link btn-danger" href="/delete_divida/{{ d.nome }}">{{ t("remove") }}</a>
+		</form>
+	</div>
+	{% endfor %}
 </div>
 {% endblock %}

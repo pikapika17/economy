@@ -17,25 +17,39 @@
     <p>{{ t("priority") }}: {{ resultado.prioridade }}</p>
     <p>{{ t("estimated_months") }}: {{ resultado.meses }}</p>
     <p>{{ t("estimated_interest") }}: {{ "%.2f"|format(total_geral) }} {{ session_currency }}</p>
+
     {% if resultado.problema %}
     <p class="orange">{{ t("simulation_unstable_warning") }}</p>
     {% endif %}
 </div>
 
-<table>
-    <tr>
-        <th>{{ t("extra") }}</th>
-        <th>{{ t("months") }}</th>
-        <th>{{ t("interest") }}</th>
-        <th>{{ t("status") }}</th>
-    </tr>
+<div class="table-wrap desktop-only">
+    <table>
+        <tr>
+            <th>{{ t("extra") }}</th>
+            <th>{{ t("months") }}</th>
+            <th>{{ t("interest") }}</th>
+            <th>{{ t("status") }}</th>
+        </tr>
+        {% for c in cenarios %}
+        <tr>
+            <td>{{ "%.2f"|format(c.extra) }} {{ session_currency }}</td>
+            <td>{{ c.meses }}</td>
+            <td>{{ "%.2f"|format(c.juros) }} {{ session_currency }}</td>
+            <td>{{ t("attention") if c.problema else "OK" }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="mobile-cards mobile-only">
     {% for c in cenarios %}
-    <tr>
-        <td>{{ "%.2f"|format(c.extra) }} {{ session_currency }}</td>
-        <td>{{ c.meses }}</td>
-        <td>{{ "%.2f"|format(c.juros) }} {{ session_currency }}</td>
-        <td>{{ t("attention") if c.problema else "OK" }}</td>
-    </tr>
+    <div class="box">
+        <p><strong>{{ t("extra") }}:</strong> {{ "%.2f"|format(c.extra) }} {{ session_currency }}</p>
+        <p><strong>{{ t("months") }}:</strong> {{ c.meses }}</p>
+        <p><strong>{{ t("interest") }}:</strong> {{ "%.2f"|format(c.juros) }} {{ session_currency }}</p>
+        <p><strong>{{ t("status") }}:</strong> {{ t("attention") if c.problema else "OK" }}</p>
+    </div>
     {% endfor %}
-</table>
+</div>
 {% endblock %}
