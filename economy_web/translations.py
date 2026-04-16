@@ -90,7 +90,7 @@ translations = {
         "quickaccess": "Acesso rápido",
         "manageexpenses": "Gerir despesas",
         "managedebts": "Gerir dívidas",
-        "viewoutsandings": "Ver pendentes",
+        "viewoutstandings": "Ver pendentes",
         "quickread": "Leitura rápida",
         "quickoverview": "Visão curta da tua situação:",
         "nextsteps": "Próximos passos",
