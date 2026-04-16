@@ -244,6 +244,8 @@ translations = {
 		"currency_converter": "Conversor de moedas",
 		"result": "Resultado",
 		"exchange_rate": "Taxa de câmbio",
+        "from_currency": "Moeda de origem",
+		"to_currency": "Moeda de destino",
 	},
 
 	"en": {
@@ -491,6 +493,8 @@ translations = {
 		"currency_converter": "Currency converter",
 		"result": "Result",
 		"exchange_rate": "Exchange rate",
+        "from_currency": "From currency",
+		"to_currency": "To currency",
 	},
 
 	"de": {
@@ -738,6 +742,8 @@ translations = {
 		"currency_converter": "Währungsrechner",
 		"result": "Ergebnis",
 		"exchange_rate": "Wechselkurs",
+        "from_currency": "Ausgangswährung",
+		"to_currency": "Zielwährung",
 	},
 
 	"es": {
@@ -985,6 +991,8 @@ translations = {
 		"currency_converter": "Conversor de divisas",
 		"result": "Resultado",
 		"exchange_rate": "Tipo de cambio",
+        "from_currency": "De la moneda",
+		"to_currency": "A la moneda",
 	},
 
 	"fr": {
@@ -1232,6 +1240,8 @@ translations = {
 		"currency_converter": "Convertisseur de devises",
 		"result": "Résultat",
 		"exchange_rate": "Taux de change",
+        "from_currency": "De la devise",
+		"to_currency": "Vers la devise",
 	},
 
 	"pl": {
@@ -1479,6 +1489,8 @@ translations = {
 		"currency_converter": "Przelicznik walut",
 		"result": "Wynik",
 		"exchange_rate": "Kurs wymiany",
+        "from_currency": "Z waluty",
+		"to_currency": "Na walutę",
 	},
 
 	"ru": {
@@ -1726,6 +1738,8 @@ translations = {
 		"currency_converter": "Конвертер валют",
 		"result": "Результат",
 		"exchange_rate": "Обменный курс",
+        "from_currency": "Из валюты",
+		"to_currency": "В валюту",
 	},
 
 	"it": {
@@ -1973,5 +1987,7 @@ translations = {
 		"currency_converter": "Convertitore di valuta",
 		"result": "Risultato",
 		"exchange_rate": "Tasso di cambio",
+        "from_currency": "Dalla valuta",
+		"to_currency": "Alla valuta",
 	},
 }

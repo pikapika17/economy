@@ -85,6 +85,30 @@ FX_CACHE = {
 FX_CACHE_TTL = 3600  # 1 hora
 
 
+def get_all_currencies():
+    seen = set()
+    currencies = []
+
+    for currency in pycountry.currencies:
+        code = getattr(currency, "alpha_3", None)
+        name = getattr(currency, "name", None)
+
+        if not code or not name:
+            continue
+
+        if code in seen:
+            continue
+
+        seen.add(code)
+        currencies.append({
+            "code": code,
+            "name": name
+        })
+
+    currencies.sort(key=lambda x: (x["code"]))
+    return currencies
+
+
 def get_exchange_rate(base_currency, target_currency):
     base_currency = (base_currency or "").upper()
     target_currency = (target_currency or "").upper()
@@ -632,50 +656,13 @@ def api_convert():
             "error": str(e)
         }), 400
 	
-	
-@app.route("/converter", methods=["GET", "POST"])
+
+@app.route("/converter", methods=["GET"])
 @login_required
 def converter():
-    currencies = get_common_currencies()
-
-    result = None
-    amount = ""
-    from_currency = session.get("currency", "CHF")
-    to_currency = "EUR"
-
-    if request.method == "POST":
-        amount = request.form.get("amount", "").strip()
-        from_currency = request.form.get("from_currency", from_currency).strip().upper()
-        to_currency = request.form.get("to_currency", to_currency).strip().upper()
-
-        try:
-            amount_value = float(amount)
-
-            if amount_value < 0:
-                raise ValueError("Valor inválido.")
-
-            rate = get_exchange_rate(from_currency, to_currency)
-            converted = amount_value * rate
-
-            result = {
-                "amount": amount_value,
-                "from_currency": from_currency,
-                "to_currency": to_currency,
-                "rate": rate,
-                "converted": converted,
-            }
-
-        except Exception as e:
-            app.logger.exception("Erro no conversor de moedas")
-            flash(f"Erro ao converter moeda: {e}", "error")
-
     return render_template(
         "converter.html",
-        currencies=currencies,
-        result=result,
-        amount=amount,
-        from_currency=from_currency,
-        to_currency=to_currency,
+        currencies=get_all_currencies(),
     )
 
 
