@@ -1,69 +1,69 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard · Finances1st{% endblock %}
+{% block title %}{{ t("dashboard") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<h1>{{ t("dashboard") }}</h1>
 
 <div class="cards">
 	<div class="card">
-		<h3>Entradas</h3>
+		<h3>{{ t("incomes") }}</h3>
 		<p>{{ "%.2f"|format(entradas) }} {{ session_currency }}</p>
-		<div class="muted" style="margin-top:8px;">Total mensal atual</div>
+		<div class="muted" style="margin-top:8px;">{{ t("totalcurrentmonth") }}</div>
 	</div>
 
 	<div class="card">
-		<h3>Despesas</h3>
+		<h3>{{ t("expenses") }}</h3>
 		<p>{{ "%.2f"|format(despesas) }} {{ session_currency }}</p>
-		<div class="muted" style="margin-top:8px;">Despesas do mês</div>
+		<div class="muted" style="margin-top:8px;">{{ t("incomes") }}monthlyexpenses</div>
 	</div>
 
 	<div class="card">
-		<h3>Dívidas</h3>
+		<h3>{{ t("debts") }}</h3>
 		<p>{{ "%.2f"|format(dividas) }} {{ session_currency }}</p>
-		<div class="muted" style="margin-top:8px;">Prestações mensais</div>
+		<div class="muted" style="margin-top:8px;">{{ t("monthlypayment") }}</div>
 	</div>
 
 	<div class="card">
-		<h3>Pendentes</h3>
+		<h3>{{ t("Outstanding") }}</h3>
 		<p class="orange">{{ "%.2f"|format(pendentes) }} {{ session_currency }}</p>
-		<div class="muted" style="margin-top:8px;">Valor acumulado</div>
+		<div class="muted" style="margin-top:8px;">{{ t("accumulatedammount") }}</div>
 	</div>
 
 	<div class="card">
-		<h3>Saldo real</h3>
+		<h3>{{ t("balance") }}</h3>
 		<p class="{{ 'green' if saldo >= 0 else 'red' }}">
 			{{ "%.2f"|format(saldo) }} {{ session_currency }}
 		</p>
 		<div class="muted" style="margin-top:8px;">
-			{{ "Situação positiva" if saldo >= 0 else "Situação negativa" }}
+			{{ "{{ t("positivebalance") }}" if saldo >= 0 else "{{ t("negativebalance") }}" }}
 		</div>
 	</div>
 </div>
 
 <div class="grid-2">
 	<div class="box">
-		<h2>Resumo rápido</h2>
+		<h2>{{ t("quicksummary") }}</h2>
 		<div style="display:flex; flex-direction:column; gap:12px;">
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-				<span class="muted">Sobra mensal</span>
+				<span class="muted">{{ t("monthlysurplus") }}</span>
 				<strong class="{{ 'green' if (entradas - despesas - dividas) >= 0 else 'red' }}">
 					{{ "%.2f"|format(entradas - despesas - dividas) }} {{ session_currency }}
 				</strong>
 			</div>
 
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-				<span class="muted">Estado atual</span>
-				<strong>{{ "Estável" if saldo >= 0 else "A recuperar" }}</strong>
+				<span class="muted">{{ t("status") }}</span>
+				<strong>{{ "{{ t("stable") }}" if saldo >= 0 else "{{ t("recovering") }}" }}</strong>
 			</div>
 
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
-				<span class="muted">Pressão mensal</span>
+				<span class="muted">{{ t("monthlypressure") }}</span>
 				<strong>{{ "%.2f"|format(despesas + dividas) }} {{ session_currency }}</strong>
 			</div>
 
 			<div style="display:flex; justify-content:space-between;">
-				<span class="muted">Rácio despesas / entradas</span>
+				<span class="muted">{{ t("expincratio") }}</span>
 				<strong>
 					{% if entradas > 0 %}
 						{{ "%.1f"|format((despesas / entradas) * 100) }}%
@@ -76,32 +76,32 @@
 	</div>
 
 	<div class="box">
-		<h2>Alertas</h2>
+		<h2>{{ t("alert") }}</h2>
 
 		<div style="display:flex; flex-direction:column; gap:12px;">
 			{% set sobra = entradas - despesas - dividas %}
 
 			{% if saldo < 0 %}
 				<div style="padding:12px; border-radius:12px; background:rgba(255,92,92,0.10); color:var(--red);">
-					Estás com saldo real negativo.
+					{{ t("negative_balance") }}
 				</div>
 			{% endif %}
 
 			{% if pendentes > 0 %}
 				<div style="padding:12px; border-radius:12px; background:rgba(255,179,71,0.10); color:var(--orange);">
-					Tens pendentes acumulados por regularizar.
+					{{ t("regulateoutstanding") }}
 				</div>
 			{% endif %}
 
 			{% if sobra <= 0 %}
 				<div style="padding:12px; border-radius:12px; background:rgba(255,92,92,0.10); color:var(--red);">
-					A sobra mensal está negativa ou a zero.
+					{{ t("monthly_surplus") }}
 				</div>
 			{% endif %}
 
 			{% if saldo >= 0 and pendentes == 0 and sobra > 0 %}
 				<div style="padding:12px; border-radius:12px; background:rgba(0,208,132,0.10); color:var(--green);">
-					Situação equilibrada neste momento.
+					{{ t("balancedstatus") }}
 				</div>
 			{% endif %}
 		</div>
@@ -109,45 +109,63 @@
 </div>
 
 <div class="box">
-	<h2>Acesso rápido</h2>
+	<h2>{{ t("quickaccess") }}</h2>
 	<div style="display:flex; gap:10px; flex-wrap:wrap;">
-		<a class="btn-link" href="/despesas">Gerir despesas</a>
-		<a class="btn-link" href="/dividas">Gerir dívidas</a>
-		<a class="btn-link" href="/pendentes">Ver pendentes</a>
-		<a class="btn-link" href="/sistema">Sistema</a>
-		<a class="btn-link" href="/planeamento">Planeamento</a>
-		<a class="btn-link" href="/simulacao">Simulação</a>
-		<a class="btn-link" href="/timeline">Timeline</a>
+		<a class="btn-link" href="/despesas">{{ t("manageexpenses") }}</a>
+		<a class="btn-link" href="/dividas">{{ t("managedebts") }}</a>
+		<a class="btn-link" href="/pendentes">{{ t("viewoutstandings") }}</a>
+		<a class="btn-link" href="/sistema">{{ t("system") }}</a>
+		<a class="btn-link" href="/planeamento">{{ t("planning") }}</a>
+		<a class="btn-link" href="/simulacao">{{ t("simulation") }}</a>
+		<a class="btn-link" href="/timeline">{{ t("timeline") }}</a>
 	</div>
 </div>
 
 <div class="grid-2">
 	<div class="box">
-		<h2>Leitura rápida</h2>
-		<p class="muted" style="margin-bottom:10px;">Visão curta da tua situação:</p>
+		<h2>{{ t("quickread") }}</h2>
+		<p class="muted" style="margin-bottom:10px;">{{ t("quickoverview") }}</p>
+
 		<ul style="margin:0; padding-left:18px; line-height:1.8;">
-			<li>Entradas atuais: <strong>{{ "%.2f"|format(entradas) }} {{ session_currency }}</strong></li>
-			<li>Saída mensal total: <strong>{{ "%.2f"|format(total_geral) }} {{ session_currency }}</strong></li>
-			<li>Pendentes acumulados: <strong class="orange">{{ "%.2f"|format(pendentes) }} {{ session_currency }}</strong></li>
-			<li>Saldo real: <strong class="{{ 'green' if saldo >= 0 else 'red' }}">{{ "%.2f"|format(saldo) }} {{ session_currency }}</strong></li>
+			<li>
+				{{ t("incomes_label") }}
+				<strong>{{ "%.2f"|format(entradas) }} {{ session_currency }}</strong>
+			</li>
+
+			<li>
+				{{ t("monthly_total_expense_label") }}
+				<strong>{{ "%.2f"|format(total_geral) }} {{ session_currency }}</strong>
+			</li>
+
+			<li>
+				{{ t("pending_total_label") }}
+				<strong class="orange">{{ "%.2f"|format(pendentes) }} {{ session_currency }}</strong>
+			</li>
+
+			<li>
+				{{ t("real_balance_label") }}
+				<strong class="{{ 'green' if saldo >= 0 else 'red' }}">
+					{{ "%.2f"|format(saldo) }} {{ session_currency }}
+				</strong>
+			</li>
 		</ul>
 	</div>
 
 	<div class="box">
-		<h2>Próximos passos</h2>
+		<h2>{{ t("nextsteps") }}</h2>
 		<ul style="margin:0; padding-left:18px; line-height:1.8;">
 			{% if saldo < 0 %}
-				<li>Reduzir pressão mensal ou aumentar entradas.</li>
+				<li>{{ t("reduceexpinc") }}</li>
 			{% endif %}
 			{% if pendentes > 0 %}
-				<li>Tratar pendentes ou converter os relevantes em dívida.</li>
+				<li>{{ t("convertdebt") }}</li>
 			{% endif %}
 			{% if (entradas - despesas - dividas) > 0 %}
-				<li>Usar a sobra mensal para recuperar saldo ou amortizar dívida.</li>
+				<li>{{ t("paydowndebt") }}</li>
 			{% else %}
-				<li>Rever despesas antes de acelerar pagamentos.</li>
+				<li>{{ t("reviewexpenses") }}</li>
 			{% endif %}
-			<li>Usar Planeamento e Simulação para testar cenários.</li>
+			<li>{{ t("plansimu") }}</li>
 		</ul>
 	</div>
 </div>
