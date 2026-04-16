@@ -25,9 +25,12 @@
 			</select>
 
 			<select name="language" required>
-				<option value="pt" {% if user.language == "pt" %}selected{% endif %}>Português</option>
-				<option value="en" {% if user.language == "en" %}selected{% endif %}>English</option>
-				<option value="de" {% if user.language == "de" %}selected{% endif %}>Deutsch</option>
+				<option disabled>{{ t("select_language") }}</option>
+				{% for code, label in available_languages %}
+					<option value="{{ code }}" {% if user.language == code %}selected{% endif %}>
+						{{ label }}
+					</option>
+				{% endfor %}
 			</select>
 
 			<select name="currency" required>
