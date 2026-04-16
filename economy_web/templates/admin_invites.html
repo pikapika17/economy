@@ -56,7 +56,7 @@
                     <button type="button" onclick="copyInviteCode('invite-code-{{ invite.id }}')">📋 {{ t("copy") }}</button>
 
                     <form method="POST" action="/admin/invites/delete/{{ invite.code }}" style="display:inline;">
-                        <button type="submit" onclick="return confirm('{{ t(\'confirm_remove_code\') }}')">{{ t("remove") }}</button>
+                        <button type="submit" onclick="return confirm('{{ t('confirm_remove_code') }}')">{{ t("remove") }}</button>
                     </form>
                 </td>
             </tr>
