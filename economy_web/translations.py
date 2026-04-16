@@ -28,6 +28,16 @@ translations = {
         "admdash": "Admin Dashboard",
         "users": "Utilizadores",
         "invites": "Convites",
+        "personaldata": "Dados pessoais",
+        "name": "Nome",
+        "lastname": "Apelido",
+        "country": "País",
+        "saveprofile": "Guardar Perfil",
+        "actualpassword": "Palavra-Passe Atual",
+        "newpassword": "Nova Palavra-Passe",
+        "confirmpassword": "Confirmar nova palavra-passe",
+        "updatepassword": "Atualizar palavra-passe",
+        "security": "Segurança",
     },
     
     "en": {
@@ -59,5 +69,15 @@ translations = {
         "admdash": "Admin Dashboard",
         "users": "Users",
         "invites": "Invites",
+        "personaldata": "Personal Data",
+        "name": "Name",
+        "lastname": "Last Name",
+        "country": "Country",
+        "saveprofile": "Save Profile",
+        "actualpassword": "Actual Password",
+        "newpassword": "New Password",
+        "confirmpassword": "Confirm New Password",
+        "updatepassword" : "Update password",
+        "security": "Security",
     }
 }

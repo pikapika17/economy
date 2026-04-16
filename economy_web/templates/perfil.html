@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Perfil · Finances1st{% endblock %}
+{% block title %}{{ t("profile") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>👤 Perfil</h1>
+<h1>👤 {{ t("profile") }}</h1>
 
 <div class="grid-2">
 	<div class="box">
-		<h2>Dados pessoais</h2>
+		<h2>{{ t("personaldata") }}</h2>
 
 		<form method="POST" action="/perfil/update" class="auth-form">
-			<input type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="Nome" required>
-			<input type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="Apelido" required>
+			<input type="text" name="first_name" value="{{ user.first_name or '' }}" placeholder="{{ t('name') }}" required>
+			<input type="text" name="last_name" value="{{ user.last_name or '' }}" placeholder="{{ t('lastname') }}" required>
 			<input type="email" name="email" value="{{ user.email or '' }}" placeholder="Email" required>
 			<input type="date" name="birth_date" value="{{ user.birth_date if user.birth_date else '' }}">
 			
 			<select name="country" class="searchable-select" required>
-				<option value="">País</option>
+				<option value="">{{ t("country") }}</option>
 				{% for country in countries %}
 					<option value="{{ country }}" {% if user.country == country %}selected{% endif %}>
 						{{ country }}
@@ -38,19 +38,19 @@
 				{% endfor %}
 			</select>
 
-			<button type="submit">Guardar perfil</button>
+			<button type="submit">{{ t("saveprofile) }}</button>
 		</form>
 	</div>
 
 	<div class="box">
-		<h2>Segurança</h2>
+		<h2>{{ t("security") }}</h2>
 
 		<form method="POST" action="/perfil/password" class="auth-form">
-			<input type="password" name="current_password" placeholder="Password atual" required>
-			<input type="password" name="new_password" placeholder="Nova password" required>
-			<input type="password" name="confirm_password" placeholder="Confirmar nova password" required>
+			<input type="password" name="current_password" placeholder="{{ t('actualpassword') }}" required>
+			<input type="password" name="new_password" placeholder="{{ t('newpassword') }}" required>
+			<input type="password" name="confirm_password" placeholder="{{ t('confirmpassword') }}" required>
 
-			<button type="submit">Atualizar password</button>
+			<button type="submit">{{ t("updatepassword") }}</button>
 		</form>
 	</div>
 </div>
