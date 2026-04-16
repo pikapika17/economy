@@ -84,6 +84,63 @@ def t(key, **kwargs):
     return text.format(**kwargs)
 
 
+def get_previous_month(mes):
+    try:
+        ano, mes_num = map(int, mes.split("-"))
+        if mes_num == 1:
+            return f"{ano - 1}-12"
+        return f"{ano}-{mes_num - 1:02d}"
+    except Exception:
+        return None
+
+
+def get_month_expenses_total(dados, mes):
+    total = 0.0
+    for d in dados.get("meses", {}).get(mes, {}).get("despesas", {}).values():
+        total += d["valor"] if isinstance(d, dict) else float(d)
+    return total
+
+
+def get_top_expense_category(dados, mes):
+    categorias = {}
+
+    for _, d in dados.get("meses", {}).get(mes, {}).get("despesas", {}).items():
+        if isinstance(d, dict):
+            categoria = d.get("categoria", "Sem categoria")
+            valor = float(d.get("valor", 0))
+        else:
+            categoria = "Sem categoria"
+            valor = float(d)
+
+        categorias[categoria] = categorias.get(categoria, 0) + valor
+
+    if not categorias:
+        return None, 0.0
+
+    categoria, valor = max(categorias.items(), key=lambda x: x[1])
+    return categoria, valor
+
+
+def estimate_months_with_extra(divida_total, taxa_anual, prestacao, extra):
+    saldo = float(divida_total)
+    taxa_mensal = float(taxa_anual) / 100 / 12
+    pagamento = float(prestacao) + float(extra)
+
+    if saldo <= 0:
+        return 0
+
+    if pagamento <= saldo * taxa_mensal:
+        return None
+
+    meses = 0
+    while saldo > 0 and meses < 600:
+        juros = saldo * taxa_mensal
+        saldo = saldo + juros - pagamento
+        meses += 1
+
+    return meses if meses < 600 else None
+
+
 def login_required(f):
 	@wraps(f)
 	def decorated_function(*args, **kwargs):
@@ -335,99 +392,163 @@ def get_common_currencies():
 
 
 def gerar_insights_web(dados, mes):
-	entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
-	pendentes_total = total_pendentes_web(dados)
-	dividas = dados.get("dividas", {})
-	total_divida = sum(d["total"] for d in dividas.values())
+    entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
+    pendentes_total = total_pendentes_web(dados)
+    dividas = dados.get("dividas", {})
+    total_divida = sum(d["total"] for d in dividas.values())
 
-	insights = []
+    insights = []
 
-	if entradas > 0:
-		ratio_despesas = despesas / entradas
-		ratio_pressao = (despesas + prestacoes) / entradas
+    if entradas > 0:
+        ratio_despesas = despesas / entradas
+        ratio_pressao = (despesas + prestacoes) / entradas
 
-		if ratio_despesas >= 0.8:
-			insights.append({
-				"tipo": "error",
-				"texto": "insight_expenses_very_high"
-			})
-		elif ratio_despesas >= 0.6:
-			insights.append({
-				"tipo": "warning",
-				"texto": "insight_expenses_high"
-			})
+        if ratio_despesas >= 0.8:
+            insights.append({
+                "tipo": "error",
+                "texto": "insight_expenses_very_high"
+            })
+        elif ratio_despesas >= 0.6:
+            insights.append({
+                "tipo": "warning",
+                "texto": "insight_expenses_high"
+            })
 
-		if ratio_pressao >= 0.9:
-			insights.append({
-				"tipo": "error",
-				"texto": "insight_monthly_pressure_critical"
-			})
-		elif ratio_pressao >= 0.75:
-			insights.append({
-				"tipo": "warning",
-				"texto": "insight_monthly_pressure_high"
-			})
+        if ratio_pressao >= 0.9:
+            insights.append({
+                "tipo": "error",
+                "texto": "insight_monthly_pressure_critical"
+            })
+        elif ratio_pressao >= 0.75:
+            insights.append({
+                "tipo": "warning",
+                "texto": "insight_monthly_pressure_high"
+            })
 
-	if sobra <= 0:
-		insights.append({
-			"tipo": "error",
-			"texto": "insight_no_surplus"
-		})
-	elif sobra < 300:
-		insights.append({
-			"tipo": "warning",
-			"texto": "insight_low_surplus"
-		})
-	else:
-		insights.append({
-			"tipo": "success",
-			"texto": "insight_good_surplus"
-		})
+    if sobra <= 0:
+        insights.append({
+            "tipo": "error",
+            "texto": "insight_no_surplus"
+        })
+    elif sobra < 300:
+        insights.append({
+            "tipo": "warning",
+            "texto": "insight_low_surplus"
+        })
+    else:
+        insights.append({
+            "tipo": "success",
+            "texto": "insight_good_surplus"
+        })
 
-	if pendentes_total > 0:
-		if entradas > 0 and pendentes_total > entradas:
-			insights.append({
-				"tipo": "warning",
-				"texto": "insight_pending_high"
-			})
-		else:
-			insights.append({
-				"tipo": "warning",
-				"texto": "insight_pending_exists"
-			})
+    if pendentes_total > 0:
+        if entradas > 0 and pendentes_total > entradas:
+            insights.append({
+                "tipo": "warning",
+                "texto": "insight_pending_high"
+            })
+        else:
+            insights.append({
+                "tipo": "warning",
+                "texto": "insight_pending_exists"
+            })
 
-	if dividas:
-		pior_divida = max(dividas.items(), key=lambda x: x[1]["taxa"])
-		nome_pior = pior_divida[0]
-		taxa_pior = float(pior_divida[1]["taxa"])
+    if dividas:
+        pior_divida = max(dividas.items(), key=lambda x: x[1]["taxa"])
+        nome_pior = pior_divida[0]
+        taxa_pior = float(pior_divida[1]["taxa"])
 
-		if taxa_pior >= 10:
-			insights.append({
-				"tipo": "warning",
-				"texto": "insight_high_interest_debt",
-				"vars": {
-					"name": nome_pior,
-					"rate": f"{taxa_pior:.2f}"
-				}
-			})
-		else:
-			insights.append({
-				"tipo": "info",
-				"texto": "insight_priority_debt",
-				"vars": {
-					"name": nome_pior,
-					"rate": f"{taxa_pior:.2f}"
-				}
-			})
+        if taxa_pior >= 10:
+            insights.append({
+                "tipo": "warning",
+                "texto": "insight_high_interest_debt",
+                "vars": {
+                    "name": nome_pior,
+                    "rate": f"{taxa_pior:.2f}"
+                }
+            })
+        else:
+            insights.append({
+                "tipo": "info",
+                "texto": "insight_priority_debt",
+                "vars": {
+                    "name": nome_pior,
+                    "rate": f"{taxa_pior:.2f}"
+                }
+            })
 
-	if total_divida <= 0 and pendentes_total <= 0 and sobra > 0:
-		insights.append({
-			"tipo": "success",
-			"texto": "insight_financial_balance"
-		})
+        # novo insight: mais 100 por mês
+        info_divida = pior_divida[1]
+        meses_atual = estimate_months_with_extra(
+            info_divida["total"],
+            info_divida["taxa"],
+            info_divida["prestacao"],
+            0
+        )
+        meses_extra = estimate_months_with_extra(
+            info_divida["total"],
+            info_divida["taxa"],
+            info_divida["prestacao"],
+            100
+        )
 
-	return insights[:5]
+        if meses_atual and meses_extra and meses_extra < meses_atual:
+            poupanca = meses_atual - meses_extra
+            insights.append({
+                "tipo": "info",
+                "texto": "insight_extra_payment_help",
+                "vars": {
+                    "name": nome_pior,
+                    "months": str(poupanca)
+                }
+            })
 
+    # novo insight: comparação com mês anterior
+    mes_anterior = get_previous_month(mes)
+    if mes_anterior:
+        despesas_anterior = get_month_expenses_total(dados, mes_anterior)
+        if despesas_anterior > 0:
+            diff = despesas - despesas_anterior
+            pct = (diff / despesas_anterior) * 100
+
+            if pct >= 10:
+                insights.append({
+                    "tipo": "warning",
+                    "texto": "insight_worse_than_last_month",
+                    "vars": {
+                        "percent": f"{pct:.1f}"
+                    }
+                })
+            elif pct <= -10:
+                insights.append({
+                    "tipo": "success",
+                    "texto": "insight_better_than_last_month",
+                    "vars": {
+                        "percent": f"{abs(pct):.1f}"
+                    }
+                })
+
+    # novo insight: categoria mais pesada
+    categoria_top, valor_top = get_top_expense_category(dados, mes)
+    if categoria_top and despesas > 0:
+        peso = (valor_top / despesas) * 100
+        if peso >= 35:
+            insights.append({
+                "tipo": "info",
+                "texto": "insight_top_category",
+                "vars": {
+                    "category": categoria_top,
+                    "percent": f"{peso:.1f}"
+                }
+            })
+
+    if total_divida <= 0 and pendentes_total <= 0 and sobra > 0:
+        insights.append({
+            "tipo": "success",
+            "texto": "insight_financial_balance"
+        })
+
+    return insights[:6]
 
 @app.before_request
 def ensure_language():
