@@ -750,7 +750,7 @@
 				{% if session_display_name %}
 					{{ t("welcome_user", session_display_name) }}
 				{% elif session_user %}
-					{{ t("welcome_user", session_user) }}
+					{{ t("welcome") }}, {{ session_user }}
 				{% endif %}
 			</div>
 
