@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file, jsonify
 from functools import wraps
 from datetime import datetime
 from translations import translations
@@ -101,21 +101,16 @@ def get_exchange_rate(base_currency, target_currency):
     if cache_key in FX_CACHE["rates"] and (now - FX_CACHE["timestamp"] < FX_CACHE_TTL):
         return FX_CACHE["rates"][cache_key]
 
-    url = "https://api.frankfurter.dev/v2/rates"
-    params = {
-        "base": base_currency,
-        "quotes": target_currency
-    }
-
-    response = requests.get(url, params=params, timeout=10)
+    url = f"https://api.frankfurter.dev/v2/rate/{base_currency}/{target_currency}"
+    response = requests.get(url, timeout=10)
     response.raise_for_status()
 
     data = response.json()
 
-    if "rates" not in data or target_currency not in data["rates"]:
+    if "rate" not in data:
         raise ValueError("Não foi possível obter a taxa de câmbio.")
 
-    rate = float(data["rates"][target_currency])
+    rate = float(data["rate"])
 
     FX_CACHE["rates"][cache_key] = rate
     FX_CACHE["timestamp"] = now
@@ -607,6 +602,37 @@ def gerar_insights_web(dados, mes):
     return insights[:6]
 
 
+@app.route("/api/convert")
+@login_required
+def api_convert():
+    amount = request.args.get("amount", "").strip()
+    from_currency = request.args.get("from", session.get("currency", "CHF")).strip().upper()
+    to_currency = request.args.get("to", "EUR").strip().upper()
+
+    try:
+        amount_value = float(amount) if amount else 0.0
+
+        if amount_value < 0:
+            raise ValueError("Valor inválido.")
+
+        rate = get_exchange_rate(from_currency, to_currency)
+        converted = amount_value * rate
+
+        return jsonify({
+            "ok": True,
+            "amount": amount_value,
+            "from_currency": from_currency,
+            "to_currency": to_currency,
+            "rate": rate,
+            "converted": converted,
+        })
+    except Exception as e:
+        return jsonify({
+            "ok": False,
+            "error": str(e)
+        }), 400
+	
+	
 @app.route("/converter", methods=["GET", "POST"])
 @login_required
 def converter():

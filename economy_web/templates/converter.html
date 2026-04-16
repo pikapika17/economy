@@ -8,54 +8,88 @@
 <div class="box">
     <h2>{{ t("currency_converter") }}</h2>
 
-    <form method="POST" action="/converter" class="auth-form">
+    <form class="auth-form" onsubmit="return false;">
         <input
+            id="fx-amount"
             type="number"
             step="0.01"
             min="0"
             name="amount"
-            value="{{ amount }}"
+            value="1000"
             placeholder="{{ t('value') }}"
-            required
         >
 
-        <select name="from_currency" required>
+        <select id="fx-from" name="from_currency" required>
             {% for currency in currencies %}
-                <option value="{{ currency }}" {% if from_currency == currency %}selected{% endif %}>
+                <option value="{{ currency }}" {% if session_currency == currency %}selected{% endif %}>
                     {{ currency }}
                 </option>
             {% endfor %}
         </select>
 
-        <select name="to_currency" required>
+        <select id="fx-to" name="to_currency" required>
             {% for currency in currencies %}
-                <option value="{{ currency }}" {% if to_currency == currency %}selected{% endif %}>
+                <option value="{{ currency }}" {% if currency == "EUR" %}selected{% endif %}>
                     {{ currency }}
                 </option>
             {% endfor %}
         </select>
-
-        <button type="submit">{{ t("calculate") }}</button>
     </form>
 </div>
 
-{% if result %}
 <div class="box">
     <h2>{{ t("result") }}</h2>
 
-    <p>
-        <strong>
-            {{ "%.2f"|format(result.amount) }} {{ result.from_currency }}
-            =
-            {{ "%.2f"|format(result.converted) }} {{ result.to_currency }}
-        </strong>
+    <p id="fx-result" style="font-size: 1.2rem; font-weight: 700;">
+        1000.00 {{ session_currency }} = 0.00 EUR
     </p>
 
-    <p class="muted">
-        {{ t("exchange_rate") }}:
-        1 {{ result.from_currency }} = {{ "%.6f"|format(result.rate) }} {{ result.to_currency }}
-    </p>
+    <p id="fx-rate" class="muted"></p>
+    <p id="fx-error" class="red" style="display:none;"></p>
 </div>
-{% endif %}
 
+<script>
+let fxTimer = null;
+
+function updateConverter() {
+    const amount = document.getElementById("fx-amount").value || "0";
+    const fromCurrency = document.getElementById("fx-from").value;
+    const toCurrency = document.getElementById("fx-to").value;
+
+    fetch(`/api/convert?amount=${encodeURIComponent(amount)}&from=${encodeURIComponent(fromCurrency)}&to=${encodeURIComponent(toCurrency)}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultEl = document.getElementById("fx-result");
+            const rateEl = document.getElementById("fx-rate");
+            const errorEl = document.getElementById("fx-error");
+
+            if (!data.ok) {
+                errorEl.style.display = "block";
+                errorEl.textContent = data.error || "Erro ao converter.";
+                rateEl.textContent = "";
+                return;
+            }
+
+            errorEl.style.display = "none";
+            resultEl.textContent = `${Number(data.amount).toFixed(2)} ${data.from_currency} = ${Number(data.converted).toFixed(2)} ${data.to_currency}`;
+            rateEl.textContent = `1 ${data.from_currency} = ${Number(data.rate).toFixed(6)} ${data.to_currency}`;
+        })
+        .catch(() => {
+            const errorEl = document.getElementById("fx-error");
+            errorEl.style.display = "block";
+            errorEl.textContent = "Erro ao converter.";
+        });
+}
+
+function scheduleConverterUpdate() {
+    clearTimeout(fxTimer);
+    fxTimer = setTimeout(updateConverter, 250);
+}
+
+document.getElementById("fx-amount").addEventListener("input", scheduleConverterUpdate);
+document.getElementById("fx-from").addEventListener("change", updateConverter);
+document.getElementById("fx-to").addEventListener("change", updateConverter);
+
+document.addEventListener("DOMContentLoaded", updateConverter);
+</script>
 {% endblock %}
