@@ -1,40 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}Simulação · Finances1st{% endblock %}
+{% block title %}{{ t("simulation") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Simulação</h1>
+<h1>{{ t("simulation") }}</h1>
 
 <div class="box">
     <form method="GET" action="/simulacao">
-        <input name="extra" type="number" step="0.01" value="{{ extra }}" placeholder="Extra mensal">
-        <button type="submit">Calcular</button>
+        <input name="extra" type="number" step="0.01" value="{{ extra }}" placeholder="{{ t('extra') }}">
+        <button type="submit">{{ t("calculate") }}</button>
     </form>
 </div>
 
 <div class="box">
-    <h2>Cenário atual</h2>
-    <p>Prioridade: {{ resultado.prioridade }}</p>
-    <p>Meses estimados: {{ resultado.meses }}</p>
-    <p>Juros estimados: {{ "%.2f"|format(total_geral) }} {{ session_currency }}</p>
+    <h2>{{ t("current_scenario") }}</h2>
+    <p>{{ t("priority") }}: {{ resultado.prioridade }}</p>
+    <p>{{ t("estimated_months") }}: {{ resultado.meses }}</p>
+    <p>{{ t("estimated_interest") }}: {{ "%.2f"|format(total_geral) }} {{ session_currency }}</p>
     {% if resultado.problema %}
-    <p class="orange">Há dívidas que quase não amortizam ou a simulação ficou instável.</p>
+    <p class="orange">{{ t("simulation_unstable_warning") }}</p>
     {% endif %}
 </div>
 
 <table>
     <tr>
-        <th>Extra</th>
-        <th>Meses</th>
-        <th>Juros</th>
-        <th>Estado</th>
+        <th>{{ t("extra") }}</th>
+        <th>{{ t("months") }}</th>
+        <th>{{ t("interest") }}</th>
+        <th>{{ t("status") }}</th>
     </tr>
     {% for c in cenarios %}
     <tr>
         <td>{{ "%.2f"|format(c.extra) }} {{ session_currency }}</td>
         <td>{{ c.meses }}</td>
         <td>{{ "%.2f"|format(c.juros) }} {{ session_currency }}</td>
-        <td>{{ "Atenção" if c.problema else "OK" }}</td>
+        <td>{{ t("attention") if c.problema else "OK" }}</td>
     </tr>
     {% endfor %}
 </table>

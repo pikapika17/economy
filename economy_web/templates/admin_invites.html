@@ -1,39 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Convites · Finances1st{% endblock %}
+{% block title %}{{ t("invites") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>🎟️ Convites</h1>
+<h1>🎟️ {{ t("invites") }}</h1>
 
 <div class="box">
-    <h2>Criar convites</h2>
+    <h2>{{ t("create_invites") }}</h2>
 
     <form method="POST" action="/admin/invites/add" style="margin-bottom: 12px;">
-        <input name="code" placeholder="Código manual" required>
-        <button type="submit">Criar manualmente</button>
+        <input name="code" placeholder="{{ t('manual_code') }}" required>
+        <button type="submit">{{ t("create_manually") }}</button>
     </form>
 
     <form method="POST" action="/admin/invites/generate" style="margin-bottom: 12px;">
-        <button type="submit">🎲 Gerar 1 código aleatório</button>
+        <button type="submit">🎲 {{ t("generate_one") }}</button>
     </form>
 
     <form method="POST" action="/admin/invites/generate-multiple" class="inline-form">
-        <input name="quantity" type="number" min="1" max="50" value="5" placeholder="Quantidade">
-        <button type="submit">🔢 Gerar vários códigos</button>
+        <input name="quantity" type="number" min="1" max="50" value="5" placeholder="{{ t('quantity') }}">
+        <button type="submit">🔢 {{ t("generate_multiple") }}</button>
     </form>
 </div>
 
 <div class="box">
-    <h2>Lista de códigos</h2>
+    <h2>{{ t("codes_list") }}</h2>
 
     {% if invites %}
     <div class="table-wrap">
         <table>
             <tr>
-                <th>Código</th>
-                <th>Estado</th>
-                <th>Criado em</th>
-                <th>Ações</th>
+                <th>{{ t("code") }}</th>
+                <th>{{ t("status") }}</th>
+                <th>{{ t("created_at") }}</th>
+                <th>{{ t("actions") }}</th>
             </tr>
 
             {% for invite in invites %}
@@ -44,19 +44,19 @@
 
                 <td>
                     {% if invite.is_active %}
-                        <span class="badge badge-success">Ativo</span>
+                        <span class="badge badge-success">{{ t("active") }}</span>
                     {% else %}
-                        <span class="badge badge-muted">Usado</span>
+                        <span class="badge badge-muted">{{ t("used") }}</span>
                     {% endif %}
                 </td>
 
                 <td>{{ invite.created_at }}</td>
 
                 <td class="acoes">
-                    <button type="button" onclick="copyInviteCode('invite-code-{{ invite.id }}')">📋 Copiar</button>
+                    <button type="button" onclick="copyInviteCode('invite-code-{{ invite.id }}')">📋 {{ t("copy") }}</button>
 
                     <form method="POST" action="/admin/invites/delete/{{ invite.code }}" style="display:inline;">
-                        <button type="submit" onclick="return confirm('Remover este código?')">Remover</button>
+                        <button type="submit" onclick="return confirm('{{ t(\'confirm_remove_code\') }}')">{{ t("remove") }}</button>
                     </form>
                 </td>
             </tr>
@@ -64,7 +64,7 @@
         </table>
     </div>
     {% else %}
-    <div class="muted">Ainda não tens códigos de convite.</div>
+    <div class="muted">{{ t("no_invites_yet") }}</div>
     {% endif %}
 </div>
 
@@ -72,9 +72,9 @@
 function copyInviteCode(elementId) {
     const text = document.getElementById(elementId).innerText;
     navigator.clipboard.writeText(text).then(() => {
-        alert("Código copiado: " + text);
+        alert("{{ t('code_copied') }} " + text);
     }).catch(() => {
-        alert("Não foi possível copiar o código.");
+        alert("{{ t('copy_failed') }}");
     });
 }
 </script>

@@ -1,34 +1,34 @@
 {% extends "base.html" %}
 
-{% block title %}Timeline · Finances1st{% endblock %}
+{% block title %}{{ t("timeline") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Timeline</h1>
+<h1>{{ t("timeline") }}</h1>
 
 <div class="box">
     <form method="GET" action="/timeline">
-        <input name="extra" type="number" step="0.01" value="{{ extra }}" placeholder="Extra mensal">
+        <input name="extra" type="number" step="0.01" value="{{ extra }}" placeholder="{{ t('extra') }}">
         <select name="modo">
-            <option value="resumo" {% if modo == "resumo" %}selected{% endif %}>Resumo</option>
-            <option value="detalhado" {% if modo == "detalhado" %}selected{% endif %}>Detalhado</option>
+            <option value="resumo" {% if modo == "resumo" %}selected{% endif %}>{{ t("summary") }}</option>
+            <option value="detalhado" {% if modo == "detalhado" %}selected{% endif %}>{{ t("detailed") }}</option>
         </select>
-        <button type="submit">Calcular</button>
+        <button type="submit">{{ t("calculate") }}</button>
     </form>
 </div>
 
 <div class="box">
-    <h2>Resumo</h2>
-    <p>Meses estimados: {{ resultado.meses }}</p>
-    <p>Juros estimados: {{ "%.2f"|format(resultado.juros) }} {{ session_currency }}</p>
+    <h2>{{ t("summary") }}</h2>
+    <p>{{ t("estimated_months") }}: {{ resultado.meses }}</p>
+    <p>{{ t("estimated_interest") }}: {{ "%.2f"|format(resultado.juros) }} {{ session_currency }}</p>
     {% if resultado.problema %}
-    <p class="orange">A simulação pode estar instável.</p>
+    <p class="orange">{{ t("simulation_unstable_warning") }}</p>
     {% endif %}
 </div>
 
 {% for reg in historico %}
 <div class="box">
-    <strong>Mês {{ reg.mes }}</strong>
-    <p>Total restante: {{ "%.2f"|format(reg.total_restante) }} {{ session_currency }}</p>
+    <strong>{{ t("month") }} {{ reg.mes }}</strong>
+    <p>{{ t("total_remaining") }}: {{ "%.2f"|format(reg.total_restante) }} {{ session_currency }}</p>
     <ul>
         {% for item in reg.itens %}
         <li>{{ item.nome }} — {{ "%.2f"|format(item.restante) }} {{ session_currency }}</li>

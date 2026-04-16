@@ -1,36 +1,36 @@
 {% extends "base.html" %}
 
-{% block title %}Utilizadores · Finances1st{% endblock %}
+{% block title %}{{ t("users") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>👥 Utilizadores</h1>
+<h1>👥 {{ t("users") }}</h1>
 
 <div class="box">
-    <h2>Criar utilizador</h2>
+    <h2>{{ t("create_user") }}</h2>
     <form method="POST" action="/admin/users/add">
-        <input name="username" placeholder="Utilizador" required>
-        <input name="password" type="password" placeholder="Password" required>
-		<input name="email" type="email" placeholder="Email" required>
+        <input name="username" placeholder="{{ t('user') }}" required>
+        <input name="password" type="password" placeholder="{{ t('password') }}" required>
+        <input name="email" type="email" placeholder="Email" required>
 
         <select name="role" required>
-            <option value="user">Utilizador</option>
-            <option value="admin">Administrador</option>
+            <option value="user">{{ t("user") }}</option>
+            <option value="admin">{{ t("administrator") }}</option>
         </select>
 
-        <button type="submit">Criar utilizador</button>
+        <button type="submit">{{ t("create_user") }}</button>
     </form>
 </div>
 
 <div class="box">
-    <h2>Lista de utilizadores</h2>
+    <h2>{{ t("users_list") }}</h2>
 
     {% if users %}
     <div class="table-wrap">
         <table>
             <tr>
-                <th>Utilizador</th>
-                <th>Função</th>
-                <th>Ações</th>
+                <th>{{ t("user") }}</th>
+                <th>{{ t("role") }}</th>
+                <th>{{ t("actions") }}</th>
             </tr>
 
             {% for u in users %}
@@ -38,15 +38,15 @@
                 <td>
                     <strong>{{ u.username }}</strong>
                     {% if session_user == u.username %}
-                        <span class="badge badge-info">Tu</span>
+                        <span class="badge badge-info">{{ t("you") }}</span>
                     {% endif %}
                 </td>
 
                 <td>
                     {% if u.is_admin %}
-                        <span class="badge badge-success">Admin</span>
+                        <span class="badge badge-success">{{ t("admins") }}</span>
                     {% else %}
-                        <span class="badge badge-muted">User</span>
+                        <span class="badge badge-muted">{{ t("user") }}</span>
                     {% endif %}
                 </td>
 
@@ -55,25 +55,25 @@
                     {% if session_user != u.username %}
                     <form method="POST" action="/admin/users/toggle-admin/{{ u.username }}" style="display:inline;">
                         {% if u.is_admin %}
-                            <button type="submit" onclick="return confirm('Remover permissões de admin a este utilizador?')">
-                                Remover admin
+                            <button type="submit" onclick="return confirm('{{ t(\'confirm_remove_admin\') }}')">
+                                {{ t("remove_admin") }}
                             </button>
                         {% else %}
                             <button type="submit">
-                                Tornar admin
+                                {{ t("make_admin") }}
                             </button>
                         {% endif %}
                     </form>
                     {% endif %}
 
                     <button type="button" onclick="togglePasswordForm('{{ u.username }}')">
-                        Reset password
+                        {{ t("reset_password") }}
                     </button>
 
                     {% if session_user != u.username %}
                     <form method="POST" action="/admin/users/delete/{{ u.username }}" style="display:inline;">
-                        <button type="submit" onclick="return confirm('Remover este utilizador?')">
-                            Remover
+                        <button type="submit" onclick="return confirm('{{ t(\'confirm_remove_user\') }}')">
+                            {{ t("remove") }}
                         </button>
                     </form>
                     {% endif %}
@@ -83,9 +83,9 @@
             <tr id="pwd-row-{{ u.username }}" style="display:none;">
                 <td colspan="3">
                     <form method="POST" action="/admin/users/reset-password/{{ u.username }}" class="inline-form" style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <input type="password" name="new_password" placeholder="Nova password" required>
-                        <input type="password" name="confirm_password" placeholder="Confirmar password" required>
-                        <button type="submit">Guardar password</button>
+                        <input type="password" name="new_password" placeholder="{{ t('new_password_placeholder') }}" required>
+                        <input type="password" name="confirm_password" placeholder="{{ t('confirm_password_placeholder') }}" required>
+                        <button type="submit">{{ t("save_password") }}</button>
                     </form>
                 </td>
             </tr>
@@ -93,7 +93,7 @@
         </table>
     </div>
     {% else %}
-    <div class="muted">Ainda não existem utilizadores.</div>
+    <div class="muted">{{ t("no_users_yet") }}</div>
     {% endif %}
 </div>
 

@@ -1,46 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard · Finances1st{% endblock %}
+{% block title %}{{ t("admdash") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>📊 Admin Dashboard</h1>
+<h1>📊 {{ t("admdash") }}</h1>
 
 <div class="cards">
     <div class="card">
-        <h3>Utilizadores</h3>
+        <h3>{{ t("users") }}</h3>
         <p>{{ stats.total_users }}</p>
-        <div class="muted">Total de contas</div>
+        <div class="muted">{{ t("total_accounts") }}</div>
     </div>
 
     <div class="card">
-        <h3>Admins</h3>
+        <h3>{{ t("admins") }}</h3>
         <p>{{ stats.total_admins }}</p>
-        <div class="muted">Administradores</div>
+        <div class="muted">{{ t("administrators") }}</div>
     </div>
 
     <div class="card">
-        <h3>Convites ativos</h3>
+        <h3>{{ t("active_invites") }}</h3>
         <p>{{ stats.active_invites }}</p>
-        <div class="muted">Disponíveis</div>
+        <div class="muted">{{ t("available") }}</div>
     </div>
 
     <div class="card">
-        <h3>Convites totais</h3>
+        <h3>{{ t("total_invites") }}</h3>
         <p>{{ stats.total_invites }}</p>
-        <div class="muted">Criados</div>
+        <div class="muted">{{ t("created") }}</div>
     </div>
 </div>
 
 <div class="box" style="margin-top: 24px;">
-    <h2>Últimos utilizadores</h2>
+    <h2>{{ t("latest_users") }}</h2>
 
     {% if latest_users %}
     <div class="table-wrap">
         <table>
             <tr>
                 <th>ID</th>
-                <th>Utilizador</th>
-                <th>Função</th>
+                <th>{{ t("user") }}</th>
+                <th>{{ t("role") }}</th>
             </tr>
 
             {% for user in latest_users %}
@@ -50,9 +50,9 @@
                 <td>
                     {{ user.username }}
                     {% if user.is_admin %}
-                        <span class="badge badge-success">Admin</span>
+                        <span class="badge badge-success">{{ t("admins") }}</span>
                     {% else %}
-                        <span class="badge badge-muted">User</span>
+                        <span class="badge badge-muted">{{ t("user") }}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -60,17 +60,17 @@
         </table>
     </div>
     {% else %}
-    <div class="muted">Ainda não existem utilizadores.</div>
+    <div class="muted">{{ t("no_users_yet") }}</div>
     {% endif %}
 </div>
 
 <div class="box" style="margin-top: 24px;">
-    <h2>Acesso rápido</h2>
+    <h2>{{ t("quickaccess") }}</h2>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a class="btn-link" href="/admin/users">👥 Utilizadores</a>
-        <a class="btn-link" href="/admin/invites">🎟️ Convites</a>
-        <a class="btn-link" href="/metas">🎯 Metas</a>
-        <a class="btn-link" href="/sistema">⚙️ Sistema</a>
+        <a class="btn-link" href="/admin/users">👥 {{ t("users") }}</a>
+        <a class="btn-link" href="/admin/invites">🎟️ {{ t("invites") }}</a>
+        <a class="btn-link" href="/metas">🎯 {{ t("goals") }}</a>
+        <a class="btn-link" href="/sistema">⚙️ {{ t("system") }}</a>
     </div>
 </div>
 {% endblock %}

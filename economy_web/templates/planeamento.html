@@ -1,42 +1,42 @@
 {% extends "base.html" %}
 
-{% block title %}Planeamento · Finances1st{% endblock %}
+{% block title %}{{ t("planning") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Planeamento</h1>
+<h1>{{ t("planning") }}</h1>
 
 <div class="cards">
 	<div class="card">
-		<h3>Sobra mensal</h3>
+		<h3>{{ t("monthlysurplus") }}</h3>
 		<p class="{{ 'green' if sobra >= 0 else 'red' }}">{{ "%.2f"|format(sobra) }} {{ session_currency }}</p>
 	</div>
 	<div class="card">
-		<h3>Saldo real</h3>
+		<h3>{{ t("realbalance") }}</h3>
 		<p class="{{ 'green' if saldo_real >= 0 else 'red' }}">{{ "%.2f"|format(saldo_real) }} {{ session_currency }}</p>
 	</div>
 	<div class="card">
-		<h3>Pendentes</h3>
+		<h3>{{ t("pending") }}</h3>
 		<p class="orange">{{ "%.2f"|format(total_geral) }} {{ session_currency }}</p>
 	</div>
 	<div class="card">
-		<h3>Dívida total</h3>
+		<h3>{{ t("total_debt") }}</h3>
 		<p>{{ "%.2f"|format(total_divida) }} {{ session_currency }}</p>
 	</div>
 </div>
 
 <div class="grid-2">
 	<div class="box">
-		<h2>Resumo</h2>
-		<p>Mês atual: {{ mes }}</p>
-		<p>Entradas: {{ "%.2f"|format(entradas) }} {{ session_currency }}</p>
-		<p>Despesas: {{ "%.2f"|format(despesas) }} {{ session_currency }}</p>
-		<p>Prestações: {{ "%.2f"|format(prestacoes) }} {{ session_currency }}</p>
-		<p>Liberdade estimada: {{ meses_liberdade }}</p>
-		<p>Prioridade: {{ prioridade }}</p>
+		<h2>{{ t("summary") }}</h2>
+		<p>{{ t("current_month") }}: {{ mes }}</p>
+		<p>{{ t("incomes_label") }} {{ "%.2f"|format(entradas) }} {{ session_currency }}</p>
+		<p>{{ t("expenses") }}: {{ "%.2f"|format(despesas) }} {{ session_currency }}</p>
+		<p>{{ t("monthlypayment") }}: {{ "%.2f"|format(prestacoes) }} {{ session_currency }}</p>
+		<p>{{ t("estimated_freedom") }}: {{ meses_liberdade }}</p>
+		<p>{{ t("priority") }}: {{ prioridade }}</p>
 	</div>
 
 	<div class="box">
-		<h2>Score</h2>
+		<h2>{{ t("score") }}</h2>
 		<p>{{ score }}/100</p>
 		<ul>
 			{% for d in detalhes %}
