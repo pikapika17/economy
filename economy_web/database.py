@@ -1,15 +1,11 @@
 import json
-import os
 import secrets
 import string
-from datetime import datetime, timedelta
 import pymysql
-from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_USER = os.environ.get("DB_USER", "economy_user")
-DB_PASSWORD = os.environ.get("DB_PASSWORD", "C.entrino051497")
-DB_NAME = os.environ.get("DB_NAME", "economy_db")
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+from config import DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
 
 
 def get_connection():
