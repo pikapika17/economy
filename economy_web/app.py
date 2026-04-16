@@ -105,7 +105,7 @@ def get_all_currencies():
             "name": name
         })
 
-    currencies.sort(key=lambda x: (x["code"]))
+    currencies.sort(key=lambda x: x["code"])
     return currencies
 
 

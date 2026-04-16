@@ -242,10 +242,10 @@ translations = {
 		"confirm_remove_category": "Remover esta categoria?",
         "converter": "Conversor",
 		"currency_converter": "Conversor de moedas",
+		"from_currency": "Moeda de origem",
+		"to_currency": "Moeda de destino",
 		"result": "Resultado",
 		"exchange_rate": "Taxa de câmbio",
-        "from_currency": "Moeda de origem",
-		"to_currency": "Moeda de destino",
 	},
 
 	"en": {
@@ -491,10 +491,10 @@ translations = {
 		"confirm_remove_category": "Remove this category?",
         "converter": "Converter",
 		"currency_converter": "Currency converter",
+		"from_currency": "From currency",
+		"to_currency": "To currency",
 		"result": "Result",
 		"exchange_rate": "Exchange rate",
-        "from_currency": "From currency",
-		"to_currency": "To currency",
 	},
 
 	"de": {
@@ -740,10 +740,10 @@ translations = {
 		"confirm_remove_category": "Diese Kategorie entfernen?",
         "converter": "Konvertieren",
 		"currency_converter": "Währungsrechner",
+		"from_currency": "Ausgangswährung",
+		"to_currency": "Zielwährung",
 		"result": "Ergebnis",
 		"exchange_rate": "Wechselkurs",
-        "from_currency": "Ausgangswährung",
-		"to_currency": "Zielwährung",
 	},
 
 	"es": {
@@ -989,10 +989,10 @@ translations = {
 		"confirm_remove_category": "¿Eliminar esta categoría?",
         "converter": "Convertir",
 		"currency_converter": "Conversor de divisas",
+		"from_currency": "De la moneda",
+		"to_currency": "A la moneda",
 		"result": "Resultado",
 		"exchange_rate": "Tipo de cambio",
-        "from_currency": "De la moneda",
-		"to_currency": "A la moneda",
 	},
 
 	"fr": {
@@ -1238,10 +1238,10 @@ translations = {
 		"confirm_remove_category": "Supprimer cette catégorie ?",
         "converter": "Convertir",
 		"currency_converter": "Convertisseur de devises",
+		"from_currency": "De la devise",
+		"to_currency": "Vers la devise",
 		"result": "Résultat",
 		"exchange_rate": "Taux de change",
-        "from_currency": "De la devise",
-		"to_currency": "Vers la devise",
 	},
 
 	"pl": {
@@ -1487,10 +1487,10 @@ translations = {
 		"confirm_remove_category": "Usunąć tę kategorię?",
         "converter": "Konwertuj",
 		"currency_converter": "Przelicznik walut",
+		"from_currency": "Z waluty",
+		"to_currency": "Na walutę",
 		"result": "Wynik",
 		"exchange_rate": "Kurs wymiany",
-        "from_currency": "Z waluty",
-		"to_currency": "Na walutę",
 	},
 
 	"ru": {
@@ -1736,10 +1736,10 @@ translations = {
 		"confirm_remove_category": "Удалить эту категорию?",
         "converter": "Конвертировать",
 		"currency_converter": "Конвертер валют",
+		"from_currency": "Из валюты",
+		"to_currency": "В валюту",
 		"result": "Результат",
 		"exchange_rate": "Обменный курс",
-        "from_currency": "Из валюты",
-		"to_currency": "В валюту",
 	},
 
 	"it": {
@@ -1983,11 +1983,11 @@ translations = {
 		"confirm_remove_income": "Rimuovere questa entrata?",
 		"confirm_remove_contribution": "Rimuovere questo contributo?",
 		"confirm_remove_category": "Rimuovere questa categoria?",
-        "converter": "Converti",
+       "converter": "Converti",
 		"currency_converter": "Convertitore di valuta",
+		"from_currency": "Dalla valuta",
+		"to_currency": "Alla valuta",
 		"result": "Risultato",
 		"exchange_rate": "Tasso di cambio",
-        "from_currency": "Dalla valuta",
-		"to_currency": "Alla valuta",
 	},
 }

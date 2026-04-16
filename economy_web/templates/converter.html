@@ -8,44 +8,49 @@
 <div class="box">
     <h2>{{ t("currency_converter") }}</h2>
 
-    <form class="auth-form" onsubmit="return false;">
-        <input
-            id="fx-amount"
-            type="number"
-            step="0.01"
-            min="0"
-            name="amount"
-            value="1000"
-            placeholder="{{ t('value') }}"
-        >
+    <div class="converter-grid">
+        <div class="converter-side">
+            <label class="muted">{{ t("value") }}</label>
+            <input
+                id="fx-amount"
+                type="number"
+                step="0.01"
+                min="0"
+                value="1000"
+                placeholder="{{ t('value') }}"
+            >
 
-        <select id="fx-from" name="from_currency" required>
-            {% for currency in currencies %}
-                <option value="{{ currency }}" {% if session_currency == currency %}selected{% endif %}>
-                    {{ currency }}
-                </option>
-            {% endfor %}
-        </select>
+            <label class="muted">{{ t("from_currency") }}</label>
+            <select id="fx-from" class="searchable-select" required>
+                {% for currency in currencies %}
+                    <option value="{{ currency.code }}" {% if session_currency == currency.code %}selected{% endif %}>
+                        {{ currency.code }} — {{ currency.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <select id="fx-to" name="to_currency" required>
-            {% for currency in currencies %}
-                <option value="{{ currency }}" {% if currency == "EUR" %}selected{% endif %}>
-                    {{ currency }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
-</div>
+        <div class="converter-arrow">→</div>
 
-<div class="box">
-    <h2>{{ t("result") }}</h2>
+        <div class="converter-side">
+            <label class="muted">{{ t("to_currency") }}</label>
+            <select id="fx-to" class="searchable-select" required>
+                {% for currency in currencies %}
+                    <option value="{{ currency.code }}" {% if currency.code == "EUR" %}selected{% endif %}>
+                        {{ currency.code }} — {{ currency.name }}
+                    </option>
+                {% endfor %}
+            </select>
 
-    <p id="fx-result" style="font-size: 1.2rem; font-weight: 700;">
-        1000.00 {{ session_currency }} = 0.00 EUR
-    </p>
-
-    <p id="fx-rate" class="muted"></p>
-    <p id="fx-error" class="red" style="display:none;"></p>
+            <div class="converter-result-box">
+                <div id="fx-result" class="converter-result">
+                    1000.00 {{ session_currency }} = 0.00 EUR
+                </div>
+                <div id="fx-rate" class="muted"></div>
+                <div id="fx-error" class="red" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -86,10 +91,11 @@ function scheduleConverterUpdate() {
     fxTimer = setTimeout(updateConverter, 250);
 }
 
-document.getElementById("fx-amount").addEventListener("input", scheduleConverterUpdate);
-document.getElementById("fx-from").addEventListener("change", updateConverter);
-document.getElementById("fx-to").addEventListener("change", updateConverter);
-
-document.addEventListener("DOMContentLoaded", updateConverter);
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("fx-amount").addEventListener("input", scheduleConverterUpdate);
+    document.getElementById("fx-from").addEventListener("change", updateConverter);
+    document.getElementById("fx-to").addEventListener("change", updateConverter);
+    updateConverter();
+});
 </script>
 {% endblock %}
