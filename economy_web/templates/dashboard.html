@@ -36,7 +36,7 @@
 			{{ "%.2f"|format(saldo) }} {{ session_currency }}
 		</p>
 		<div class="muted" style="margin-top:8px;">
-			{{ "{{ t("positivebalance") }}" if saldo >= 0 else "{{ t("negativebalance") }}" }}
+			<strong>{{ "{{ t("positivebalance") }}" if saldo >= 0 else "{{ t("negativebalance") }}" }}></strong>
 		</div>
 	</div>
 </div>
