@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
 from functools import wraps
+from datetime import datetime
 
+import io
+import json
 import pycountry
 import os
 
@@ -1655,6 +1658,31 @@ def admin_generate_multiple_invites():
 		flash(f"Erro ao gerar códigos: {e}", "error")
 
 	return redirect(url_for("admin_invites"))
+
+
+@app.route("/export")
+@login_required
+def export_data():
+    try:
+        dados = export_to_dict(session["user_id"])
+
+        buffer = io.BytesIO()
+        buffer.write(json.dumps(dados, ensure_ascii=False, indent=2).encode("utf-8"))
+        buffer.seek(0)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"financas_{session.get('user', 'user')}_{timestamp}.json"
+
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/json"
+        )
+    except Exception as e:
+        app.logger.exception("Erro ao exportar dados")
+        flash(f"Erro ao exportar dados: {e}", "error")
+        return redirect(url_for("dashboard"))
 
 
 init_db()

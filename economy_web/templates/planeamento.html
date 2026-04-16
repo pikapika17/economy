@@ -8,11 +8,11 @@
 <div class="cards">
 	<div class="card">
 		<h3>Sobra mensal</h3>
-		<p class="{{ 'green' if sobra >= 0 else 'red' }}">{{ "%.2f"|format(sobra) }} CHF</p>
+		<p class="{{ 'green' if sobra >= 0 else 'red' }}">{{ "%.2f"|format(sobra) }} {{ session_currency }}</p>
 	</div>
 	<div class="card">
 		<h3>Saldo real</h3>
-		<p class="{{ 'green' if saldo_real >= 0 else 'red' }}">{{ "%.2f"|format(saldo_real) }} CHF</p>
+		<p class="{{ 'green' if saldo_real >= 0 else 'red' }}">{{ "%.2f"|format(saldo_real) }} {{ session_currency }}</p>
 	</div>
 	<div class="card">
 		<h3>Pendentes</h3>
@@ -20,7 +20,7 @@
 	</div>
 	<div class="card">
 		<h3>Dívida total</h3>
-		<p>{{ "%.2f"|format(total_divida) }} CHF</p>
+		<p>{{ "%.2f"|format(total_divida) }} {{ session_currency }}</p>
 	</div>
 </div>
 
@@ -28,9 +28,9 @@
 	<div class="box">
 		<h2>Resumo</h2>
 		<p>Mês atual: {{ mes }}</p>
-		<p>Entradas: {{ "%.2f"|format(entradas) }} CHF</p>
-		<p>Despesas: {{ "%.2f"|format(despesas) }} CHF</p>
-		<p>Prestações: {{ "%.2f"|format(prestacoes) }} CHF</p>
+		<p>Entradas: {{ "%.2f"|format(entradas) }} {{ session_currency }}</p>
+		<p>Despesas: {{ "%.2f"|format(despesas) }} {{ session_currency }}</p>
+		<p>Prestações: {{ "%.2f"|format(prestacoes) }} {{ session_currency }}</p>
 		<p>Liberdade estimada: {{ meses_liberdade }}</p>
 		<p>Prioridade: {{ prioridade }}</p>
 	</div>

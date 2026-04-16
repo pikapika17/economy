@@ -8,32 +8,32 @@
 <div class="cards">
 	<div class="card">
 		<h3>Entradas</h3>
-		<p>{{ "%.2f"|format(entradas) }} CHF</p>
+		<p>{{ "%.2f"|format(entradas) }} {{ session_currency }}</p>
 		<div class="muted" style="margin-top:8px;">Total mensal atual</div>
 	</div>
 
 	<div class="card">
 		<h3>Despesas</h3>
-		<p>{{ "%.2f"|format(despesas) }} CHF</p>
+		<p>{{ "%.2f"|format(despesas) }} {{ session_currency }}</p>
 		<div class="muted" style="margin-top:8px;">Despesas do mês</div>
 	</div>
 
 	<div class="card">
 		<h3>Dívidas</h3>
-		<p>{{ "%.2f"|format(dividas) }} CHF</p>
+		<p>{{ "%.2f"|format(dividas) }} {{ session_currency }}</p>
 		<div class="muted" style="margin-top:8px;">Prestações mensais</div>
 	</div>
 
 	<div class="card">
 		<h3>Pendentes</h3>
-		<p class="orange">{{ "%.2f"|format(pendentes) }} CHF</p>
+		<p class="orange">{{ "%.2f"|format(pendentes) }} {{ session_currency }}</p>
 		<div class="muted" style="margin-top:8px;">Valor acumulado</div>
 	</div>
 
 	<div class="card">
 		<h3>Saldo real</h3>
 		<p class="{{ 'green' if saldo >= 0 else 'red' }}">
-			{{ "%.2f"|format(saldo) }} CHF
+			{{ "%.2f"|format(saldo) }} {{ session_currency }}
 		</p>
 		<div class="muted" style="margin-top:8px;">
 			{{ "Situação positiva" if saldo >= 0 else "Situação negativa" }}
@@ -48,7 +48,7 @@
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
 				<span class="muted">Sobra mensal</span>
 				<strong class="{{ 'green' if (entradas - despesas - dividas) >= 0 else 'red' }}">
-					{{ "%.2f"|format(entradas - despesas - dividas) }} CHF
+					{{ "%.2f"|format(entradas - despesas - dividas) }} {{ session_currency }}
 				</strong>
 			</div>
 
@@ -59,7 +59,7 @@
 
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
 				<span class="muted">Pressão mensal</span>
-				<strong>{{ "%.2f"|format(despesas + dividas) }} CHF</strong>
+				<strong>{{ "%.2f"|format(despesas + dividas) }} {{ session_currency }}</strong>
 			</div>
 
 			<div style="display:flex; justify-content:space-between;">
@@ -126,10 +126,10 @@
 		<h2>Leitura rápida</h2>
 		<p class="muted" style="margin-bottom:10px;">Visão curta da tua situação:</p>
 		<ul style="margin:0; padding-left:18px; line-height:1.8;">
-			<li>Entradas atuais: <strong>{{ "%.2f"|format(entradas) }} CHF</strong></li>
+			<li>Entradas atuais: <strong>{{ "%.2f"|format(entradas) }} {{ session_currency }}</strong></li>
 			<li>Saída mensal total: <strong>{{ "%.2f"|format(total_geral) }} {{ session_currency }}</strong></li>
-			<li>Pendentes acumulados: <strong class="orange">{{ "%.2f"|format(pendentes) }} CHF</strong></li>
-			<li>Saldo real: <strong class="{{ 'green' if saldo >= 0 else 'red' }}">{{ "%.2f"|format(saldo) }} CHF</strong></li>
+			<li>Pendentes acumulados: <strong class="orange">{{ "%.2f"|format(pendentes) }} {{ session_currency }}</strong></li>
+			<li>Saldo real: <strong class="{{ 'green' if saldo >= 0 else 'red' }}">{{ "%.2f"|format(saldo) }} {{ session_currency }}</strong></li>
 		</ul>
 	</div>
 

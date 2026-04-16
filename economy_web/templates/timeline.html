@@ -19,7 +19,7 @@
 <div class="box">
     <h2>Resumo</h2>
     <p>Meses estimados: {{ resultado.meses }}</p>
-    <p>Juros estimados: {{ "%.2f"|format(resultado.juros) }} CHF</p>
+    <p>Juros estimados: {{ "%.2f"|format(resultado.juros) }} {{ session_currency }}</p>
     {% if resultado.problema %}
     <p class="orange">A simulação pode estar instável.</p>
     {% endif %}
@@ -28,10 +28,10 @@
 {% for reg in historico %}
 <div class="box">
     <strong>Mês {{ reg.mes }}</strong>
-    <p>Total restante: {{ "%.2f"|format(reg.total_restante) }} CHF</p>
+    <p>Total restante: {{ "%.2f"|format(reg.total_restante) }} {{ session_currency }}</p>
     <ul>
         {% for item in reg.itens %}
-        <li>{{ item.nome }} — {{ "%.2f"|format(item.restante) }} CHF</li>
+        <li>{{ item.nome }} — {{ "%.2f"|format(item.restante) }} {{ session_currency }}</li>
         {% endfor %}
     </ul>
 </div>

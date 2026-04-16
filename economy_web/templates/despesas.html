@@ -11,7 +11,7 @@
 		<p>
 			{{ "%.2f"|format(
 				despesas.values() | map(attribute='valor') | sum
-			) if despesas else "0.00" }} CHF
+			) if despesas else "0.00" }} {{ session_currency }}
 		</p>
 	</div>
 

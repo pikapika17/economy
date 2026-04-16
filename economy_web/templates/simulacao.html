@@ -31,9 +31,9 @@
     </tr>
     {% for c in cenarios %}
     <tr>
-        <td>{{ "%.2f"|format(c.extra) }} CHF</td>
+        <td>{{ "%.2f"|format(c.extra) }} {{ session_currency }}</td>
         <td>{{ c.meses }}</td>
-        <td>{{ "%.2f"|format(c.juros) }} CHF</td>
+        <td>{{ "%.2f"|format(c.juros) }} {{ session_currency }}</td>
         <td>{{ "Atenção" if c.problema else "OK" }}</td>
     </tr>
     {% endfor %}
