@@ -81,8 +81,16 @@
 
 					<td class="acoes">
 						<button type="submit">{{ t("save") }}</button>
-						<a class="btn-link" href="/convert_pendente/{{ p.nome }}" onclick="return confirm('{{ t('confirm_convert_pending') }}')">{{ t("convert") }}</a>
-						<a class="btn-link btn-danger" href="/delete_pendente/{{ p.nome }}" onclick="return confirm('{{ t('confirm_remove_pending') }}')">{{ t("remove") }}</a>
+						<form method="POST" action="/convert_pendente/{{ p.nome }}" style="display:inline;">
+							<button type="submit" onclick="return confirm({{ t('confirm_convert_pending') | tojson }})">
+								{{ t("convert") }}
+							</button>
+						</form>
+						<form method="POST" action="/delete_pendente/{{ p.nome }}" style="display:inline;">
+							<button type="submit" class="btn-danger" onclick="return confirm({{ t('confirm_remove_pending') | tojson }})">
+								{{ t("remove") }}
+							</button>
+						</form>
 					</td>
 				</form>
 			</tr>

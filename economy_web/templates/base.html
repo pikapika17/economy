@@ -816,6 +816,13 @@
 			color: #7fc0ff;
 			border-left-color: #2b74b4;
 		}
+
+		.language-form select {
+			width: 100%;
+			min-height: 40px;
+			border-radius: 10px;
+		}
+
 	</style>
 </head>
 <body>
@@ -842,21 +849,25 @@
 
 			<div class="language-switch">
 				{% if session_user %}
-					<form method="POST" action="/set-language/pt" style="display:inline;">
-						<button type="submit" class="lang-btn {% if session_language == 'pt' %}active{% endif %}">🇵🇹 PT</button>
-					</form>
-
-					<form method="POST" action="/set-language/en" style="display:inline;">
-						<button type="submit" class="lang-btn {% if session_language == 'en' %}active{% endif %}">🇬🇧 EN</button>
-					</form>
+				<form method="POST" action="/set-language" class="language-form">
+					<select name="language" onchange="this.form.submit()">
+						{% for code, label in available_languages %}
+							<option value="{{ code }}" {% if session_language == code %}selected{% endif %}>
+								{{ label }}
+							</option>
+						{% endfor %}
+					</select>
+				</form>
 				{% else %}
-					<form method="POST" action="/set-language-public/pt" style="display:inline;">
-						<button type="submit" class="lang-btn {% if session_language == 'pt' %}active{% endif %}">🇵🇹 PT</button>
-					</form>
-
-					<form method="POST" action="/set-language-public/en" style="display:inline;">
-						<button type="submit" class="lang-btn {% if session_language == 'en' %}active{% endif %}">🇬🇧 EN</button>
-					</form>
+				<form method="POST" action="/set-language-public" class="language-form">
+					<select name="language" onchange="this.form.submit()">
+						{% for code, label in available_languages %}
+							<option value="{{ code }}" {% if session_language == code %}selected{% endif %}>
+								{{ label }}
+							</option>
+						{% endfor %}
+					</select>
+				</form>
 				{% endif %}
 			</div>
 

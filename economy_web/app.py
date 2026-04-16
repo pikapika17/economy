@@ -166,13 +166,23 @@ def admin_required(f):
 
 @app.context_processor
 def inject_user_context():
-	return {
-		"session_user": session.get("user"),
-		"session_display_name": session.get("display_name"),
-		"session_is_admin": bool(session.get("is_admin", False)),
-		"session_language": session.get("language", "pt"),
-		"session_currency": session.get("currency", "CHF"),
-	}
+    return {
+        "session_user": session.get("user"),
+        "session_display_name": session.get("display_name"),
+        "session_is_admin": bool(session.get("is_admin", False)),
+        "session_language": session.get("language", "pt"),
+        "session_currency": session.get("currency", "CHF"),
+        "available_languages": [
+            ("pt", "Português"),
+            ("en", "English"),
+            ("de", "Deutsch"),
+            ("it", "Italiano"),
+            ("es", "Español"),
+            ("fr", "Français"),
+            ("pl", "Polski"),
+            ("ru", "Русский"),
+        ],
+    }
 
 
 def calcular_info_divida_web(divida):
@@ -201,6 +211,7 @@ def calcular_info_divida_web(divida):
 		return "> 600 meses"
 
 	return f"{meses} meses"
+
 
 def calcular_meses_pendentes_web(desde, ate):
 	try:
@@ -561,15 +572,15 @@ def inject_translations():
 	return dict(t=t)
 
 
-@app.route("/set-language-public/<lang>", methods=["POST"])
-def set_language_public(lang):
-	allowed = ALLOWED_LANGUAGES
+@app.route("/set-language-public", methods=["POST"])
+def set_language_public():
+    lang = request.form.get("language", "").strip()
+    allowed = ["pt", "en", "de", "it", "es", "fr", "pl", "ru"]
 
-	if lang not in allowed:
-		return redirect(request.referrer or url_for("login"))
+    if lang in allowed:
+        session["language"] = lang
 
-	session["language"] = lang
-	return redirect(request.referrer or url_for("login"))
+    return redirect(request.referrer or url_for("login"))
 
 
 @app.route("/")
@@ -683,7 +694,7 @@ def add_despesa():
 	return redirect("/despesas")
 
 
-@app.route("/delete_despesa/<nome>")
+@app.route("/delete_despesa/<nome>", methods=["POST"])
 @login_required
 def delete_despesa(nome):
 	dados = export_to_dict(session["user_id"])
@@ -703,7 +714,7 @@ def delete_despesa(nome):
 	return redirect("/despesas")
 
 
-@app.route("/toggle_pago/<nome>")
+@app.route("/toggle_pago/<nome>", methods=["POST"])
 @login_required
 def toggle_pago(nome):
 	dados = export_to_dict(session["user_id"])
@@ -910,7 +921,7 @@ def update_pendente(nome):
 	return redirect("/pendentes")
 
 
-@app.route("/delete_pendente/<nome>")
+@app.route("/delete_pendente/<nome>", methods=["POST"])
 @login_required
 def delete_pendente(nome):
 	try:
@@ -924,7 +935,7 @@ def delete_pendente(nome):
 	return redirect("/pendentes")
 
 
-@app.route("/convert_pendente/<nome>")
+@app.route("/convert_pendente/<nome>", methods=["POST"])
 @login_required
 def convert_pendente(nome):
 	dados = export_to_dict(session["user_id"])
@@ -1552,23 +1563,19 @@ def forgot_password():
 	return render_template("forgot_password.html")
 
 
-@app.route("/set-language/<lang>", methods=["POST"])
+@app.route("/set-language", methods=["POST"])
 @login_required
-def set_language(lang):
-	allowed = ALLOWED_LANGUAGES
+def set_language():
+    lang = request.form.get("language", "").strip()
+    allowed = ["pt", "en", "de", "it", "es", "fr", "pl", "ru"]
 
-	if lang not in allowed:
-		flash("Idioma inválido.", "error")
-		return redirect(request.referrer or url_for("dashboard"))
+    if lang not in allowed:
+        flash("Idioma inválido.", "error")
+        return redirect(request.referrer or url_for("dashboard"))
 
-	try:
-		session["language"] = lang
-		update_user_language(session["user_id"], lang)
-	except Exception as e:
-		app.logger.exception("Erro ao atualizar idioma")
-		flash(f"Erro ao atualizar idioma: {e}", "error")
-
-	return redirect(request.referrer or url_for("dashboard"))
+    session["language"] = lang
+    update_user_language(session["user_id"], lang)
+    return redirect(request.referrer or url_for("dashboard"))
 
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])

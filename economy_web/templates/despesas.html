@@ -37,7 +37,7 @@
 
 <div class="box">
 	<h2>{{ t("add_expense") }}</h2>
-	<form method="POST" action="/add_despesa">
+	<form method="POST" action="/add_despesa" class="auth-form">
 		<input name="nome" placeholder="{{ t('name') }}" required>
 		<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}" required>
 		<input name="categoria" placeholder="{{ t('category') }}" required>
@@ -51,16 +51,16 @@
 		<input name="pesquisa" placeholder="{{ t('search_name') }}" value="{{ filtros.pesquisa }}">
 
 		<select name="categoria">
-			<option {% if filtros.categoria == "Todas" %}selected{% endif %}>{{ t("all") }}</option>
+			<option>{{ t("all") }}</option>
 			{% for cat in categorias %}
 				<option value="{{ cat }}" {% if filtros.categoria == cat %}selected{% endif %}>{{ cat }}</option>
 			{% endfor %}
 		</select>
 
 		<select name="estado">
-			<option {% if filtros.estado == "Todas" %}selected{% endif %}>{{ t("all") }}</option>
-			<option {% if filtros.estado == "Pagas" %}selected{% endif %}>{{ t("paid") }}</option>
-			<option {% if filtros.estado == "Por pagar" %}selected{% endif %}>{{ t("unpaid") }}</option>
+			<option>{{ t("all") }}</option>
+			<option value="Pagas" {% if filtros.estado == "Pagas" %}selected{% endif %}>{{ t("paid") }}</option>
+			<option value="Por pagar" {% if filtros.estado == "Por pagar" %}selected{% endif %}>{{ t("unpaid") }}</option>
 		</select>
 
 		<button type="submit">{{ t("apply") }}</button>
@@ -72,57 +72,57 @@
 	<h2>{{ t("expenses_list") }}</h2>
 
 	{% if despesas %}
-	<div class="table-wrap">
-		<table>
-			<tr>
-				<th>{{ t("name") }}</th>
-				<th style="text-align:right;">{{ t("value") }}</th>
-				<th>{{ t("category") }}</th>
-				<th>{{ t("status") }}</th>
-				<th>{{ t("actions") }}</th>
-			</tr>
+	<div class="mobile-cards">
+		{% for nome, d in despesas.items() %}
+		<div class="box">
 
-			{% for nome, d in despesas.items() %}
-			<tr>
-				<form method="POST" action="/update_despesa/{{ nome }}">
-					<td>
-						<input name="novo_nome" value="{{ nome }}" required>
-					</td>
+			<form method="POST" action="/update_despesa/{{ nome }}" class="auth-form">
+				<input name="novo_nome" value="{{ nome }}" required>
+				<input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
+				<input name="categoria" value="{{ d.categoria }}" required>
 
-					<td style="text-align:right;">
-						<input name="valor" type="number" step="0.01" value="{{ d.valor }}" required>
-					</td>
+				{% if d.pago %}
+					<span class="green"><strong>{{ t("paid") }}</strong></span>
+				{% else %}
+					<span class="orange"><strong>{{ t("unpaid") }}</strong></span>
+				{% endif %}
 
-					<td>
-						<input name="categoria" value="{{ d.categoria }}" required>
-					</td>
+				<button type="submit">{{ t("save") }}</button>
+			</form>
 
-					<td>
-						{% if d.pago %}
-							<span class="green"><strong>{{ t("paid") }}</strong></span>
-						{% else %}
-							<span class="orange"><strong>{{ t("unpaid") }}</strong></span>
-						{% endif %}
-					</td>
+			<div class="acoes" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
 
-					<td class="acoes">
-						<button type="submit">{{ t("save") }}</button>
-
-						{% if d.pago %}
-							<a class="btn-link" href="/toggle_pago/{{ nome }}">{{ t("undo") }}</a>
-						{% else %}
-							<a class="btn-link btn-success" href="/toggle_pago/{{ nome }}">{{ t("mark_paid") }}</a>
-						{% endif %}
-
-						<a class="btn-link btn-danger" href="/delete_despesa/{{ nome }}" onclick="return confirm('{{ t('confirm_remove_expense') }}')">{{ t("remove") }}</a>
-					</td>
+				{% if d.pago %}
+				<form method="POST" action="/toggle_pago/{{ nome }}">
+					<button type="submit" class="btn-link">
+						{{ t("undo") }}
+					</button>
 				</form>
-			</tr>
-			{% endfor %}
-		</table>
+				{% else %}
+				<form method="POST" action="/toggle_pago/{{ nome }}">
+					<button type="submit" class="btn-link btn-success">
+						{{ t("mark_paid") }}
+					</button>
+				</form>
+				{% endif %}
+
+				<form method="POST" action="/delete_despesa/{{ nome }}">
+					<button
+						type="submit"
+						class="btn-link btn-danger"
+						onclick="return confirm({{ t('confirm_remove_expense') | tojson }})">
+						{{ t("remove") }}
+					</button>
+				</form>
+
+			</div>
+		</div>
+		{% endfor %}
 	</div>
+
 	{% else %}
 	<div class="muted">{{ t("no_expenses_found") }}</div>
 	{% endif %}
 </div>
+
 {% endblock %}
