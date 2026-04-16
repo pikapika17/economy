@@ -59,6 +59,7 @@ from database import (
     email_belongs_to_other_user,
     update_own_password,
 	get_connection,
+	update_user_language,
 )
 
 app = Flask(__name__)
@@ -333,7 +334,7 @@ def ensure_language():
     if "language" not in session:
         session["language"] = "pt"
 
-		
+
 @app.context_processor
 def inject_translations():
     return dict(t=t)
@@ -1250,16 +1251,22 @@ def register():
 			user = authenticate_user(email, password)
 
 			if user:
-				ensure_user_defaults(user["id"])
-				session["logged_in"] = True
-				session["user"] = user["username"]
-				session["user_id"] = user["id"]
-				session["is_admin"] = user["is_admin"]
-				session["language"] = user.get("language", "pt")
-				session["currency"] = user.get("currency", "CHF")
+			ensure_user_defaults(user["id"])
 
-				flash("Conta criada com sucesso.", "success")
-				return redirect(url_for("dashboard"))
+			display_name = f"{(user.get('first_name') or '').strip()} {(user.get('last_name') or '').strip()}".strip()
+			if not display_name:
+				display_name = user["username"]
+
+			session["logged_in"] = True
+			session["user"] = user["username"]
+			session["display_name"] = display_name
+			session["user_id"] = user["id"]
+			session["is_admin"] = user["is_admin"]
+			session["language"] = user.get("language", "pt")
+			session["currency"] = user.get("currency", "CHF")
+
+			flash("Conta criada com sucesso.", "success")
+			return redirect(url_for("dashboard"))
 
 			flash("Conta criada, mas não foi possível iniciar sessão.", "warning")
 			return redirect(url_for("login"))
@@ -1309,6 +1316,25 @@ def forgot_password():
 		return redirect(url_for("login"))
 
 	return render_template("forgot_password.html")
+
+
+@app.route("/set-language/<lang>", methods=["POST"])
+@login_required
+def set_language(lang):
+    allowed = ["pt", "en"]
+
+    if lang not in allowed:
+        flash("Idioma inválido.", "error")
+        return redirect(request.referrer or url_for("dashboard"))
+
+    try:
+        session["language"] = lang
+        update_user_language(session["user_id"], lang)
+    except Exception as e:
+        app.logger.exception("Erro ao atualizar idioma")
+        flash(f"Erro ao atualizar idioma: {e}", "error")
+
+    return redirect(request.referrer or url_for("dashboard"))
 
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])

@@ -708,6 +708,28 @@
 			padding: 10px;
 		}
 
+		.language-switch {
+			display: flex;
+			gap: 8px;
+			margin: 10px 8px 14px;
+		}
+
+		.lang-btn {
+			min-height: 36px;
+			padding: 8px 12px;
+			border-radius: 10px;
+			border: 1px solid rgba(255,255,255,0.08);
+			background: rgba(255,255,255,0.04);
+			color: var(--text);
+			cursor: pointer;
+			font-weight: 700;
+		}
+
+		.lang-btn.active {
+			background: linear-gradient(180deg, #2f7fc4, var(--primary));
+			border-color: transparent;
+		}
+
 	</style>
 </head>
 <body>
@@ -730,6 +752,16 @@
 				{% elif session_user %}
 					{{ t("welcome") }}, {{ session_user }}
 				{% endif %}
+			</div>
+
+			<div class="language-switch">
+				<form method="POST" action="/set-language/pt" style="display:inline;">
+					<button type="submit" class="lang-btn {% if session_language == 'pt' %}active{% endif %}">🇵🇹 PT</button>
+				</form>
+
+				<form method="POST" action="/set-language/en" style="display:inline;">
+					<button type="submit" class="lang-btn {% if session_language == 'en' %}active{% endif %}">🇬🇧 EN</button>
+				</form>
 			</div>
 
 			<a href="/" onclick="closeSidebar()">🏠 {{ t("dashboard") }}</a>

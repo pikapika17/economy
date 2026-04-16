@@ -1196,3 +1196,17 @@ def update_own_password(user_id, current_password, new_password):
     conn.commit()
     conn.close()
     return True, "Password atualizada com sucesso."
+
+
+def update_user_language(user_id, language):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE users
+        SET language = %s
+        WHERE id = %s
+    """, (language, int(user_id)))
+
+    conn.commit()
+    conn.close()
