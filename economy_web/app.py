@@ -777,7 +777,7 @@ def add_divida():
 	return redirect("/dividas")
 
 
-@app.route("/delete_divida/<nome>")
+@app.route("/delete_divida/<nome>", methods=["POST"])
 @login_required
 def delete_divida(nome):
 	try:
@@ -1040,7 +1040,7 @@ def update_salario(nome):
 	return redirect("/sistema")
 
 
-@app.route("/delete_salario/<nome>")
+@app.route("/delete_salario/<nome>", methods=["POST"])
 @login_required
 def delete_salario(nome):
 	try:
@@ -1100,7 +1100,7 @@ def update_contribuicao(nome):
 	return redirect("/sistema")
 
 
-@app.route("/delete_contribuicao/<nome>")
+@app.route("/delete_contribuicao/<nome>", methods=["POST"])
 @login_required
 def delete_contribuicao(nome):
 	try:
@@ -1133,7 +1133,7 @@ def add_categoria():
 	return redirect("/sistema")
 
 
-@app.route("/delete_categoria/<nome>")
+@app.route("/delete_categoria/<nome>", methods=["POST"])
 @login_required
 def delete_categoria(nome):
 	try:
@@ -1847,7 +1847,7 @@ def update_meta(meta_id):
 	return redirect("/metas")
 
 
-@app.route("/delete_meta/<int:meta_id>")
+@app.route("/delete_meta/<int:meta_id>", methods=["POST"])
 @login_required
 def delete_meta(meta_id):
 	try:

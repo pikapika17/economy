@@ -57,11 +57,11 @@
 
 					<td class="acoes">
 						<button type="submit">{{ t("save") }}</button>
-						<a class="btn-link btn-danger"
-						   href="/delete_meta/{{ m.id }}"
-						   onclick="return confirm('{{ t('confirm_remove_goal') }}')">
-						   {{ t("remove") }}
-						</a>
+						<form method="POST" action="/delete_meta/{{ meta.id }}" style="display:inline;">
+							<button type="submit" class="btn-danger" onclick="return confirm({{ t('confirm_remove_goal') | tojson }})">
+								{{ t("remove") }}
+							</button>
+						</form>
 					</td>
 				</form>
 			</tr>

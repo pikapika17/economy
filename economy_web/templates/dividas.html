@@ -39,7 +39,11 @@
 				<td class="orange">{{ d.info }}</td>
 				<td class="acoes">
 					<button type="submit">{{ t("save") }}</button>
-					<a class="btn-link btn-danger" href="/delete_divida/{{ d.nome }}">{{ t("remove") }}</a>
+					<form method="POST" action="/delete_divida/{{ d.nome }}" style="display:inline;">
+						<button type="submit" class="btn-danger" onclick="return confirm({{ t('confirm_remove_debt') | tojson }})">
+							{{ t("remove") }}
+						</button>
+					</form>
 				</td>
 			</form>
 		</tr>
@@ -61,7 +65,11 @@
 			<div class="muted">{{ t("info") }}: <span class="orange">{{ d.info }}</span></div>
 
 			<button type="submit">{{ t("save") }}</button>
-			<a class="btn-link btn-danger" href="/delete_divida/{{ d.nome }}">{{ t("remove") }}</a>
+			<form method="POST" action="/delete_divida/{{ d.nome }}" style="display:inline;">
+				<button type="submit" class="btn-danger" onclick="return confirm({{ t('confirm_remove_debt') | tojson }})">
+					{{ t("remove") }}
+				</button>
+			</form>
 		</form>
 	</div>
 	{% endfor %}
