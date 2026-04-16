@@ -21,7 +21,7 @@ translations = {
         "email_user": "Usa o teu utilizador ou email",
         "fpass": "Esqueci a palavra-passe",
         "newacc": "Criar conta",
-        "user_or_email": "Utilizador or email",
+        "user_or_email": "Utilizador ou email",
         "password": "Palavra-passe",
     },
     
@@ -45,7 +45,9 @@ translations = {
         "admin": "Admin",
         "enter": "Enter",
         "email_user": "Use your username or email",
-        "fpass": "Forgot your password?",
+        "fpass": "Forgot password",
         "newacc": "Create account",
+        "user_or_email": "User or email",
+        "password": "Password",
     }
 }
