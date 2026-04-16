@@ -36,7 +36,7 @@
 			{{ "%.2f"|format(saldo) }} {{ session_currency }}
 		</p>
 		<div class="muted" style="margin-top:8px;">
-			"{{ t("positivebalance") if saldo >= 0 else t("negativebalance") }}"
+			{{ t("positivebalance") if saldo >= 0 else t("negativebalance") }}
 		</div>
 	</div>
 </div>
@@ -54,7 +54,7 @@
 
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
 				<span class="muted">{{ t("status") }}</span>
-				<strong>"{{ t("stable") if saldo >= 0 else t("recovering") }}"</strong>
+				<strong>{{ t("stable") if saldo >= 0 else t("recovering") }}</strong>
 			</div>
 
 			<div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:8px;">
