@@ -730,6 +730,39 @@
 			border-color: transparent;
 		}
 
+		#toast-container {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			z-index: 9999;
+		}
+
+		.toast {
+			background: #1e293b;
+			color: white;
+			padding: 12px 16px;
+			margin-top: 10px;
+			border-radius: 10px;
+			min-width: 200px;
+			box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+			opacity: 0;
+			transform: translateY(20px);
+			transition: all 0.3s ease;
+		}
+
+		.toast.show {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		.toast.success {
+			border-left: 4px solid #22c55e;
+		}
+
+		.toast.error {
+			border-left: 4px solid #ef4444;
+		}
+
 	</style>
 </head>
 <body>
@@ -908,5 +941,26 @@
 		});
 	}
 	</script>
+
+	<script>
+	function showToast(message, type="success") {
+		const container = document.getElementById("toast-container");
+
+		const toast = document.createElement("div");
+		toast.className = "toast " + type;
+		toast.innerText = message;
+
+		container.appendChild(toast);
+
+		setTimeout(() => toast.classList.add("show"), 10);
+
+		setTimeout(() => {
+			toast.classList.remove("show");
+			setTimeout(() => toast.remove(), 300);
+		}, 3000);
+	}
+	</script>
+
+	<div id="toast-container"></div>
 </body>
 </html>
