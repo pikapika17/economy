@@ -24,6 +24,7 @@ translations = {
         "newacc": "Criar conta",
         "user_or_email": "Utilizador ou email",
         "password": "Palavra-passe",
+        "logout": "Terminar sessão",
     },
     
     "en": {
@@ -51,5 +52,6 @@ translations = {
         "newacc": "Create account",
         "user_or_email": "User or email",
         "password": "Password",
+        "logout": "Logout",
     }
 }
