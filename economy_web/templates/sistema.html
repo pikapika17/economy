@@ -1,33 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Sistema · Finances1st{% endblock %}
+{% block title %}{{ t("system") }} · Finances1st{% endblock %}
 
 {% block content %}
-<h1>Sistema</h1>
+<h1>{{ t("system") }}</h1>
 
 <div class="box">
-	<h2>Configuração</h2>
+	<h2>{{ t("configuration") }}</h2>
 	<form method="POST" action="/update_config">
-		<input name="saldo_inicial" type="number" step="0.01" value="{{ saldo_inicial }}" placeholder="Saldo inicial">
+		<input name="saldo_inicial" type="number" step="0.01" value="{{ saldo_inicial }}" placeholder="{{ t('initialbalance') }}">
 		<input name="mes_atual" type="month" value="{{ mes_atual }}" required>
-		<button type="submit">Guardar configuração</button>
+		<button type="submit">{{ t("saveconfiguration") }}</button>
 	</form>
 </div>
 
 <div class="grid-2">
 	<div>
 		<div class="box">
-			<h2>Adicionar rendimento</h2>
+			<h2>{{ t("addincome") }}</h2>
 			<form method="POST" action="/add_salario">
 				<input name="nome" placeholder="Nome">
-				<input name="valor" type="number" step="0.01" placeholder="Valor">
-				<button type="submit">Adicionar</button>
+				<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}">
+				<button type="submit">{{ t("add") }}</button>
 			</form>
 		</div>
 
 		<table>
 			<tr>
-				<th colspan="3">Rendimentos</th>
+				<th colspan="3">{{ t("incomes") }}</th>
 			</tr>
 			{% for nome, valor in salarios.items() %}
 			<tr>
@@ -37,8 +37,8 @@
 				</td>
 				<td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
 				<td class="acoes">
-						<button type="submit">Guardar</button>
-						<a class="btn-link btn-danger" href="/delete_salario/{{ nome }}">Remover</a>
+						<button type="submit">{{ t("save") }}</button>
+						<a class="btn-link btn-danger" href="/delete_salario/{{ nome }}">{{ t("remove") }}</a>
 					</form>
 				</td>
 			</tr>
@@ -48,17 +48,17 @@
 
 	<div>
 		<div class="box">
-			<h2>Adicionar contribuição</h2>
+			<h2>{{ t("addcontribution") }}</h2>
 			<form method="POST" action="/add_contribuicao">
 				<input name="nome" placeholder="Nome">
-				<input name="valor" type="number" step="0.01" placeholder="Valor">
-				<button type="submit">Adicionar</button>
+				<input name="valor" type="number" step="0.01" placeholder="{{ t('value') }}">
+				<button type="submit">{{ t("add") }}</button>
 			</form>
 		</div>
 
 		<table>
 			<tr>
-				<th colspan="3">Contribuições</th>
+				<th colspan="3">{{ t("contributions") }}</th>
 			</tr>
 			{% for nome, valor in contribuicoes.items() %}
 			<tr>
@@ -68,8 +68,8 @@
 				</td>
 				<td><input name="valor" type="number" step="0.01" value="{{ valor }}"></td>
 				<td class="acoes">
-						<button type="submit">Guardar</button>
-						<a class="btn-link btn-danger" href="/delete_contribuicao/{{ nome }}">Remover</a>
+						<button type="submit">{{ t("save") }}</button>
+						<a class="btn-link btn-danger" href="/delete_contribuicao/{{ nome }}">{{ t("remove") }}</a>
 					</form>
 				</td>
 			</tr>
@@ -79,23 +79,23 @@
 </div>
 
 <div class="box">
-	<h2>Adicionar categoria</h2>
+	<h2>{{ t("addcategory") }}</h2>
 	<form method="POST" action="/add_categoria">
-		<input name="nome" placeholder="Nova categoria">
-		<button type="submit">Adicionar</button>
+		<input name="nome" placeholder="{{ t("newcategory") }}">
+		<button type="submit">{{ t("add") }}</button>
 	</form>
 </div>
 
 <table>
 	<tr>
-		<th>Categoria</th>
-		<th>Ações</th>
+		<th>{{ t("category") }}</th>
+		<th>{{ t("actions") }}</th>
 	</tr>
 	{% for nome in categorias %}
 	<tr>
 		<td>{{ nome }}</td>
 		<td class="acoes">
-			<a class="btn-link btn-danger" href="/delete_categoria/{{ nome }}">Remover</a>
+			<a class="btn-link btn-danger" href="/delete_categoria/{{ nome }}">{{ t("remove") }}</a>
 		</td>
 	</tr>
 	{% endfor %}
