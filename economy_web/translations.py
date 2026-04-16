@@ -240,6 +240,10 @@ translations = {
 		"confirm_remove_income": "Remover este rendimento?",
 		"confirm_remove_contribution": "Remover esta contribuição?",
 		"confirm_remove_category": "Remover esta categoria?",
+        "converter": "Conversor",
+		"currency_converter": "Conversor de moedas",
+		"result": "Resultado",
+		"exchange_rate": "Taxa de câmbio",
 	},
 
 	"en": {
@@ -483,6 +487,10 @@ translations = {
 		"confirm_remove_income": "Remove this income?",
 		"confirm_remove_contribution": "Remove this contribution?",
 		"confirm_remove_category": "Remove this category?",
+        "converter": "Converter",
+		"currency_converter": "Currency converter",
+		"result": "Result",
+		"exchange_rate": "Exchange rate",
 	},
 
 	"de": {
@@ -726,6 +734,10 @@ translations = {
 		"confirm_remove_income": "Einnahme entfernen?",
 		"confirm_remove_contribution": "Diesen Beitrag entfernen?",
 		"confirm_remove_category": "Diese Kategorie entfernen?",
+        "converter": "Konvertieren",
+		"currency_converter": "Währungsrechner",
+		"result": "Ergebnis",
+		"exchange_rate": "Wechselkurs",
 	},
 
 	"es": {
@@ -969,6 +981,10 @@ translations = {
 		"confirm_remove_income": "¿Eliminar este ingreso?",
 		"confirm_remove_contribution": "¿Eliminar esta contribución?",
 		"confirm_remove_category": "¿Eliminar esta categoría?",
+        "converter": "Convertir",
+		"currency_converter": "Conversor de divisas",
+		"result": "Resultado",
+		"exchange_rate": "Tipo de cambio",
 	},
 
 	"fr": {
@@ -1212,6 +1228,10 @@ translations = {
 		"confirm_remove_income": "Supprimer ce revenu ?",
 		"confirm_remove_contribution": "Supprimer cette contribution ?",
 		"confirm_remove_category": "Supprimer cette catégorie ?",
+        "converter": "Convertir",
+		"currency_converter": "Convertisseur de devises",
+		"result": "Résultat",
+		"exchange_rate": "Taux de change",
 	},
 
 	"pl": {
@@ -1455,6 +1475,10 @@ translations = {
 		"confirm_remove_income": "Usunąć ten przychód?",
 		"confirm_remove_contribution": "Usunąć tę składkę?",
 		"confirm_remove_category": "Usunąć tę kategorię?",
+        "converter": "Konwertuj",
+		"currency_converter": "Przelicznik walut",
+		"result": "Wynik",
+		"exchange_rate": "Kurs wymiany",
 	},
 
 	"ru": {
@@ -1698,6 +1722,10 @@ translations = {
 		"confirm_remove_income": "Удалить этот доход?",
 		"confirm_remove_contribution": "Удалить этот взнос?",
 		"confirm_remove_category": "Удалить эту категорию?",
+        "converter": "Конвертировать",
+		"currency_converter": "Конвертер валют",
+		"result": "Результат",
+		"exchange_rate": "Обменный курс",
 	},
 
 	"it": {
@@ -1941,5 +1969,9 @@ translations = {
 		"confirm_remove_income": "Rimuovere questa entrata?",
 		"confirm_remove_contribution": "Rimuovere questo contributo?",
 		"confirm_remove_category": "Rimuovere questa categoria?",
+        "converter": "Converti",
+		"currency_converter": "Convertitore di valuta",
+		"result": "Risultato",
+		"exchange_rate": "Tasso di cambio",
 	},
 }

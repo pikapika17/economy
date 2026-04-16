@@ -15,7 +15,7 @@ from config import (
 	FLASK_DEBUG,
 )
 
-import io, json, pycountry, csv
+import io, json, pycountry, csv, time, requests
 
 from database import (
 	init_db,
@@ -76,6 +76,51 @@ from database import (
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+
+FX_CACHE = {
+    "rates": {},
+    "timestamp": 0
+}
+
+FX_CACHE_TTL = 3600  # 1 hora
+
+
+def get_exchange_rate(base_currency, target_currency):
+    base_currency = (base_currency or "").upper()
+    target_currency = (target_currency or "").upper()
+
+    if not base_currency or not target_currency:
+        raise ValueError("Moedas inválidas.")
+
+    if base_currency == target_currency:
+        return 1.0
+
+    cache_key = f"{base_currency}->{target_currency}"
+    now = time.time()
+
+    if cache_key in FX_CACHE["rates"] and (now - FX_CACHE["timestamp"] < FX_CACHE_TTL):
+        return FX_CACHE["rates"][cache_key]
+
+    url = "https://api.frankfurter.dev/v2/rates"
+    params = {
+        "base": base_currency,
+        "quotes": target_currency
+    }
+
+    response = requests.get(url, params=params, timeout=10)
+    response.raise_for_status()
+
+    data = response.json()
+
+    if "rates" not in data or target_currency not in data["rates"]:
+        raise ValueError("Não foi possível obter a taxa de câmbio.")
+
+    rate = float(data["rates"][target_currency])
+
+    FX_CACHE["rates"][cache_key] = rate
+    FX_CACHE["timestamp"] = now
+
+    return rate
 
 
 def t(key, **kwargs):
@@ -560,6 +605,53 @@ def gerar_insights_web(dados, mes):
         })
 
     return insights[:6]
+
+
+@app.route("/converter", methods=["GET", "POST"])
+@login_required
+def converter():
+    currencies = get_common_currencies()
+
+    result = None
+    amount = ""
+    from_currency = session.get("currency", "CHF")
+    to_currency = "EUR"
+
+    if request.method == "POST":
+        amount = request.form.get("amount", "").strip()
+        from_currency = request.form.get("from_currency", from_currency).strip().upper()
+        to_currency = request.form.get("to_currency", to_currency).strip().upper()
+
+        try:
+            amount_value = float(amount)
+
+            if amount_value < 0:
+                raise ValueError("Valor inválido.")
+
+            rate = get_exchange_rate(from_currency, to_currency)
+            converted = amount_value * rate
+
+            result = {
+                "amount": amount_value,
+                "from_currency": from_currency,
+                "to_currency": to_currency,
+                "rate": rate,
+                "converted": converted,
+            }
+
+        except Exception as e:
+            app.logger.exception("Erro no conversor de moedas")
+            flash(f"Erro ao converter moeda: {e}", "error")
+
+    return render_template(
+        "converter.html",
+        currencies=currencies,
+        result=result,
+        amount=amount,
+        from_currency=from_currency,
+        to_currency=to_currency,
+    )
+
 
 @app.before_request
 def ensure_language():

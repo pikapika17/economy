@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t("converter") }} · Finances1st{% endblock %}
+
+{% block content %}
+<h1>💱 {{ t("converter") }}</h1>
+
+<div class="box">
+    <h2>{{ t("currency_converter") }}</h2>
+
+    <form method="POST" action="/converter" class="auth-form">
+        <input
+            type="number"
+            step="0.01"
+            min="0"
+            name="amount"
+            value="{{ amount }}"
+            placeholder="{{ t('value') }}"
+            required
+        >
+
+        <select name="from_currency" required>
+            {% for currency in currencies %}
+                <option value="{{ currency }}" {% if from_currency == currency %}selected{% endif %}>
+                    {{ currency }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="to_currency" required>
+            {% for currency in currencies %}
+                <option value="{{ currency }}" {% if to_currency == currency %}selected{% endif %}>
+                    {{ currency }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">{{ t("calculate") }}</button>
+    </form>
+</div>
+
+{% if result %}
+<div class="box">
+    <h2>{{ t("result") }}</h2>
+
+    <p>
+        <strong>
+            {{ "%.2f"|format(result.amount) }} {{ result.from_currency }}
+            =
+            {{ "%.2f"|format(result.converted) }} {{ result.to_currency }}
+        </strong>
+    </p>
+
+    <p class="muted">
+        {{ t("exchange_rate") }}:
+        1 {{ result.from_currency }} = {{ "%.6f"|format(result.rate) }} {{ result.to_currency }}
+    </p>
+</div>
+{% endif %}
+
+{% endblock %}
