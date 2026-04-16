@@ -14,6 +14,9 @@ translations = {
         "import": "Importar dados",
         "logout": "Logout",
         "welcome": "Bem-vindo",
+        "finances": "Finanças",
+        "account": "Conta",
+        "admin": "Admin",
     },
     "en": {
         "dashboard": "Dashboard",
@@ -30,5 +33,8 @@ translations = {
         "import": "Import data",
         "logout": "Logout",
         "welcome": "Welcome",
+        "finances": "Finances",
+        "account": "Account",
+        "admin": "Admin",
     }
 }

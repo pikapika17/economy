@@ -712,7 +712,7 @@
 </head>
 <body>
 	<div class="mobile-topbar">
-		<div class="mobile-title">Finanças</div>
+		<div class="mobile-title">{{ t("finances") }}</div>
 		<button class="menu-btn" type="button" onclick="toggleSidebar()">☰ Menu</button>
 	</div>
 
@@ -726,9 +726,9 @@
 
 			<div class="sidebar-user">
 				{% if session_display_name %}
-					Bem-vindo, {{ session_display_name }}
+					{{ t("welcome") }}, {{ session_display_name }}
 				{% elif session_user %}
-					Bem-vindo, {{ session_user }}
+					{{ t("welcome") }}, {{ session_user }}
 				{% endif %}
 			</div>
 
@@ -736,7 +736,7 @@
 
 			<div class="sidebar-group">
 				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-financas')">
-					<span>💸 Finanças</span>
+					<span>💸 {{ t("finances") }}</span>
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-financas" class="sidebar-group-links">
@@ -749,7 +749,7 @@
 
 			<div class="sidebar-group">
 				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-planeamento')">
-					<span>📅 Planeamento</span>
+					<span>📅 {{ t("planning") }}</span>
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-planeamento" class="sidebar-group-links">
@@ -761,7 +761,7 @@
 
 			<div class="sidebar-group">
 				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-conta')">
-					<span>👤 Conta</span>
+					<span>👤 {{ t("account") }}</span>
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-conta" class="sidebar-group-links">
@@ -775,7 +775,7 @@
 			{% if session_is_admin %}
 			<div class="sidebar-group">
 				<button type="button" class="sidebar-group-toggle" onclick="toggleSidebarGroup(this, 'group-admin')">
-					<span>🛠️ Admin</span>
+					<span>🛠️ {{ t("admin") }}</span>
 					<span class="sidebar-caret">▼</span>
 				</button>
 				<div id="group-admin" class="sidebar-group-links">
