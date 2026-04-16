@@ -41,6 +41,26 @@
 	</div>
 </div>
 
+<div class="box">
+    <h2>{{ t("insights") }}</h2>
+
+    {% if insights %}
+    <div style="display:flex; flex-direction:column; gap:12px;">
+        {% for item in insights %}
+            <div class="insight insight-{{ item.tipo }}">
+                {% if item.vars %}
+                    {{ t(item.texto, **item.vars) }}
+                {% else %}
+                    {{ t(item.texto) }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="muted">{{ t("no_insights") }}</div>
+    {% endif %}
+</div>
+
 <div class="grid-2">
 	<div class="box">
 		<h2>{{ t("quicksummary") }}</h2>

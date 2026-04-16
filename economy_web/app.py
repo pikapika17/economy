@@ -4,15 +4,15 @@ from datetime import datetime
 from translations import translations
 
 from config import (
-    SECRET_KEY,
-    BOOTSTRAP_ADMIN,
-    APP_USER,
-    APP_PASSWORD,
-    ALLOWED_LANGUAGES,
-    COMMON_CURRENCIES,
-    FLASK_HOST,
-    FLASK_PORT,
-    FLASK_DEBUG,
+	SECRET_KEY,
+	BOOTSTRAP_ADMIN,
+	APP_USER,
+	APP_PASSWORD,
+	ALLOWED_LANGUAGES,
+	COMMON_CURRENCIES,
+	FLASK_HOST,
+	FLASK_PORT,
+	FLASK_DEBUG,
 )
 
 import io, json, pycountry, csv
@@ -67,9 +67,9 @@ from database import (
 	mark_password_reset_used,
 	update_user_password_by_id,
 	get_user_by_id,
-    update_user_profile,
-    email_belongs_to_other_user,
-    update_own_password,
+	update_user_profile,
+	email_belongs_to_other_user,
+	update_own_password,
 	get_connection,
 	update_user_language,
 )
@@ -109,13 +109,13 @@ def admin_required(f):
 
 @app.context_processor
 def inject_user_context():
-    return {
-        "session_user": session.get("user"),
-        "session_display_name": session.get("display_name"),
-        "session_is_admin": bool(session.get("is_admin", False)),
-        "session_language": session.get("language", "pt"),
-        "session_currency": session.get("currency", "CHF"),
-    }
+	return {
+		"session_user": session.get("user"),
+		"session_display_name": session.get("display_name"),
+		"session_is_admin": bool(session.get("is_admin", False)),
+		"session_language": session.get("language", "pt"),
+		"session_currency": session.get("currency", "CHF"),
+	}
 
 
 def calcular_info_divida_web(divida):
@@ -320,71 +320,170 @@ def simular_dividas_web(dados, extra=0):
 		"prioridade": prioridade
 	}
 
+
 def resposta_ok(texto, tipo="success"):
 	return {"texto": texto, "tipo": tipo}
 	
+
 def get_all_countries():
-    countries = sorted([country.name for country in pycountry.countries], key=lambda x: x.lower())
-    return countries
+	countries = sorted([country.name for country in pycountry.countries], key=lambda x: x.lower())
+	return countries
 
 
 def get_common_currencies():
-    return COMMON_CURRENCIES
+	return COMMON_CURRENCIES
+
+
+def gerar_insights_web(dados, mes):
+	entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
+	pendentes_total = total_pendentes_web(dados)
+	dividas = dados.get("dividas", {})
+	total_divida = sum(d["total"] for d in dividas.values())
+
+	insights = []
+
+	if entradas > 0:
+		ratio_despesas = despesas / entradas
+		ratio_pressao = (despesas + prestacoes) / entradas
+
+		if ratio_despesas >= 0.8:
+			insights.append({
+				"tipo": "error",
+				"texto": "insight_expenses_very_high"
+			})
+		elif ratio_despesas >= 0.6:
+			insights.append({
+				"tipo": "warning",
+				"texto": "insight_expenses_high"
+			})
+
+		if ratio_pressao >= 0.9:
+			insights.append({
+				"tipo": "error",
+				"texto": "insight_monthly_pressure_critical"
+			})
+		elif ratio_pressao >= 0.75:
+			insights.append({
+				"tipo": "warning",
+				"texto": "insight_monthly_pressure_high"
+			})
+
+	if sobra <= 0:
+		insights.append({
+			"tipo": "error",
+			"texto": "insight_no_surplus"
+		})
+	elif sobra < 300:
+		insights.append({
+			"tipo": "warning",
+			"texto": "insight_low_surplus"
+		})
+	else:
+		insights.append({
+			"tipo": "success",
+			"texto": "insight_good_surplus"
+		})
+
+	if pendentes_total > 0:
+		if entradas > 0 and pendentes_total > entradas:
+			insights.append({
+				"tipo": "warning",
+				"texto": "insight_pending_high"
+			})
+		else:
+			insights.append({
+				"tipo": "warning",
+				"texto": "insight_pending_exists"
+			})
+
+	if dividas:
+		pior_divida = max(dividas.items(), key=lambda x: x[1]["taxa"])
+		nome_pior = pior_divida[0]
+		taxa_pior = float(pior_divida[1]["taxa"])
+
+		if taxa_pior >= 10:
+			insights.append({
+				"tipo": "warning",
+				"texto": "insight_high_interest_debt",
+				"vars": {
+					"name": nome_pior,
+					"rate": f"{taxa_pior:.2f}"
+				}
+			})
+		else:
+			insights.append({
+				"tipo": "info",
+				"texto": "insight_priority_debt",
+				"vars": {
+					"name": nome_pior,
+					"rate": f"{taxa_pior:.2f}"
+				}
+			})
+
+	if total_divida <= 0 and pendentes_total <= 0 and sobra > 0:
+		insights.append({
+			"tipo": "success",
+			"texto": "insight_financial_balance"
+		})
+
+	return insights[:5]
 
 
 @app.before_request
 def ensure_language():
-    if "language" not in session:
-        session["language"] = "pt"
+	if "language" not in session:
+		session["language"] = "pt"
 
 
 @app.context_processor
 def inject_translations():
-    return dict(t=t)
+	return dict(t=t)
 
 
 @app.route("/set-language-public/<lang>", methods=["POST"])
 def set_language_public(lang):
-    allowed = ALLOWED_LANGUAGES
+	allowed = ALLOWED_LANGUAGES
 
-    if lang not in allowed:
-        return redirect(request.referrer or url_for("login"))
+	if lang not in allowed:
+		return redirect(request.referrer or url_for("login"))
 
-    session["language"] = lang
-    return redirect(request.referrer or url_for("login"))
+	session["language"] = lang
+	return redirect(request.referrer or url_for("login"))
 
 
 @app.route("/")
 @login_required
 def dashboard():
-    dados = export_to_dict(session["user_id"])
-    mes = dados["mes_atual"]
+	dados = export_to_dict(session["user_id"])
+	mes = dados["mes_atual"]
 
-    entradas = sum(dados["salarios"].values()) + sum(dados["contribuicoes"].values())
+	entradas = sum(dados["salarios"].values()) + sum(dados["contribuicoes"].values())
 
-    despesas = sum(
-        d["valor"] if isinstance(d, dict) else d
-        for d in dados["meses"].get(mes, {}).get("despesas", {}).values()
-    )
+	despesas = sum(
+		d["valor"] if isinstance(d, dict) else d
+		for d in dados["meses"].get(mes, {}).get("despesas", {}).values()
+	)
 
-    dividas = sum(d["prestacao"] for d in dados["dividas"].values())
-    pendentes = sum(p["valor_mensal"] for p in dados["pendentes"].values())
+	dividas = sum(d["prestacao"] for d in dados["dividas"].values())
+	pendentes = sum(p["valor_mensal"] for p in dados["pendentes"].values())
 
-    saldo_inicial = float(dados.get("saldo_inicial", 0))
-    sobra = entradas - despesas - dividas
-    saldo_real = saldo_inicial + sobra
+	saldo_inicial = float(dados.get("saldo_inicial", 0))
+	sobra = entradas - despesas - dividas
+	saldo_real = saldo_inicial + sobra
 
-    total_geral = despesas + dividas + pendentes
+	total_geral = despesas + dividas + pendentes
+	insights = gerar_insights_web(dados, mes)
 
-    return render_template(
-        "dashboard.html",
-        entradas=entradas,
-        despesas=despesas,
-        dividas=dividas,
-        pendentes=pendentes,
-        saldo=saldo_real,
-        total_geral=total_geral,
-    )
+	return render_template(
+		"dashboard.html",
+		entradas=entradas,
+		despesas=despesas,
+		dividas=dividas,
+		pendentes=pendentes,
+		saldo=saldo_real,
+		total_geral=total_geral,
+		insights=insights,
+	)
 
 
 # =========================
@@ -930,84 +1029,84 @@ def delete_categoria(nome):
 @app.route("/planeamento")
 @login_required
 def planeamento():
-    dados = export_to_dict(session["user_id"])
-    mes = dados.get("mes_atual", "")
+	dados = export_to_dict(session["user_id"])
+	mes = dados.get("mes_atual", "")
 
-    entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
-    saldo_inicial = float(dados.get("saldo_inicial", 0))
-    saldo_real = saldo_inicial + sobra
-    pendentes = total_pendentes_web(dados)
+	entradas, despesas, prestacoes, sobra = calcular_sobra_web(dados, mes)
+	saldo_inicial = float(dados.get("saldo_inicial", 0))
+	saldo_real = saldo_inicial + sobra
+	pendentes = total_pendentes_web(dados)
 
-    total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
-    score, detalhes = score_web(dados, mes)
+	total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
+	score, detalhes = score_web(dados, mes)
 
-    total_geral = despesas + prestacoes + pendentes
+	total_geral = despesas + prestacoes + pendentes
 
-    if total_divida <= 0:
-        meses_liberdade = 0
-    elif sobra <= 0:
-        meses_liberdade = "∞"
-    else:
-        meses_liberdade = int(total_divida / sobra)
+	if total_divida <= 0:
+		meses_liberdade = 0
+	elif sobra <= 0:
+		meses_liberdade = "∞"
+	else:
+		meses_liberdade = int(total_divida / sobra)
 
-    prioridade = "Sem dívidas"
-    if dados.get("dividas"):
-        pior = max(dados["dividas"].items(), key=lambda x: x[1]["taxa"])
-        prioridade = f"{pior[0]} ({pior[1]['taxa']:.2f}%)"
+	prioridade = "Sem dívidas"
+	if dados.get("dividas"):
+		pior = max(dados["dividas"].items(), key=lambda x: x[1]["taxa"])
+		prioridade = f"{pior[0]} ({pior[1]['taxa']:.2f}%)"
 
-    return render_template(
-        "planeamento.html",
-        mes=mes,
-        entradas=entradas,
-        despesas=despesas,
-        prestacoes=prestacoes,
-        sobra=sobra,
-        saldo_real=saldo_real,
-        pendentes=pendentes,
-        total_divida=total_divida,
-        total_geral=total_geral,
-        meses_liberdade=meses_liberdade,
-        prioridade=prioridade,
-        score=score,
-        detalhes=detalhes
-    )
+	return render_template(
+		"planeamento.html",
+		mes=mes,
+		entradas=entradas,
+		despesas=despesas,
+		prestacoes=prestacoes,
+		sobra=sobra,
+		saldo_real=saldo_real,
+		pendentes=pendentes,
+		total_divida=total_divida,
+		total_geral=total_geral,
+		meses_liberdade=meses_liberdade,
+		prioridade=prioridade,
+		score=score,
+		detalhes=detalhes
+	)
 
 @app.route("/simulacao")
 @login_required
 def simulacao():
-    dados = export_to_dict(session["user_id"])
+	dados = export_to_dict(session["user_id"])
 
-    extra_txt = request.args.get("extra", "0").strip()
-    try:
-        extra = float(extra_txt)
-    except ValueError:
-        extra = 0.0
+	extra_txt = request.args.get("extra", "0").strip()
+	try:
+		extra = float(extra_txt)
+	except ValueError:
+		extra = 0.0
 
-    resultado = simular_dividas_web(dados, extra)
+	resultado = simular_dividas_web(dados, extra)
 
-    cenarios = []
-    for valor in [0, 100, 250, 500]:
-        r = simular_dividas_web(dados, valor)
-        cenarios.append({
-            "extra": valor,
-            "meses": r["meses"],
-            "juros": r["juros"],
-            "problema": r["problema"]
-        })
+	cenarios = []
+	for valor in [0, 100, 250, 500]:
+		r = simular_dividas_web(dados, valor)
+		cenarios.append({
+			"extra": valor,
+			"meses": r["meses"],
+			"juros": r["juros"],
+			"problema": r["problema"]
+		})
 
-    total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
-    total_pendentes = total_pendentes_web(dados)
-    total_geral = total_divida + total_pendentes
+	total_divida = sum(d["total"] for d in dados.get("dividas", {}).values())
+	total_pendentes = total_pendentes_web(dados)
+	total_geral = total_divida + total_pendentes
 
-    return render_template(
-        "simulacao.html",
-        extra=extra,
-        resultado=resultado,
-        cenarios=cenarios,
-        total_divida=total_divida,
-        total_pendentes=total_pendentes,
-        total_geral=total_geral
-    )
+	return render_template(
+		"simulacao.html",
+		extra=extra,
+		resultado=resultado,
+		cenarios=cenarios,
+		total_divida=total_divida,
+		total_pendentes=total_pendentes,
+		total_geral=total_geral
+	)
 
 @app.route("/timeline")
 @login_required
@@ -1335,20 +1434,20 @@ def forgot_password():
 @app.route("/set-language/<lang>", methods=["POST"])
 @login_required
 def set_language(lang):
-    allowed = ALLOWED_LANGUAGES
+	allowed = ALLOWED_LANGUAGES
 
-    if lang not in allowed:
-        flash("Idioma inválido.", "error")
-        return redirect(request.referrer or url_for("dashboard"))
+	if lang not in allowed:
+		flash("Idioma inválido.", "error")
+		return redirect(request.referrer or url_for("dashboard"))
 
-    try:
-        session["language"] = lang
-        update_user_language(session["user_id"], lang)
-    except Exception as e:
-        app.logger.exception("Erro ao atualizar idioma")
-        flash(f"Erro ao atualizar idioma: {e}", "error")
+	try:
+		session["language"] = lang
+		update_user_language(session["user_id"], lang)
+	except Exception as e:
+		app.logger.exception("Erro ao atualizar idioma")
+		flash(f"Erro ao atualizar idioma: {e}", "error")
 
-    return redirect(request.referrer or url_for("dashboard"))
+	return redirect(request.referrer or url_for("dashboard"))
 
 
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
@@ -1391,101 +1490,101 @@ def reset_password(token):
 @app.route("/perfil")
 @login_required
 def perfil():
-    user = get_user_by_id(session["user_id"])
+	user = get_user_by_id(session["user_id"])
 
-    if not user:
-        flash("Utilizador não encontrado.", "error")
-        return redirect(url_for("dashboard"))
+	if not user:
+		flash("Utilizador não encontrado.", "error")
+		return redirect(url_for("dashboard"))
 
-    return render_template(
-        "perfil.html",
-        user=user,
-        countries=get_all_countries(),
-        currencies=get_common_currencies(),
-    )
+	return render_template(
+		"perfil.html",
+		user=user,
+		countries=get_all_countries(),
+		currencies=get_common_currencies(),
+	)
 
 
 
 @app.route("/perfil/update", methods=["POST"])
 @login_required
 def update_profile():
-    user_id = session["user_id"]
+	user_id = session["user_id"]
 
-    first_name = request.form.get("first_name", "").strip()
-    last_name = request.form.get("last_name", "").strip()
-    email = request.form.get("email", "").strip().lower()
-    birth_date = request.form.get("birth_date", "").strip()
-    country = request.form.get("country", "").strip()
-    language = request.form.get("language", "").strip()
-    currency = request.form.get("currency", "").strip()
+	first_name = request.form.get("first_name", "").strip()
+	last_name = request.form.get("last_name", "").strip()
+	email = request.form.get("email", "").strip().lower()
+	birth_date = request.form.get("birth_date", "").strip()
+	country = request.form.get("country", "").strip()
+	language = request.form.get("language", "").strip()
+	currency = request.form.get("currency", "").strip()
 
-    if not first_name or not last_name or not email or not country or not language or not currency:
-        flash("Preenche todos os campos obrigatórios.", "error")
-        return redirect(url_for("perfil"))
+	if not first_name or not last_name or not email or not country or not language or not currency:
+		flash("Preenche todos os campos obrigatórios.", "error")
+		return redirect(url_for("perfil"))
 
-    if email_belongs_to_other_user(email, user_id):
-        flash("Esse email já está a ser usado por outra conta.", "warning")
-        return redirect(url_for("perfil"))
+	if email_belongs_to_other_user(email, user_id):
+		flash("Esse email já está a ser usado por outra conta.", "warning")
+		return redirect(url_for("perfil"))
 
-    try:
-        update_user_profile(
-            user_id,
-            first_name,
-            last_name,
-            email,
-            birth_date,
-            country,
-            language,
-            currency
-        )
+	try:
+		update_user_profile(
+			user_id,
+			first_name,
+			last_name,
+			email,
+			birth_date,
+			country,
+			language,
+			currency
+		)
 
-        display_name = f"{first_name} {last_name}".strip()
-        session["display_name"] = display_name if display_name else session.get("user")
-        session["language"] = language
-        session["currency"] = currency
+		display_name = f"{first_name} {last_name}".strip()
+		session["display_name"] = display_name if display_name else session.get("user")
+		session["language"] = language
+		session["currency"] = currency
 
-        flash("Perfil atualizado com sucesso.", "success")
-    except Exception as e:
-        app.logger.exception("Erro ao atualizar perfil")
-        flash(f"Erro ao atualizar perfil: {e}", "error")
+		flash("Perfil atualizado com sucesso.", "success")
+	except Exception as e:
+		app.logger.exception("Erro ao atualizar perfil")
+		flash(f"Erro ao atualizar perfil: {e}", "error")
 
-    return redirect(url_for("perfil"))
+	return redirect(url_for("perfil"))
 
 
 @app.route("/perfil/password", methods=["POST"])
 @login_required
 def update_profile_password():
-    user_id = session["user_id"]
+	user_id = session["user_id"]
 
-    current_password = request.form.get("current_password", "").strip()
-    new_password = request.form.get("new_password", "").strip()
-    confirm_password = request.form.get("confirm_password", "").strip()
+	current_password = request.form.get("current_password", "").strip()
+	new_password = request.form.get("new_password", "").strip()
+	confirm_password = request.form.get("confirm_password", "").strip()
 
-    if not current_password or not new_password or not confirm_password:
-        flash("Preenche todos os campos da password.", "error")
-        return redirect(url_for("perfil"))
+	if not current_password or not new_password or not confirm_password:
+		flash("Preenche todos os campos da password.", "error")
+		return redirect(url_for("perfil"))
 
-    if new_password != confirm_password:
-        flash("As novas passwords não coincidem.", "error")
-        return redirect(url_for("perfil"))
+	if new_password != confirm_password:
+		flash("As novas passwords não coincidem.", "error")
+		return redirect(url_for("perfil"))
 
-    if len(new_password) < 6:
-        flash("A nova password deve ter pelo menos 6 caracteres.", "error")
-        return redirect(url_for("perfil"))
+	if len(new_password) < 6:
+		flash("A nova password deve ter pelo menos 6 caracteres.", "error")
+		return redirect(url_for("perfil"))
 
-    try:
-        ok, message = update_own_password(user_id, current_password, new_password)
+	try:
+		ok, message = update_own_password(user_id, current_password, new_password)
 
-        if ok:
-            flash(message, "success")
-        else:
-            flash(message, "error")
+		if ok:
+			flash(message, "success")
+		else:
+			flash(message, "error")
 
-    except Exception as e:
-        app.logger.exception("Erro ao atualizar password do perfil")
-        flash(f"Erro ao atualizar password: {e}", "error")
+	except Exception as e:
+		app.logger.exception("Erro ao atualizar password do perfil")
+		flash(f"Erro ao atualizar password: {e}", "error")
 
-    return redirect(url_for("perfil"))
+	return redirect(url_for("perfil"))
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -1720,299 +1819,299 @@ def admin_generate_multiple_invites():
 @app.route("/export")
 @login_required
 def export_page():
-    return render_template("export.html")
+	return render_template("export.html")
 
 
 @app.route("/export/json")
 @login_required
 def export_data_json():
-    try:
-        dados = export_to_dict(session["user_id"])
+	try:
+		dados = export_to_dict(session["user_id"])
 
-        buffer = io.BytesIO()
-        buffer.write(json.dumps(dados, ensure_ascii=False, indent=2).encode("utf-8"))
-        buffer.seek(0)
+		buffer = io.BytesIO()
+		buffer.write(json.dumps(dados, ensure_ascii=False, indent=2).encode("utf-8"))
+		buffer.seek(0)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"financas_{session.get('user', 'user')}_{timestamp}.json"
+		timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+		filename = f"financas_{session.get('user', 'user')}_{timestamp}.json"
 
-        return send_file(
-            buffer,
-            as_attachment=True,
-            download_name=filename,
-            mimetype="application/json"
-        )
-    except Exception as e:
-        app.logger.exception("Erro ao exportar JSON")
-        flash(f"Erro ao exportar JSON: {e}", "error")
-        return redirect(url_for("export_page"))
+		return send_file(
+			buffer,
+			as_attachment=True,
+			download_name=filename,
+			mimetype="application/json"
+		)
+	except Exception as e:
+		app.logger.exception("Erro ao exportar JSON")
+		flash(f"Erro ao exportar JSON: {e}", "error")
+		return redirect(url_for("export_page"))
 
 
 @app.route("/export/csv")
 @login_required
 def export_data_csv():
-    try:
-        dados = export_to_dict(session["user_id"])
+	try:
+		dados = export_to_dict(session["user_id"])
 
-        output = io.StringIO()
-        writer = csv.writer(output)
+		output = io.StringIO()
+		writer = csv.writer(output)
 
-        writer.writerow(["SECÇÃO", "CAMPO_1", "CAMPO_2", "CAMPO_3", "CAMPO_4", "VALOR"])
+		writer.writerow(["SECÇÃO", "CAMPO_1", "CAMPO_2", "CAMPO_3", "CAMPO_4", "VALOR"])
 
-        writer.writerow(["CONFIG", "mes_atual", "", "", "", dados.get("mes_atual", "")])
-        writer.writerow(["CONFIG", "saldo_inicial", "", "", "", dados.get("saldo_inicial", 0)])
+		writer.writerow(["CONFIG", "mes_atual", "", "", "", dados.get("mes_atual", "")])
+		writer.writerow(["CONFIG", "saldo_inicial", "", "", "", dados.get("saldo_inicial", 0)])
 
-        for nome, valor in dados.get("salarios", {}).items():
-            writer.writerow(["SALARIO", nome, "", "", "", valor])
+		for nome, valor in dados.get("salarios", {}).items():
+			writer.writerow(["SALARIO", nome, "", "", "", valor])
 
-        for nome, valor in dados.get("contribuicoes", {}).items():
-            writer.writerow(["CONTRIBUICAO", nome, "", "", "", valor])
+		for nome, valor in dados.get("contribuicoes", {}).items():
+			writer.writerow(["CONTRIBUICAO", nome, "", "", "", valor])
 
-        for nome in dados.get("categorias", []):
-            writer.writerow(["CATEGORIA", nome, "", "", "", ""])
+		for nome in dados.get("categorias", []):
+			writer.writerow(["CATEGORIA", nome, "", "", "", ""])
 
-        for nome, info in dados.get("dividas", {}).items():
-            writer.writerow([
-                "DIVIDA",
-                nome,
-                info.get("inicial", 0),
-                info.get("total", 0),
-                info.get("taxa", 0),
-                info.get("prestacao", 0)
-            ])
+		for nome, info in dados.get("dividas", {}).items():
+			writer.writerow([
+				"DIVIDA",
+				nome,
+				info.get("inicial", 0),
+				info.get("total", 0),
+				info.get("taxa", 0),
+				info.get("prestacao", 0)
+			])
 
-        for nome, info in dados.get("pendentes", {}).items():
-            writer.writerow([
-                "PENDENTE",
-                nome,
-                info.get("valor_mensal", 0),
-                info.get("desde", ""),
-                info.get("notas", ""),
-                ""
-            ])
+		for nome, info in dados.get("pendentes", {}).items():
+			writer.writerow([
+				"PENDENTE",
+				nome,
+				info.get("valor_mensal", 0),
+				info.get("desde", ""),
+				info.get("notas", ""),
+				""
+			])
 
-        for nome, info in dados.get("despesas_fixas", {}).items():
-            writer.writerow([
-                "DESPESA_FIXA",
-                nome,
-                info.get("categoria", ""),
-                "",
-                "",
-                info.get("valor", 0)
-            ])
+		for nome, info in dados.get("despesas_fixas", {}).items():
+			writer.writerow([
+				"DESPESA_FIXA",
+				nome,
+				info.get("categoria", ""),
+				"",
+				"",
+				info.get("valor", 0)
+			])
 
-        for meta in dados.get("metas", []):
-            writer.writerow([
-                "META",
-                meta.get("nome", ""),
-                meta.get("tipo", ""),
-                "",
-                "",
-                meta.get("alvo", 0)
-            ])
+		for meta in dados.get("metas", []):
+			writer.writerow([
+				"META",
+				meta.get("nome", ""),
+				meta.get("tipo", ""),
+				"",
+				"",
+				meta.get("alvo", 0)
+			])
 
-        for mes, info_mes in dados.get("meses", {}).items():
-            for nome, info in info_mes.get("despesas", {}).items():
-                writer.writerow([
-                    "DESPESA",
-                    mes,
-                    nome,
-                    info.get("categoria", ""),
-                    int(bool(info.get("pago", False))),
-                    info.get("valor", 0)
-                ])
+		for mes, info_mes in dados.get("meses", {}).items():
+			for nome, info in info_mes.get("despesas", {}).items():
+				writer.writerow([
+					"DESPESA",
+					mes,
+					nome,
+					info.get("categoria", ""),
+					int(bool(info.get("pago", False))),
+					info.get("valor", 0)
+				])
 
-        csv_bytes = io.BytesIO(output.getvalue().encode("utf-8-sig"))
-        csv_bytes.seek(0)
+		csv_bytes = io.BytesIO(output.getvalue().encode("utf-8-sig"))
+		csv_bytes.seek(0)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"financas_{session.get('user', 'user')}_{timestamp}.csv"
+		timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+		filename = f"financas_{session.get('user', 'user')}_{timestamp}.csv"
 
-        return send_file(
-            csv_bytes,
-            as_attachment=True,
-            download_name=filename,
-            mimetype="text/csv"
-        )
-    except Exception as e:
-        app.logger.exception("Erro ao exportar CSV")
-        flash(f"Erro ao exportar CSV: {e}", "error")
-        return redirect(url_for("export_page"))
+		return send_file(
+			csv_bytes,
+			as_attachment=True,
+			download_name=filename,
+			mimetype="text/csv"
+		)
+	except Exception as e:
+		app.logger.exception("Erro ao exportar CSV")
+		flash(f"Erro ao exportar CSV: {e}", "error")
+		return redirect(url_for("export_page"))
 	
 
 @app.route("/import/csv", methods=["POST"])
 @login_required
 def import_csv():
-    file = request.files.get("file")
-    data_type = request.form.get("type")
+	file = request.files.get("file")
+	data_type = request.form.get("type")
 
-    if not file:
-        flash("Ficheiro inválido.", "error")
-        return redirect(url_for("import_page"))
+	if not file:
+		flash("Ficheiro inválido.", "error")
+		return redirect(url_for("import_page"))
 
-    try:
-        import csv
-        import io
+	try:
+		import csv
+		import io
 
-        stream = io.StringIO(file.stream.read().decode("utf-8"))
-        reader = csv.DictReader(stream)
+		stream = io.StringIO(file.stream.read().decode("utf-8"))
+		reader = csv.DictReader(stream)
 
-        rows = list(reader)
+		rows = list(reader)
 
-        # TODO: tratar consoante data_type
-        print(f"Import {data_type}: {len(rows)} linhas")
+		# TODO: tratar consoante data_type
+		print(f"Import {data_type}: {len(rows)} linhas")
 
-        flash("CSV importado com sucesso.", "success")
+		flash("CSV importado com sucesso.", "success")
 
-    except Exception as e:
-        flash(f"Erro ao importar CSV: {e}", "error")
+	except Exception as e:
+		flash(f"Erro ao importar CSV: {e}", "error")
 
-    return redirect(url_for("import_page"))
+	return redirect(url_for("import_page"))
 
 
 @app.route("/import", methods=["GET", "POST"])
 @login_required
 def import_data():
-    if request.method == "POST":
-        file = request.files.get("file")
+	if request.method == "POST":
+		file = request.files.get("file")
 
-        if not file or file.filename == "":
-            flash("Seleciona um ficheiro para importar.", "error")
-            return redirect(url_for("import_data"))
+		if not file or file.filename == "":
+			flash("Seleciona um ficheiro para importar.", "error")
+			return redirect(url_for("import_data"))
 
-        if not file.filename.lower().endswith(".json"):
-            flash("Só é permitido importar ficheiros JSON.", "error")
-            return redirect(url_for("import_data"))
+		if not file.filename.lower().endswith(".json"):
+			flash("Só é permitido importar ficheiros JSON.", "error")
+			return redirect(url_for("import_data"))
 
-        try:
-            dados = json.load(file)
+		try:
+			dados = json.load(file)
 
-            user_id = session["user_id"]
+			user_id = session["user_id"]
 
-            # CONFIG
-            update_config_db(
-                user_id,
-                dados.get("mes_atual", datetime.now().strftime("%Y-%m")),
-                float(dados.get("saldo_inicial", 0.0))
-            )
+			# CONFIG
+			update_config_db(
+				user_id,
+				dados.get("mes_atual", datetime.now().strftime("%Y-%m")),
+				float(dados.get("saldo_inicial", 0.0))
+			)
 
-            conn = get_connection()
-            cur = conn.cursor()
+			conn = get_connection()
+			cur = conn.cursor()
 
-            try:
-                cur.execute("DELETE FROM salarios WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM contribuicoes WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM categorias WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM despesas WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM dividas WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM pendentes WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM despesas_fixas WHERE user_id = %s", (user_id,))
-                cur.execute("DELETE FROM metas WHERE user_id = %s", (user_id,))
+			try:
+				cur.execute("DELETE FROM salarios WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM contribuicoes WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM categorias WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM despesas WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM dividas WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM pendentes WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM despesas_fixas WHERE user_id = %s", (user_id,))
+				cur.execute("DELETE FROM metas WHERE user_id = %s", (user_id,))
 
-                for nome, valor in dados.get("salarios", {}).items():
-                    cur.execute("""
-                        INSERT INTO salarios (user_id, nome, valor)
-                        VALUES (%s, %s, %s)
-                    """, (user_id, nome, float(valor)))
+				for nome, valor in dados.get("salarios", {}).items():
+					cur.execute("""
+						INSERT INTO salarios (user_id, nome, valor)
+						VALUES (%s, %s, %s)
+					""", (user_id, nome, float(valor)))
 
-                for nome, valor in dados.get("contribuicoes", {}).items():
-                    cur.execute("""
-                        INSERT INTO contribuicoes (user_id, nome, valor)
-                        VALUES (%s, %s, %s)
-                    """, (user_id, nome, float(valor)))
+				for nome, valor in dados.get("contribuicoes", {}).items():
+					cur.execute("""
+						INSERT INTO contribuicoes (user_id, nome, valor)
+						VALUES (%s, %s, %s)
+					""", (user_id, nome, float(valor)))
 
-                for nome in dados.get("categorias", []):
-                    cur.execute("""
-                        INSERT INTO categorias (user_id, nome)
-                        VALUES (%s, %s)
-                    """, (user_id, nome))
+				for nome in dados.get("categorias", []):
+					cur.execute("""
+						INSERT INTO categorias (user_id, nome)
+						VALUES (%s, %s)
+					""", (user_id, nome))
 
-                for nome, info in dados.get("dividas", {}).items():
-                    cur.execute("""
-                        INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
-                        VALUES (%s, %s, %s, %s, %s, %s)
-                    """, (
-                        user_id,
-                        nome,
-                        float(info.get("inicial", info.get("total", 0))),
-                        float(info.get("total", 0)),
-                        float(info.get("taxa", 0)),
-                        float(info.get("prestacao", 0)),
-                    ))
+				for nome, info in dados.get("dividas", {}).items():
+					cur.execute("""
+						INSERT INTO dividas (user_id, nome, inicial, total, taxa, prestacao)
+						VALUES (%s, %s, %s, %s, %s, %s)
+					""", (
+						user_id,
+						nome,
+						float(info.get("inicial", info.get("total", 0))),
+						float(info.get("total", 0)),
+						float(info.get("taxa", 0)),
+						float(info.get("prestacao", 0)),
+					))
 
-                for nome, info in dados.get("pendentes", {}).items():
-                    cur.execute("""
-                        INSERT INTO pendentes (user_id, nome, valor_mensal, desde, notas)
-                        VALUES (%s, %s, %s, %s, %s)
-                    """, (
-                        user_id,
-                        nome,
-                        float(info.get("valor_mensal", 0)),
-                        info.get("desde", ""),
-                        info.get("notas", ""),
-                    ))
+				for nome, info in dados.get("pendentes", {}).items():
+					cur.execute("""
+						INSERT INTO pendentes (user_id, nome, valor_mensal, desde, notas)
+						VALUES (%s, %s, %s, %s, %s)
+					""", (
+						user_id,
+						nome,
+						float(info.get("valor_mensal", 0)),
+						info.get("desde", ""),
+						info.get("notas", ""),
+					))
 
-                for nome, info in dados.get("despesas_fixas", {}).items():
-                    cur.execute("""
-                        INSERT INTO despesas_fixas (user_id, nome, valor, categoria)
-                        VALUES (%s, %s, %s, %s)
-                    """, (
-                        user_id,
-                        nome,
-                        float(info.get("valor", 0)),
-                        info.get("categoria", "Sem categoria"),
-                    ))
+				for nome, info in dados.get("despesas_fixas", {}).items():
+					cur.execute("""
+						INSERT INTO despesas_fixas (user_id, nome, valor, categoria)
+						VALUES (%s, %s, %s, %s)
+					""", (
+						user_id,
+						nome,
+						float(info.get("valor", 0)),
+						info.get("categoria", "Sem categoria"),
+					))
 
-                for meta in dados.get("metas", []):
-                    cur.execute("""
-                        INSERT INTO metas (user_id, nome, tipo, alvo)
-                        VALUES (%s, %s, %s, %s)
-                    """, (
-                        user_id,
-                        meta.get("nome", ""),
-                        meta.get("tipo", ""),
-                        float(meta.get("alvo", 0)),
-                    ))
+				for meta in dados.get("metas", []):
+					cur.execute("""
+						INSERT INTO metas (user_id, nome, tipo, alvo)
+						VALUES (%s, %s, %s, %s)
+					""", (
+						user_id,
+						meta.get("nome", ""),
+						meta.get("tipo", ""),
+						float(meta.get("alvo", 0)),
+					))
 
-                for mes, info_mes in dados.get("meses", {}).items():
-                    for nome, info in info_mes.get("despesas", {}).items():
-                        cur.execute("""
-                            INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
-                            VALUES (%s, %s, %s, %s, %s, %s)
-                        """, (
-                            user_id,
-                            mes,
-                            nome,
-                            float(info.get("valor", 0)),
-                            info.get("categoria", "Sem categoria"),
-                            1 if info.get("pago", False) else 0,
-                        ))
+				for mes, info_mes in dados.get("meses", {}).items():
+					for nome, info in info_mes.get("despesas", {}).items():
+						cur.execute("""
+							INSERT INTO despesas (user_id, mes, nome, valor, categoria, pago)
+							VALUES (%s, %s, %s, %s, %s, %s)
+						""", (
+							user_id,
+							mes,
+							nome,
+							float(info.get("valor", 0)),
+							info.get("categoria", "Sem categoria"),
+							1 if info.get("pago", False) else 0,
+						))
 
-                conn.commit()
-            except Exception:
-                conn.rollback()
-                raise
-            finally:
-                conn.close()
+				conn.commit()
+			except Exception:
+				conn.rollback()
+				raise
+			finally:
+				conn.close()
 
-            flash("Dados importados com sucesso.", "success")
-            return redirect(url_for("dashboard"))
+			flash("Dados importados com sucesso.", "success")
+			return redirect(url_for("dashboard"))
 
-        except Exception as e:
-            app.logger.exception("Erro ao importar dados")
-            flash(f"Erro ao importar dados: {e}", "error")
-            return redirect(url_for("import_data"))
+		except Exception as e:
+			app.logger.exception("Erro ao importar dados")
+			flash(f"Erro ao importar dados: {e}", "error")
+			return redirect(url_for("import_data"))
 
-    return render_template("import.html")
+	return render_template("import.html")
 
 
 init_db()
 if BOOTSTRAP_ADMIN:
-    if not APP_USER or not APP_PASSWORD:
-        raise RuntimeError(
-            "BOOTSTRAP_ADMIN is enabled but APP_USER or APP_PASSWORD is missing."
-        )
-    ensure_default_admin(APP_USER, APP_PASSWORD)
+	if not APP_USER or not APP_PASSWORD:
+		raise RuntimeError(
+			"BOOTSTRAP_ADMIN is enabled but APP_USER or APP_PASSWORD is missing."
+		)
+	ensure_default_admin(APP_USER, APP_PASSWORD)
 
 
 if __name__ == "__main__":
