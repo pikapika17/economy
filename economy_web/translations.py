@@ -1,6 +1,6 @@
 translations = {
     "pt": {
-        "dashboard": "Dashboard",
+        "dashboard": "Painel",
         "expenses": "Despesas",
         "debts": "Dívidas",
         "pending": "Pendentes",
