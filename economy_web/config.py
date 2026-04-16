@@ -41,7 +41,7 @@ BOOTSTRAP_ADMIN = env_bool("BOOTSTRAP_ADMIN", default=False)
 APP_USER = os.environ.get("APP_USER")
 APP_PASSWORD = os.environ.get("APP_PASSWORD")
 
-ALLOWED_LANGUAGES = env_list("ALLOWED_LANGUAGES", ["pt", "en"])
+ALLOWED_LANGUAGES = env_list("ALLOWED_LANGUAGES", ["pt", "en", "de", "es", "it", "pl", "ru", "fr"])
 COMMON_CURRENCIES = env_list(
     "COMMON_CURRENCIES",
     ["CHF", "EUR", "USD", "GBP", "JPY", "CNY", "CAD", "AUD"],
