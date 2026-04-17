@@ -19,7 +19,9 @@
                 value="1000"
                 placeholder="{{ t('value') }}"
             >
+        </div>
 
+        <div class="converter-side">
             <label class="muted">{{ t("from_currency") }}</label>
             <select id="fx-from" class="searchable-select" required>
                 {% for currency in currencies %}
@@ -30,8 +32,6 @@
             </select>
         </div>
 
-        <div class="converter-arrow">→</div>
-
         <div class="converter-side">
             <label class="muted">{{ t("to_currency") }}</label>
             <select id="fx-to" class="searchable-select" required>
@@ -41,14 +41,18 @@
                     </option>
                 {% endfor %}
             </select>
+        </div>
 
-            <div class="converter-result-box">
-                <div id="fx-result" class="converter-result">
-                    1000.00 {{ session_currency }} = 0.00 EUR
-                </div>
-                <div id="fx-rate" class="muted"></div>
-                <div id="fx-error" class="red" style="display:none;"></div>
+        <div class="converter-swap-wrap">
+            <button type="button" id="fx-swap" class="converter-swap-btn">⇄</button>
+        </div>
+
+        <div class="converter-result-box converter-result-full">
+            <div id="fx-result" class="converter-result">
+                1000.00 {{ session_currency }} = 0.00 EUR
             </div>
+            <div id="fx-rate" class="muted"></div>
+            <div id="fx-error" class="red" style="display:none;"></div>
         </div>
     </div>
 </div>
@@ -91,10 +95,28 @@ function scheduleConverterUpdate() {
     fxTimer = setTimeout(updateConverter, 250);
 }
 
+function swapCurrencies() {
+    const fromEl = document.getElementById("fx-from");
+    const toEl = document.getElementById("fx-to");
+
+    const currentFrom = fromEl.value;
+    fromEl.value = toEl.value;
+    toEl.value = currentFrom;
+
+    if (fromEl.tomselect && toEl.tomselect) {
+        fromEl.tomselect.setValue(fromEl.value, true);
+        toEl.tomselect.setValue(toEl.value, true);
+    }
+
+    updateConverter();
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("fx-amount").addEventListener("input", scheduleConverterUpdate);
     document.getElementById("fx-from").addEventListener("change", updateConverter);
     document.getElementById("fx-to").addEventListener("change", updateConverter);
+    document.getElementById("fx-swap").addEventListener("click", swapCurrencies);
+
     updateConverter();
 });
 </script>
