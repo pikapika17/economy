@@ -1,6 +1,7 @@
 const CACHE_NAME = "finances1st-v1";
 const URLS_TO_CACHE = [
   "/",
+  "/login",
   "/static/manifest.json"
 ];
 

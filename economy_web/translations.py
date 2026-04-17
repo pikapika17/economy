@@ -246,6 +246,14 @@ translations = {
 		"to_currency": "Moeda de destino",
 		"result": "Resultado",
 		"exchange_rate": "Taxa de câmbio",
+        "login_welcome_title": "Controla o teu dinheiro com mais clareza.",
+		"login_welcome_text": "Uma forma simples, privada e moderna de acompanhar despesas, dívidas, metas e planeamento financeiro.",
+		"login_highlight_1_title": "Visão clara",
+		"login_highlight_1_text": "Acompanha despesas, pendentes, dívidas e saldo num só sítio.",
+		"login_highlight_2_title": "Privado e seguro",
+		"login_highlight_2_text": "Cada utilizador tem os seus próprios dados e definições.",
+		"login_highlight_3_title": "Preparado para mobile",
+		"login_highlight_3_text": "Funciona bem no telemóvel e pode ser instalado como app.",
 	},
 
 	"en": {
@@ -495,6 +503,14 @@ translations = {
 		"to_currency": "To currency",
 		"result": "Result",
 		"exchange_rate": "Exchange rate",
+        "login_welcome_title": "Control your money with more clarity.",
+		"login_welcome_text": "A simple, private and modern way to track expenses, debt, goals and financial planning.",
+		"login_highlight_1_title": "Clear overview",
+		"login_highlight_1_text": "Track expenses, pending items, debts and balance in one place.",
+		"login_highlight_2_title": "Private and secure",
+		"login_highlight_2_text": "Each user has their own data and settings.",
+		"login_highlight_3_title": "Ready for mobile",
+		"login_highlight_3_text": "Works well on mobile and can be installed as an app.",
 	},
 
 	"de": {
@@ -744,6 +760,14 @@ translations = {
 		"to_currency": "Zielwährung",
 		"result": "Ergebnis",
 		"exchange_rate": "Wechselkurs",
+		"login_welcome_title": "Kontrollieren Sie Ihr Geld mit mehr Klarheit.",
+		"login_welcome_text": "Eine einfache, private und moderne Art, Ausgaben, Schulden, Ziele und Finanzplanung zu verfolgen.",
+		"login_highlight_1_title": "Klarer Überblick",
+		"login_highlight_1_text": "Verfolgen Sie Ausgaben, ausstehende Posten, Schulden und Salden an einem Ort.",
+		"login_highlight_2_title": "Privat und sicher",
+		"login_highlight_2_text": "Jeder Benutzer hat seine eigenen Daten und Einstellungen.",
+		"login_highlight_3_title": "Optimiert für Mobilgeräte",
+		"login_highlight_3_text": "Funktioniert gut auf Mobilgeräten und kann als App installiert werden.",
 	},
 
 	"es": {
@@ -993,6 +1017,14 @@ translations = {
 		"to_currency": "A la moneda",
 		"result": "Resultado",
 		"exchange_rate": "Tipo de cambio",
+        "login_welcome_title": "Controla tu dinero con más claridad.",
+		"login_welcome_text": "Una forma sencilla, privada y moderna de realizar un seguimiento de los gastos, deudas, metas y planificación financiera.",
+		"login_highlight_1_title": "Visión general clara",
+		"login_highlight_1_text": "Sigue tus gastos, pagos pendientes, deudas y saldo en un solo lugar.",
+		"login_highlight_2_title": "Privado y seguro",
+		"login_highlight_2_text": "Cada usuario tiene sus propios datos y configuraciones.",
+		"login_highlight_3_title": "Listo para el móvil",
+		"login_highlight_3_text": "Funciona bien en el móvil y se puede instalar como una aplicación.",
 	},
 
 	"fr": {
@@ -1242,6 +1274,14 @@ translations = {
 		"to_currency": "Vers la devise",
 		"result": "Résultat",
 		"exchange_rate": "Taux de change",
+        "login_welcome_title": "Contrôlez votre argent avec plus de clarté.",
+		"login_welcome_text": "Un moyen simple, privé et moderne de suivre les dépenses, les dettes, les objectifs et la planification financière.",
+		"login_highlight_1_title": "Vue d'ensemble claire",
+		"login_highlight_1_text": "Suivez vos dépenses, vos paiements en attente, vos dettes et votre solde au même endroit.",
+		"login_highlight_2_title": "Privé et sécurisé",
+		"login_highlight_2_text": "Chaque utilisateur dispose de ses propres données et paramètres.",
+		"login_highlight_3_title": "Prêt pour le mobile",
+		"login_highlight_3_text": "Fonctionne bien sur mobile et peut être installé comme une application.",
 	},
 
 	"pl": {
@@ -1491,6 +1531,14 @@ translations = {
 		"to_currency": "Na walutę",
 		"result": "Wynik",
 		"exchange_rate": "Kurs wymiany",
+        "login_welcome_title": "Kontroluj swoje pieniądze z większą jasnością.",
+		"login_welcome_text": "Prosty, prywatny i nowoczesny sposób na śledzenie wydatków, długów, celów i planowania finansowego.",
+		"login_highlight_1_title": "Przejrzysty przegląd",
+		"login_highlight_1_text": "Śledź wydatki, zaległe płatności, długi i saldo w jednym miejscu.",
+		"login_highlight_2_title": "Prywatne i bezpieczne",
+		"login_highlight_2_text": "Każdy użytkownik posiada własne dane i ustawienia.",
+		"login_highlight_3_title": "Gotowy na urządzenia mobilne",
+		"login_highlight_3_text": "Działa dobrze na telefonach i może być zainstalowany jako aplikacja.",
 	},
 
 	"ru": {
@@ -1740,6 +1788,14 @@ translations = {
 		"to_currency": "В валюту",
 		"result": "Результат",
 		"exchange_rate": "Обменный курс",
+        "login_welcome_title": "Контролируйте свои деньги с большей ясностью.",
+		"login_welcome_text": "Простой, приватный и современный способ отслеживания расходов, долгов, целей и финансового планирования.",
+		"login_highlight_1_title": "Четкий обзор",
+		"login_highlight_1_text": "Отслеживайте расходы, задолженности, долги и баланс в одном месте.",
+		"login_highlight_2_title": "Конфиденциально и безопасно",
+		"login_highlight_2_text": "У каждого пользователя есть свои данные и настройки.",
+		"login_highlight_3_title": "Готов к работе на мобильных",
+		"login_highlight_3_text": "Хорошо работает на мобильных устройствах и может быть установлен как приложение.",
 	},
 
 	"it": {
@@ -1989,5 +2045,13 @@ translations = {
 		"to_currency": "Alla valuta",
 		"result": "Risultato",
 		"exchange_rate": "Tasso di cambio",
+        "login_welcome_title": "Controlla il tuo denaro con maggiore chiarezza.",
+		"login_welcome_text": "Un modo semplice, privato e moderno per monitorare spese, debiti, obiettivi e pianificazione finanziaria.",
+		"login_highlight_1_title": "Panoramica chiara",
+		"login_highlight_1_text": "Monitora spese, pendenze, debiti e saldo in un unico posto.",
+		"login_highlight_2_title": "Privato e sicuro",
+		"login_highlight_2_text": "Ogni utente ha i propri dati e impostazioni.",
+		"login_highlight_3_title": "Pronto per il mobile",
+		"login_highlight_3_text": "Funziona bene su mobile e può essere installato come app.",
 	},
 }

@@ -1,27 +1,62 @@
 {% extends "base.html" %}
 
-{% block title %}Login · Finances1st{% endblock %}
+{% block title %}{{ t("login") }} · Finances1st{% endblock %}
 
 {% block content %}
-<div class="auth-page">
-    <div class="auth-card">
-        <h1>{{ t("login") }}</h1>
-        <p class="muted">{{ t("email_user") }}</p>
+<div class="login-shell">
+    <div class="login-hero">
+        <div class="login-brand-badge">💸 Finances1st</div>
+        <h1>{{ t("login_welcome_title") }}</h1>
+        <p class="muted login-subtitle">{{ t("login_welcome_text") }}</p>
 
-        {% if erro %}
-            <div class="alert alert-error">{{ erro }}</div>
-        {% endif %}
+        <div class="login-highlights">
+            <div class="login-highlight">
+                <span>📊</span>
+                <div>
+                    <strong>{{ t("login_highlight_1_title") }}</strong>
+                    <p>{{ t("login_highlight_1_text") }}</p>
+                </div>
+            </div>
 
-        <form method="POST" action="/login" class="auth-form">
-            <input type="text" name="identifier" placeholder="{{ t('user_or_email') }}" required>
-            <input type="password" name="password" placeholder="{{ t('password') }}" required>
+            <div class="login-highlight">
+                <span>🔐</span>
+                <div>
+                    <strong>{{ t("login_highlight_2_title") }}</strong>
+                    <p>{{ t("login_highlight_2_text") }}</p>
+                </div>
+            </div>
 
-            <button type="submit">{{ t("enter") }}</button>
-        </form>
+            <div class="login-highlight">
+                <span>🌍</span>
+                <div>
+                    <strong>{{ t("login_highlight_3_title") }}</strong>
+                    <p>{{ t("login_highlight_3_text") }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <div class="auth-links">
-            <a href="/forgot-password">{{ t("fpass") }}</a>
-            <a href="/register">{{ t("newacc") }}</a>
+    <div class="login-panel">
+        <div class="auth-card auth-card-premium">
+            <div class="auth-card-top">
+                <h2>{{ t("login") }}</h2>
+                <p class="muted">{{ t("email_user") }}</p>
+            </div>
+
+            {% if erro %}
+                <div class="alert alert-error">{{ erro }}</div>
+            {% endif %}
+
+            <form method="POST" action="/login" class="auth-form">
+                <input type="text" name="identifier" placeholder="{{ t('user_or_email') }}" required>
+                <input type="password" name="password" placeholder="{{ t('password') }}" required>
+                <button type="submit" class="btn-primary">{{ t("enter") }}</button>
+            </form>
+
+            <div class="auth-links auth-links-login">
+                <a href="/forgot-password">{{ t("fpass") }}</a>
+                <a href="/register">{{ t("newacc") }}</a>
+            </div>
         </div>
     </div>
 </div>
