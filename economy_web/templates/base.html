@@ -1045,6 +1045,16 @@
 
 	<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+				<div class="flash flash-{{ category }}">
+					{{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+
 	{% if session.get("logged_in") %}
 	<div class="layout">
 		<div id="sidebar" class="sidebar">
@@ -1143,33 +1153,12 @@
 		</div>
 
 		<div class="content">
-			{% with messages = get_flashed_messages(with_categories=true) %}
-				{% if messages %}
-					{% for category, message in messages %}
-						<div class="flash flash-{{ category }}">
-							{{ message }}
-						</div>
-					{% endfor %}
-				{% endif %}
-			{% endwith %}
-
 			{% block content %}{% endblock %}
 		</div>
 	</div>
 
 	{% else %}
 	<div class="auth-layout">
-
-		{% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
-				{% for category, message in messages %}
-					<div class="flash flash-{{ category }}">
-						{{ message }}
-					</div>
-				{% endfor %}
-			{% endif %}
-		{% endwith %}
-
 		{% block content %}{% endblock %}
 	</div>
 	{% endif %}
