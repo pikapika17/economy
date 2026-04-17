@@ -1539,7 +1539,7 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 400
 
 		if password != confirm_password:
@@ -1547,7 +1547,7 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 400
 
 		if len(password) < 6:
@@ -1555,7 +1555,7 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 400
 
 		if get_user_by_username(username):
@@ -1563,7 +1563,7 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 400
 
 		if get_user_by_email(email):
@@ -1571,7 +1571,7 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 400
 
 		convite = invite_code_exists(invite_code)
@@ -1580,7 +1580,7 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 400
 
 		try:
@@ -1627,13 +1627,13 @@ def register():
 			return render_template(
 				"register.html",
 				countries=get_all_countries(),
-				currencies=get_common_currencies(),
+				currencies=get_all_currencies(),
 			), 500
 
 	return render_template(
 		"register.html",
 		countries=get_all_countries(),
-		currencies=get_common_currencies(),
+		currencies=get_all_currencies(),
 	)
 
 
@@ -1733,7 +1733,7 @@ def perfil():
 		"perfil.html",
 		user=user,
 		countries=get_all_countries(),
-		currencies=get_common_currencies(),
+		currencies=get_all_currencies(),
 	)
 
 

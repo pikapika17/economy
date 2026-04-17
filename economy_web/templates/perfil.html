@@ -33,11 +33,17 @@
 				{% endfor %}
 			</select>
 
-			<select name="currency" required>
+			<select name="currency" class="searchable-select" required>
 				{% for currency in currencies %}
-					<option value="{{ currency }}" {% if user.currency == currency %}selected{% endif %}>
-						{{ currency }}
-					</option>
+					{% if currency is string %}
+						<option value="{{ currency }}" {% if user.currency == currency %}selected{% endif %}>
+							{{ currency }}
+						</option>
+					{% else %}
+						<option value="{{ currency.code }}" {% if user.currency == currency.code %}selected{% endif %}>
+							{{ currency.code }} — {{ currency.name }}
+						</option>
+					{% endif %}
 				{% endfor %}
 			</select>
 
