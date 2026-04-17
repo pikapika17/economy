@@ -1123,12 +1123,15 @@
 
 			<a href="/logout" class="logout" onclick="closeSidebar()">🚪 {{ t("logout") }}</a>
 		</div>
-	</div>
 	{% endif %}
 
 	<div class="{{ 'content' if session.get('logged_in') else 'auth-layout' }}">
 		{% block content %}{% endblock %}
 	</div>
+
+	{% if session.get("logged_in") %}
+	</div>
+	{% endif %}
 
 	<script>
 		function toggleSidebar() {
