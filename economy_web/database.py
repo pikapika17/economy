@@ -753,25 +753,6 @@ def delete_meta_db(meta_id):
 	conn.close()
 	
 # ---------------- CONFIG (SQL DIRETO) ----------------
-
-def update_config_db(mes_atual, saldo_inicial):
-	conn = get_connection()
-	cur = conn.cursor()
-
-	cur.execute("""
-		INSERT INTO config (`key`, value)
-		VALUES ('mes_atual', %s)
-		ON DUPLICATE KEY UPDATE value = %s
-	""", (json.dumps(mes_atual), json.dumps(mes_atual)))
-
-	cur.execute("""
-		INSERT INTO config (`key`, value)
-		VALUES ('saldo_inicial', %s)
-		ON DUPLICATE KEY UPDATE value = %s
-	""", (json.dumps(float(saldo_inicial)), json.dumps(float(saldo_inicial))))
-
-	conn.commit()
-	conn.close()
 	
 def ensure_user_defaults(user_id):
 	conn = get_connection()
