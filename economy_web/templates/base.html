@@ -545,6 +545,11 @@
 			color: #22c55e; /* verde ação */
 		}
 
+		.auth-layout {
+			min-height: 100vh;
+			padding: 20px;
+		}
+
 		.alert {
 			margin-top: 12px;
 			padding: 10px 12px;
@@ -1038,6 +1043,7 @@
 
 	<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
+	{% if session.get("logged_in") %}
 	<div class="layout">
 		<div id="sidebar" class="sidebar">
 			<div class="sidebar-brand">
@@ -1148,6 +1154,7 @@
 			{% block content %}{% endblock %}
 		</div>
 	</div>
+	{% endif %}
 
 	<script>
 		function toggleSidebar() {
