@@ -1187,3 +1187,24 @@ def update_user_language(user_id, language):
 
     conn.commit()
     conn.close()
+
+
+def update_despesa_db(user_id, mes, nome_antigo, novo_nome, valor, categoria):
+	conn = get_connection()
+	cur = conn.cursor()
+
+	cur.execute("""
+		UPDATE despesas
+		SET nome = %s, valor = %s, categoria = %s
+		WHERE user_id = %s AND mes = %s AND nome = %s
+	""", (
+		novo_nome,
+		float(valor),
+		categoria,
+		int(user_id),
+		mes,
+		nome_antigo,
+	))
+
+	conn.commit()
+	conn.close()

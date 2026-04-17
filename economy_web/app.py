@@ -72,6 +72,7 @@ from database import (
 	update_own_password,
 	get_connection,
 	update_user_language,
+	update_despesa_db,
 )
 
 app = Flask(__name__)
@@ -1874,15 +1875,14 @@ def update_despesa(nome_antigo):
 	dados = export_to_dict(session["user_id"])
 	mes = dados.get("mes_atual", "")
 
-	if "meses" not in dados:
-		dados["meses"] = {}
+	if not mes:
+		flash("Mês atual inválido.", "error")
+		return redirect("/despesas")
 
-	if mes not in dados["meses"]:
-		dados["meses"][mes] = {"despesas": {}}
-
-	despesas = dados["meses"][mes]["despesas"]
+	despesas = dados.get("meses", {}).get(mes, {}).get("despesas", {})
 
 	if nome_antigo not in despesas:
+		flash("Despesa não encontrada.", "error")
 		return redirect("/despesas")
 
 	novo_nome = request.form.get("novo_nome", "").strip()
@@ -1890,26 +1890,19 @@ def update_despesa(nome_antigo):
 	categoria = request.form.get("categoria", "").strip()
 
 	if not novo_nome or not valor_txt or not categoria:
+		flash("Preenche todos os campos.", "error")
 		return redirect("/despesas")
 
 	try:
 		valor = float(valor_txt)
+		update_despesa_db(session["user_id"], mes, nome_antigo, novo_nome, valor, categoria)
+		flash("Despesa atualizada com sucesso.", "success")
 	except ValueError:
-		return redirect("/despesas")
+		flash("Valor inválido.", "error")
+	except Exception as e:
+		app.logger.exception("Erro ao atualizar despesa")
+		flash(f"Erro ao atualizar despesa: {e}", "error")
 
-	info_antiga = despesas[nome_antigo]
-	pago = info_antiga.get("pago", False) if isinstance(info_antiga, dict) else False
-
-	if novo_nome != nome_antigo:
-		del despesas[nome_antigo]
-
-	despesas[novo_nome] = {
-		"valor": valor,
-		"categoria": categoria,
-		"pago": pago
-	}
-
-	flash("Despesa atualizada com sucesso.", "success")
 	return redirect("/despesas")
 
 
