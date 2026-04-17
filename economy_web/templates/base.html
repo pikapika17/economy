@@ -3,9 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="theme-color" content="#2563eb">
-	<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 	<meta name="theme-color" content="#1d4ed8">
+	<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<meta name="apple-mobile-web-app-title" content="Finances1st">
@@ -92,7 +91,7 @@
 			transition: transform 0.2s ease;
 		}
 
-		.sidebar h2 {
+		.sidebar-brand {
 			margin: 0 0 22px 8px;
 			font-size: 24px;
 			font-weight: 700;
@@ -357,7 +356,7 @@
 		.flash {
 			padding: 12px 14px;
 			border-radius: 12px;
-			margin-bottom: 16px;
+			margin: 0 26px 16px;
 			font-weight: bold;
 		}
 
@@ -538,7 +537,7 @@
 		}
 
 		.auth-links a:first-child {
-			color: var(--text-muted);
+			color: var(--muted);
 		}
 
 		.auth-links a:last-child {
@@ -584,29 +583,6 @@
 
 		.ts-wrapper {
 			width: 100%;
-		}
-
-		.ts-wrapper.single .ts-control,
-		.ts-wrapper.multi .ts-control {
-			width: 100%;
-			background: #111827 !important;
-			border: 1px solid rgba(255,255,255,0.08) !important;
-			color: #fff !important;
-			border-radius: 12px;
-			min-height: 46px;
-			padding: 10px 12px;
-			box-shadow: none !important;
-			display: flex;
-			align-items: center;
-		}
-
-		.ts-wrapper.single .ts-control input,
-		.ts-wrapper.multi .ts-control input {
-			color: #fff;
-		}
-
-		.ts-wrapper {
-			width: 100%;
 			position: relative;
 		}
 
@@ -640,10 +616,6 @@
 		.ts-control,
 		.ts-dropdown {
 			font-size: 14px;
-		}
-
-		.ts-dropdown {
-			box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 		}
 
 		.ts-wrapper.single .ts-control input,
