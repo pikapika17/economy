@@ -1036,10 +1036,12 @@
 	</style>
 </head>
 <body>
+	{% if session.get("logged_in") %}
 	<div class="mobile-topbar">
 		<div class="mobile-title">{{ t("finances") }}</div>
 		<button class="menu-btn" type="button" onclick="toggleSidebar()">☰ Menu</button>
 	</div>
+	{% endif %}
 
 	<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
@@ -1153,6 +1155,22 @@
 
 			{% block content %}{% endblock %}
 		</div>
+	</div>
+
+	{% else %}
+	<div class="auth-layout">
+
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+					<div class="flash flash-{{ category }}">
+						{{ message }}
+					</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+
+		{% block content %}{% endblock %}
 	</div>
 	{% endif %}
 
