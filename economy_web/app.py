@@ -1100,7 +1100,7 @@ def update_config():
 		return redirect("/sistema")
 
 	try:
-		update_config_db(session["user_id"], mes_atual, saldo_inicial)
+		update_config_db(session["user_id"], saldo_inicial, mes_atual)
 	except Exception as e:
 		app.logger.exception("Erro ao atualizar config")
 		flash(f"Erro ao atualizar config: {e}", "error")
